@@ -1,4 +1,15 @@
-# AutoUpload
+<p align="center"><img src="assets/brand/autoupload-logo-rounded-512.png" width="112" alt="AutoUpload logo"></p>
+
+<h1 align="center">AutoUpload</h1>
+
+<p align="center">Sube y programa videos de YouTube desde tu propia computadora. Sin servidor, sin cuentas, con tu propia cuota.</p>
+
+<p align="center">
+<a href="https://github.com/DaoSource111/autoupload/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/DaoSource111/autoupload"></a>
+<img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-1f3bff">
+<img alt="YouTube Data API v3" src="https://img.shields.io/badge/YouTube%20Data%20API-v3-5dfbd3">
+<a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-lightgrey"></a>
+</p>
 
 [English](README.md) · **Español**
 

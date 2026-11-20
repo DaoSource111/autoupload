@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installation guide · AutoUpload</title>
+<meta name="description" content="How to download AutoUpload from GitHub, install it on Windows, create your Google OAuth client and connect your YouTube channel, step by step.">
+<meta name="theme-color" content="#06080c">
+<link rel="alternate" hreflang="en" href="install.html">
+<link rel="alternate" hreflang="es" href="es/install.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/barlow-condensed-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>try{var t=localStorage.getItem("au-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="style.css?v=b34e5ad5">
+<script src="site.js?v=60b519ef" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="masthead-in">
+<a class="seal" href="index.html"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="3" y="3" width="94" height="94" rx="24" fill="#1f3bff"/><rect x="3" y="3" width="94" height="94" rx="24" fill="none" stroke="#06080c" stroke-opacity=".25" stroke-width="2"/><path d="M27 76 L50 25 L73 76" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 59 H68" fill="none" stroke="#5dfbd3" stroke-width="9" stroke-linecap="round"/><circle cx="80" cy="59" r="4.5" fill="#5dfbd3"/></svg><span class="seal-text"><b>AutoUpload</b><span>by <em>Ellipsio Studio</em></span></span></a>
+<div class="bar">
+<nav class="tabs" aria-label="AutoUpload"><a href="index.html">Home</a><a href="install.html" aria-current="page">Install</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="support.html">Support</a></nav>
+<div class="tools"><a href="https://github.com/DaoSource111/autoupload" rel="noopener" aria-label="Source code on GitHub" title="Source code on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a><a href="es/install.html" hreflang="es" lang="es" data-lang="es" aria-label="Leer en español" title="Leer en español">ES</a><button class="theme" type="button" data-to-dark="Switch to night view" data-to-light="Switch to light view" aria-label="Switch to night view"><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg></button></div>
+</div>
+</div>
+</header>
+<div class="drawer has-rail">
+<nav class="rail" aria-label="Contents"><h2>Contents</h2><ol><li><a href="#requirements"><span>§1</span>Requirements</a></li><li><a href="#download"><span>§2</span>Download</a></li><li><a href="#install"><span>§3</span>Install</a></li><li><a href="#client"><span>§4</span>Create your Google OAuth client</a></li><li><a href="#channel"><span>§5</span>Create a folder for your channel</a></li><li><a href="#connect"><span>§6</span>Connect your channel</a></li><li><a href="#queue"><span>§7</span>Queue a video</a></li><li><a href="#upload"><span>§8</span>Preview, then upload</a></li><li><a href="#disconnect"><span>§9</span>Disconnect and remove</a></li></ol></nav>
+<main id="main" class="card">
+<div class="card-head">
+<p class="callno"><span class="stamp">AU · 02 · INSTALL</span><span>Last updated: November 20, 2026</span></p>
+<h1>Installation guide</h1>
+<p class="lede">AutoUpload runs on your own computer, so you install it once and connect your channel from there. This guide covers every step, from the download to your first scheduled upload. Allow about fifteen minutes.</p>
+</div>
+<div class="card-body">
+<nav class="toc" aria-label="Contents"><h2>Contents</h2><ol><li><a href="#requirements">Requirements</a></li><li><a href="#download">Download</a></li><li><a href="#install">Install</a></li><li><a href="#client">Create your Google OAuth client</a></li><li><a href="#channel">Create a folder for your channel</a></li><li><a href="#connect">Connect your channel</a></li><li><a href="#queue">Queue a video</a></li><li><a href="#upload">Preview, then upload</a></li><li><a href="#disconnect">Disconnect and remove</a></li></ol></nav>
+<div class="next" style="margin-top:22px">
+<a class="btn mint" href="https://github.com/DaoSource111/autoupload/archive/refs/heads/main.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M4 20h16"/></svg>Download AutoUpload (ZIP)</a>
+<a class="btn" href="https://github.com/DaoSource111/autoupload" rel="noopener">Repository on GitHub</a>
+</div>
+
+<h2 id="requirements"><span class="no">§1</span>Requirements</h2>
+<ul>
+<li>Windows 10 or Windows 11.</li>
+<li>Python 3.10 or later, from <a href="https://www.python.org/downloads/">python.org</a>. During installation, tick <em>Add python.exe to PATH</em>.</li>
+<li>A Google account that owns or manages the YouTube channel you want to upload to.</li>
+<li>Access to <a href="https://console.cloud.google.com/">Google Cloud Console</a> with that account (free; no billing is needed for the YouTube Data API).</li>
+</ul>
+
+<h2 id="download"><span class="no">§2</span>Download</h2>
+<p>Download the ZIP above and extract it to a folder of your choice, for example <code>C:\AutoUpload</code>. If you use Git, you can clone the repository instead:</p>
+<pre><code>git clone https://github.com/DaoSource111/autoupload.git C:\AutoUpload</code></pre>
+<p>The repository contains the source code only. It never contains credentials, tokens or anyone's channel data.</p>
+
+<h2 id="install"><span class="no">§3</span>Install</h2>
+<p>Open PowerShell in that folder (in File Explorer, <em>File → Open Windows PowerShell</em>, or right-click → <em>Open in Terminal</em>) and run:</p>
+<pre><code><span class="c"># create a private Python environment for AutoUpload</span>
+py -m venv .venv
+<span class="c"># install AutoUpload and its dependencies into it</span>
+.\.venv\Scripts\pip install .
+<span class="c"># check that the command works</span>
+.\.venv\Scripts\subidor.exe --help</code></pre>
+<p>The command-line tool is called <code>subidor</code>. Its commands are in English; the original Spanish command names still work as aliases.</p>
+
+<h2 id="client"><span class="no">§4</span>Create your Google OAuth client</h2>
+<p>AutoUpload connects to YouTube through an OAuth client of type <em>Desktop app</em>. <mark class="hl">The client file, <code>client_secret.json</code>, is never published or shared.</mark> Each installation uses its own, created in a few minutes:</p>
+<ol class="steps">
+<li>In <a href="https://console.cloud.google.com/">Google Cloud Console</a>, create a project (for example, <em>AutoUpload</em>).</li>
+<li>In <em>APIs &amp; Services → Library</em>, search for <strong>YouTube Data API v3</strong> and select <em>Enable</em>.</li>
+<li>In <em>Google Auth Platform → Branding</em>, fill in the app name and your support email. In <em>Audience</em>, choose <strong>External</strong> and add your own Google account as a test user.</li>
+<li>In <em>Google Auth Platform → Data Access</em>, add only these three scopes: <code>youtube.upload</code>, <code>youtube.force-ssl</code> and <code>youtube.readonly</code>.</li>
+<li>In <em>Clients → Create client</em>, choose <strong>Desktop app</strong>, create it and download the JSON file.</li>
+<li>Save that file in the AutoUpload folder as <code>config\client_secret.json</code>. Do not share it or upload it to any repository.</li>
+</ol>
+<div class="note"><p>While the app is in <em>Testing</em> status, Google expires its tokens after seven days and you must sign in again. To avoid this, select <em>Publish app</em> in <em>Audience</em>. For your own use, Google's verification is not required: you will see an “unverified app” notice when you sign in, where you choose <em>Advanced → Go to the app</em>.</p></div>
+
+<h2 id="channel"><span class="no">§5</span>Create a folder for your channel</h2>
+<pre><code>.\.venv\Scripts\subidor.exe channel new mychannel</code></pre>
+<p>This creates <code>canales\mychannel\</code> with three items:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Item</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>canal.yaml</code></td><td>Your publishing hours, time zone, language, category and default tags.</td></tr>
+<tr><td><code>queue\</code></td><td>The queue: put the videos to upload here.</td></tr>
+<tr><td><code>uploaded\</code></td><td>Uploaded videos are moved here, each with a report.</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="connect"><span class="no">§6</span>Connect your channel</h2>
+<pre><code>.\.venv\Scripts\subidor.exe auth mychannel login</code></pre>
+<ol class="steps">
+<li>Your browser opens on Google's sign-in page. Choose your account and, if it manages several channels, the right channel.</li>
+<li>Google lists the three permissions AutoUpload requests. They are explained one by one on the <a href="index.html#permissions">home page</a>. Select <em>Allow</em>.</li>
+<li>AutoUpload stores the access token in <code>%APPDATA%\subidor-youtube</code> and records your channel ID. From then on, it refuses to upload if the token belongs to a different channel.</li>
+</ol>
+<p>To check which channel is connected:</p>
+<pre><code>.\.venv\Scripts\subidor.exe auth mychannel whoami</code></pre>
+
+<h2 id="queue"><span class="no">§7</span>Queue a video</h2>
+<p>Each video in <code>queue\</code> needs a details file with the same name. A thumbnail with the same name is optional.</p>
+<pre><code>canales\mychannel\queue\
+  episode-004.mp4     <span class="c"># the video</span>
+  episode-004.yaml    <span class="c"># its details (required)</span>
+  episode-004.jpg     <span class="c"># thumbnail (optional, .jpg or .png)</span></code></pre>
+<p>A minimal details file contains only the title. Every other field is optional:</p>
+<pre><code>title: The single point of failure
+description: |
+  What happens when one company holds the whole chain?
+tags: [ai, hardware, markets]
+publish_at: 2026-11-21T08:00:00-05:00   <span class="c"># fixed date; otherwise the next free slot</span>
+playlist_id: PLxxxxxxxxxxxx
+captions:
+  - {language: en, name: English, path: episode-004.en.srt}</code></pre>
+
+<h2 id="upload"><span class="no">§8</span>Preview, then upload</h2>
+<pre><code><span class="c"># show the date each queued video will receive; uploads nothing</span>
+.\.venv\Scripts\subidor.exe schedule mychannel
+<span class="c"># upload for real</span>
+.\.venv\Scripts\subidor.exe schedule mychannel --yes</code></pre>
+<p>Videos are uploaded as private and become public at their scheduled time. Check them in YouTube Studio after the first run.</p>
+
+<h2 id="disconnect"><span class="no">§9</span>Disconnect and remove</h2>
+<pre><code>.\.venv\Scripts\subidor.exe auth mychannel logout</code></pre>
+<p>This revokes the token with Google and deletes it. You can also remove access at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. To uninstall, delete the AutoUpload folder and <code>%APPDATA%\subidor-youtube</code>.</p>
+<p>If something does not work, see <a href="support.html">Support</a>.</p>
+</div>
+</main>
+</div>
+<footer class="foot">
+<div class="foot-in">
+<nav aria-label="Footer"><a href="index.html">Home</a><a href="install.html">Install</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="support.html">Support</a><a href="https://github.com/DaoSource111/autoupload" rel="noopener">GitHub</a><a href="mailto:ellipsio.studio@gmail.com">ellipsio.studio@gmail.com</a></nav>
+<p>AutoUpload is a free tool by Ellipsio Studio, Peru. It is not affiliated with, endorsed or sponsored by Google LLC or YouTube. This site sets no cookies and loads nothing from third parties.<br>© 2026 Ellipsio Studio · MIT License.</p>
+</div>
+</footer>
+</body>
+</html>

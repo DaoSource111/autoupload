@@ -1,0 +1,32 @@
+<div class="perms">
+<details class="perm">
+<summary><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m-5 5 5-5 5 5M4 20h16"/></svg></span><span><span class="says">“Manage your YouTube videos”</span><span class="scope">https://www.googleapis.com/auth/youtube.upload</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<div class="perm-body"><dl>
+<dt>What AutoUpload does with it</dt>
+<dd>Uploads the video files you queued, as private videos with a scheduled publish time, and sets their thumbnails.</dd>
+<dt>What it never does with it</dt>
+<dd>It never uploads a file you did not queue, and it never uploads to a channel other than the one you connected.</dd>
+</dl></div>
+</details>
+<details class="perm">
+<summary><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg></span><span><span class="says">“See, edit, and permanently delete your YouTube videos, ratings, comments and captions”</span><span class="scope">https://www.googleapis.com/auth/youtube.force-ssl</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<div class="perm-body"><dl>
+<dt>What AutoUpload does with it</dt>
+<dd>Adds the caption files you supplied, adds the new video to the playlist you named, and updates the videos it uploaded itself (for example, their scheduled publish time).</dd>
+<dt>What it never does with it</dt>
+<dd><ul><li>It never deletes a video.</li><li>It never rates videos, and never reads, posts or deletes comments.</li><li>It never edits videos it did not upload.</li></ul></dd>
+<dt>Why Google's wording is broader</dt>
+<dd>Google groups captions, playlists and video updates under this single permission; there is no narrower one. The sentence describes everything the permission would allow, not what AutoUpload does.</dd>
+</dl></div>
+</details>
+<details class="perm">
+<summary><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span><span><span class="says">“View your YouTube account”</span><span class="scope">https://www.googleapis.com/auth/youtube.readonly</span></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+<div class="perm-body"><dl>
+<dt>What AutoUpload does with it</dt>
+<dd>Reads your channel's ID, to confirm it is uploading to the channel you connected, and the dates of your scheduled and published videos, to pick the next free time slot.</dd>
+<dt>What it never does with it</dt>
+<dd>It never reads your watch history, subscriptions, messages or analytics, and it stores nothing it reads except the channel ID.</dd>
+</dl></div>
+</details>
+</div>
+<p>Those three are the only permissions AutoUpload requests. It never asks for your email address, your name or profile, Gmail, Drive, contacts or any Google Cloud service, and it never sees your Google password.</p>

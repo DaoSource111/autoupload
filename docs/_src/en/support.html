@@ -1,0 +1,30 @@
+<!--
+title: Support
+callno: AU · 05 · SUPPORT
+desc: Get help with AutoUpload: contact Ellipsio Studio, what to include in a support message, how to revoke access and answers to common questions.
+lede: Write to <a href="mailto:ellipsio.studio@gmail.com">ellipsio.studio@gmail.com</a>. A person at Ellipsio Studio reads every message, usually within a few business days.
+rail: no
+-->
+<p>Setting up for the first time? Follow the <a href="install.html">installation guide</a>.</p>
+<h2 id="write">What to include</h2>
+<ul>
+<li>What you tried to do and what happened instead.</li>
+<li>The exact error message, copied as text.</li>
+<li>Your Windows and Python versions.</li>
+</ul>
+<div class="note"><p><strong>Never send</strong> your token files, your <code>client_secret.json</code> or your Google password. Nobody at Ellipsio Studio will ever ask for them.</p></div>
+
+<h2 id="privacy">Privacy requests</h2>
+<p>For access, rectification, cancellation or opposition requests (ARCO rights under Peru's Law No. 29733) or any other privacy question, write to the same address with the subject “Privacy request”. The <a href="privacy.html#rights">Privacy Policy</a> explains your rights.</p>
+
+<h2 id="faq">Common questions</h2>
+<h3>How do I disconnect AutoUpload from my channel?</h3>
+<p>Remove it at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, or run <code>subidor auth &lt;channel&gt; logout</code>. Then delete <code>%APPDATA%\subidor-youtube</code> if you want no local trace left.</p>
+<h3>Does AutoUpload see my Google password?</h3>
+<p>No. You sign in on Google's own page. AutoUpload only receives the access token Google issues for the permissions you allowed.</p>
+<h3>Does Ellipsio Studio see my videos or my channel?</h3>
+<p>No. There is no AutoUpload server. Your files go from your computer straight to YouTube.</p>
+<h3>Why did an upload not go out?</h3>
+<p>The most common causes are the YouTube API's daily quota, an expired or revoked token, or a file YouTube rejected. Check the message AutoUpload printed and your channel in YouTube Studio, then write to us with the details above.</p>
+<h3>Does it cost anything?</h3>
+<p>No. AutoUpload is free and sells nothing.</p>

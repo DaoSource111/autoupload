@@ -1,0 +1,54 @@
+<!--
+title: Home
+h1: AutoUpload uploads and schedules your videos on YouTube, from your own computer.
+callno: AU · 01 · HOME
+desc: AutoUpload is a free desktop tool by Ellipsio Studio that uploads and schedules videos on the YouTube channels you connect. No server, no database: your data goes only to Google.
+lede: A free desktop tool by Ellipsio Studio. It sends your videos straight to the YouTube channel you connect, as private uploads with a publish date, and communicates with no one but Google.
+rail: no
+-->
+<div class="shot" role="img" aria-label="Illustration: a video file is uploaded from your computer and lands in your channel as a private video scheduled for its publish date.">
+<button class="replay" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>Replay</button>
+<div class="lane"></div>
+<div class="file"><b>episode-004.mp4</b><small>Your computer · queued folder</small><div class="meter"><i></i></div></div>
+<div class="slot"><b>Sat 21 Nov 2026 · 08:00</b><small>Your YouTube channel · next free slot</small>
+<span class="state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Private · scheduled</span></div>
+<div class="ring"></div>
+<div class="only"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3z"/></svg>Sent only to Google’s YouTube Data API</div>
+</div>
+<p class="shot-cap">Illustration of one upload. File name and date are examples.</p>
+
+<div class="next">
+<a class="btn mint" href="install.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M4 20h16"/></svg>Download and install</a>
+<a class="btn" href="{REPO}" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>View the source on GitHub</a>
+</div>
+
+<h2 id="what">What AutoUpload does</h2>
+<ul>
+<li>Uploads video files from a folder on your computer to a YouTube channel you have connected, as <strong>private</strong> videos with a scheduled publish time.</li>
+<li>Sets the title, description, tags, thumbnail, captions and playlist you prepared for each video.</li>
+<li>Reads that channel's list of scheduled and published videos to choose the next free time slot and to confirm it is uploading to the right channel.</li>
+<li>Keeps a small log on your computer so the same file is never uploaded twice.</li>
+</ul>
+<p>It does nothing else. <mark class="hl">It does not delete videos, read comments, post to other services or access any other part of your Google account.</mark></p>
+
+<h2 id="permissions">What you authorize when you click “Allow”</h2>
+<p>The first time you connect a channel, Google shows its own consent screen listing the permissions below, in Google's words. Nothing happens until you choose <em>Allow</em>. Select a permission to see exactly how AutoUpload uses it.</p>
+{PERMS}
+
+<h2 id="data">Where your data goes</h2>
+<div class="flow" role="img" aria-label="Your computer exchanges data only with Google's YouTube Data API in the United States.">
+<div><b>Your computer</b><small>Video files, the details you wrote, your access token and the upload log.</small></div>
+<svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 8h38m-6-6 6 6-6 6M42 16H4m6-6-6 6 6 6"/></svg>
+<div><b>Google · YouTube Data API v3</b><small>Google LLC, United States. Receives the uploads you request.</small></div>
+</div>
+<p><mark class="hl">There is no AutoUpload server and no external database.</mark> Ellipsio Studio never receives your videos, your account details or your access token. The full detail is in the <a href="privacy.html">Privacy Policy</a>.</p>
+
+<h2 id="who">Who makes it</h2>
+<p>AutoUpload is developed by Ellipsio Studio, an independent studio in Peru. It is free of charge, sells nothing and its source code is public under the MIT License. It is not affiliated with, endorsed or sponsored by Google or YouTube.</p>
+
+<div class="next">
+<a class="btn" href="install.html">Installation guide</a>
+<a class="btn ghost" href="privacy.html">Privacy Policy</a>
+<a class="btn ghost" href="terms.html">Terms of Service</a>
+<a class="btn ghost" href="support.html">Support</a>
+</div>

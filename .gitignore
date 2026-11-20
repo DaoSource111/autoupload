@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+logs/
+config/client_secret*.json
+canales/*/estado.sqlite
+canales/*/cola/
+canales/*/subidos/
+
+# credentials and tokens never go to a repository
+*token*.json
+.impeccable/review/
+
+# local channel data (videos, logs, channel IDs)
+canales/
+.impeccable/

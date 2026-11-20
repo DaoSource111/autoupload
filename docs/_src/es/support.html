@@ -1,0 +1,30 @@
+<!--
+title: Soporte
+callno: AU · 05 · SOPORTE
+desc: Ayuda con AutoUpload: contacto de Ellipsio Studio, qué incluir en un mensaje de soporte, cómo revocar el acceso y respuestas a preguntas frecuentes.
+lede: Escribe a <a href="mailto:ellipsio.studio@gmail.com">ellipsio.studio@gmail.com</a>. Una persona de Ellipsio Studio lee cada mensaje, normalmente en unos pocos días hábiles.
+rail: no
+-->
+<p>¿Lo instalas por primera vez? Sigue la <a href="install.html">guía de instalación</a>.</p>
+<h2 id="write">Qué incluir</h2>
+<ul>
+<li>Qué intentabas hacer y qué pasó en su lugar.</li>
+<li>El mensaje de error exacto, copiado como texto.</li>
+<li>Tus versiones de Windows y de Python.</li>
+</ul>
+<div class="note"><p><strong>Nunca envíes</strong> tus archivos de token, tu <code>client_secret.json</code> ni tu contraseña de Google. Nadie de Ellipsio Studio te los pedirá.</p></div>
+
+<h2 id="privacy">Solicitudes de privacidad</h2>
+<p>Para solicitudes de acceso, rectificación, cancelación u oposición (derechos ARCO según la Ley N.º 29733 del Perú) o cualquier otra consulta de privacidad, escribe a la misma dirección con el asunto «Solicitud de privacidad». La <a href="privacy.html#rights">Política de privacidad</a> explica tus derechos.</p>
+
+<h2 id="faq">Preguntas frecuentes</h2>
+<h3>¿Cómo desconecto AutoUpload de mi canal?</h3>
+<p>Quítalo en <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, o ejecuta <code>subidor auth &lt;canal&gt; logout</code>. Después borra <code>%APPDATA%\subidor-youtube</code> si no quieres dejar rastro local.</p>
+<h3>¿AutoUpload ve mi contraseña de Google?</h3>
+<p>No. Inicias sesión en la propia página de Google. AutoUpload solo recibe el token de acceso que Google emite para los permisos que permitiste.</p>
+<h3>¿Ellipsio Studio ve mis videos o mi canal?</h3>
+<p>No. No hay servidor de AutoUpload. Tus archivos van de tu computadora directamente a YouTube.</p>
+<h3>¿Por qué no salió una subida?</h3>
+<p>Las causas más comunes son la cuota diaria de la YouTube Data API, un token caducado o revocado, o un archivo que YouTube rechazó. Revisa el mensaje que mostró AutoUpload y tu canal en YouTube Studio, y luego escríbenos con los datos de arriba.</p>
+<h3>¿Cuesta algo?</h3>
+<p>No. AutoUpload es gratuito y no vende nada.</p>

@@ -1,0 +1,96 @@
+<!--
+title: Guía de instalación
+callno: AU · 02 · INSTALACIÓN
+desc: Cómo descargar AutoUpload desde GitHub, instalarlo en Windows, crear tu cliente OAuth de Google y conectar tu canal de YouTube, paso a paso.
+lede: AutoUpload funciona en tu propia computadora: lo instalas una vez y conectas tu canal desde ahí. Esta guía cubre cada paso, desde la descarga hasta tu primera subida programada. Calcula unos quince minutos.
+rail: yes
+-->
+<div class="next" style="margin-top:22px">
+<a class="btn mint" href="{ZIP}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M4 20h16"/></svg>Descargar AutoUpload (ZIP)</a>
+<a class="btn" href="{REPO}" rel="noopener">Repositorio en GitHub</a>
+</div>
+
+<h2 id="requirements"><span class="no">§1</span>Requisitos</h2>
+<ul>
+<li>Windows 10 o Windows 11.</li>
+<li>Python 3.10 o posterior, desde <a href="https://www.python.org/downloads/">python.org</a>. Durante la instalación, marca <em>Add python.exe to PATH</em>.</li>
+<li>Una cuenta de Google que sea propietaria o administradora del canal de YouTube al que quieres subir.</li>
+<li>Acceso a <a href="https://console.cloud.google.com/">Google Cloud Console</a> con esa cuenta (gratuito; la YouTube Data API no requiere facturación).</li>
+</ul>
+
+<h2 id="download"><span class="no">§2</span>Descarga</h2>
+<p>Descarga el ZIP de arriba y descomprímelo en la carpeta que prefieras, por ejemplo <code>C:\AutoUpload</code>. Si usas Git, también puedes clonar el repositorio:</p>
+<pre><code>git clone {REPO}.git C:\AutoUpload</code></pre>
+<p>El repositorio contiene solo el código fuente. Nunca contiene credenciales, tokens ni datos de ningún canal.</p>
+
+<h2 id="install"><span class="no">§3</span>Instalación</h2>
+<p>Abre PowerShell en esa carpeta (en el Explorador, clic derecho → <em>Abrir en Terminal</em>) y ejecuta:</p>
+<pre><code><span class="c"># crea un entorno de Python propio para AutoUpload</span>
+py -m venv .venv
+<span class="c"># instala AutoUpload y sus dependencias en él</span>
+.\.venv\Scripts\pip install .
+<span class="c"># comprueba que el comando funciona</span>
+.\.venv\Scripts\subidor.exe --help</code></pre>
+<p>La herramienta de línea de comandos se llama <code>subidor</code>. Sus órdenes están en inglés; los nombres originales en español siguen funcionando como alias.</p>
+
+<h2 id="client"><span class="no">§4</span>Crea tu cliente OAuth de Google</h2>
+<p>AutoUpload se conecta a YouTube mediante un cliente OAuth de tipo <em>App de escritorio</em>. <mark class="hl">El archivo del cliente, <code>client_secret.json</code>, nunca se publica ni se comparte.</mark> Cada instalación usa el suyo, que se crea en unos minutos:</p>
+<ol class="steps">
+<li>En <a href="https://console.cloud.google.com/">Google Cloud Console</a>, crea un proyecto (por ejemplo, <em>AutoUpload</em>).</li>
+<li>En <em>APIs y servicios → Biblioteca</em>, busca <strong>YouTube Data API v3</strong> y pulsa <em>Habilitar</em>.</li>
+<li>En <em>Google Auth Platform → Desarrollo de la marca</em>, escribe el nombre de la app y tu correo de asistencia. En <em>Público</em>, elige <strong>Externo</strong> y añade tu propia cuenta de Google como usuario de prueba.</li>
+<li>En <em>Google Auth Platform → Acceso a los datos</em>, añade solo estos tres permisos: <code>youtube.upload</code>, <code>youtube.force-ssl</code> y <code>youtube.readonly</code>.</li>
+<li>En <em>Clientes → Crear cliente</em>, elige <strong>App de escritorio</strong>, créalo y descarga el archivo JSON.</li>
+<li>Guarda ese archivo en la carpeta de AutoUpload como <code>config\client_secret.json</code>. No lo compartas ni lo subas a ningún repositorio.</li>
+</ol>
+<div class="note"><p>Mientras la app está en estado <em>Prueba</em>, Google hace caducar sus tokens a los siete días y tienes que volver a iniciar sesión. Para evitarlo, pulsa <em>Publicar app</em> en <em>Público</em>. Para uso propio no hace falta la verificación de Google: al iniciar sesión verás el aviso «app no verificada», donde eliges <em>Configuración avanzada → Ir a la app</em>.</p></div>
+
+<h2 id="channel"><span class="no">§5</span>Crea una carpeta para tu canal</h2>
+<pre><code>.\.venv\Scripts\subidor.exe channel new micanal</code></pre>
+<p>Esto crea <code>canales\micanal\</code> con tres elementos:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Elemento</th><th>Para qué sirve</th></tr></thead>
+<tbody>
+<tr><td><code>canal.yaml</code></td><td>Tus horas de publicación, zona horaria, idioma, categoría y etiquetas por defecto.</td></tr>
+<tr><td><code>queue\</code></td><td>La cola: aquí pones los videos por subir.</td></tr>
+<tr><td><code>uploaded\</code></td><td>Aquí se mueven los videos ya subidos, cada uno con su informe.</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="connect"><span class="no">§6</span>Conecta tu canal</h2>
+<pre><code>.\.venv\Scripts\subidor.exe auth micanal login</code></pre>
+<ol class="steps">
+<li>Se abre tu navegador en la página de inicio de sesión de Google. Elige tu cuenta y, si administra varios canales, el canal correcto.</li>
+<li>Google enumera los tres permisos que pide AutoUpload. Se explican uno a uno en la <a href="index.html#permissions">página de inicio</a>. Pulsa <em>Permitir</em>.</li>
+<li>AutoUpload guarda el token de acceso en <code>%APPDATA%\subidor-youtube</code> y anota el ID de tu canal. Desde entonces se niega a subir si el token pertenece a otro canal.</li>
+</ol>
+<p>Para comprobar qué canal está conectado:</p>
+<pre><code>.\.venv\Scripts\subidor.exe auth micanal whoami</code></pre>
+
+<h2 id="queue"><span class="no">§7</span>Pon un video en la cola</h2>
+<p>Cada video de <code>queue\</code> necesita una ficha con el mismo nombre. La miniatura con el mismo nombre es opcional.</p>
+<pre><code>canales\micanal\queue\
+  episodio-004.mp4     <span class="c"># el video</span>
+  episodio-004.yaml    <span class="c"># su ficha (obligatoria)</span>
+  episodio-004.jpg     <span class="c"># miniatura (opcional, .jpg o .png)</span></code></pre>
+<p>La ficha mínima solo lleva el título. Todo lo demás es opcional:</p>
+<pre><code>titulo: The single point of failure
+descripcion: |
+  ¿Qué pasa cuando una sola empresa controla toda la cadena?
+etiquetas: [ia, hardware, mercados]
+fecha: 2026-11-21T08:00:00-05:00   <span class="c"># fecha fija; si no, el siguiente horario libre</span>
+lista: PLxxxxxxxxxxxx
+subtitulos:
+  - {language: es, name: Español, path: episodio-004.es.srt}</code></pre>
+
+<h2 id="upload"><span class="no">§8</span>Revisa el plan y sube</h2>
+<pre><code><span class="c"># muestra la fecha que recibirá cada video de la cola; no sube nada</span>
+.\.venv\Scripts\subidor.exe schedule micanal
+<span class="c"># sube de verdad</span>
+.\.venv\Scripts\subidor.exe schedule micanal --yes</code></pre>
+<p>Los videos se suben en privado y se hacen públicos a su hora programada. Revísalos en YouTube Studio después de la primera vez.</p>
+
+<h2 id="disconnect"><span class="no">§9</span>Desconectar y desinstalar</h2>
+<pre><code>.\.venv\Scripts\subidor.exe auth micanal logout</code></pre>
+<p>Esto revoca el token ante Google y lo borra. También puedes quitar el acceso en <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. Para desinstalar, borra la carpeta de AutoUpload y <code>%APPDATA%\subidor-youtube</code>.</p>
+<p>Si algo no funciona, consulta <a href="support.html">Soporte</a>.</p>

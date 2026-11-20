@@ -74,6 +74,24 @@
     var b2 = shot.querySelector(".replay"); if (b2) b2.hidden = true;
   }
 
+  // Copy buttons for ready-made prompts.
+  document.querySelectorAll(".prompt-wrap .copy").forEach(function (btn) {
+    var idle = btn.textContent;
+    btn.addEventListener("click", function () {
+      var text = btn.parentNode.querySelector("pre").innerText;
+      var done = function () {
+        btn.textContent = btn.getAttribute("data-done");
+        setTimeout(function () { btn.textContent = idle; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () {});
+      } else {
+        var r = document.createRange(); r.selectNodeContents(btn.parentNode.querySelector("pre"));
+        var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+    });
+  });
+
   // Contents rail: mark the section being read.
   var rail = document.querySelectorAll(".rail a");
   if (rail.length && "IntersectionObserver" in window) {

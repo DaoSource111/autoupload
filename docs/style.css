@@ -207,6 +207,17 @@ pre code { background: none; padding: 0; font: inherit; color: inherit; }
 pre .c { color: #8b96a8; }
 .muted { color: var(--ink-soft); }
 
+/* Ready-made prompt for an AI agent: copyable, wraps instead of scrolling */
+.prompt-wrap { position: relative; margin: 14px 0; }
+.prompt-wrap pre.prompt { margin: 0; padding-top: 46px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.55; max-height: 520px; overflow-y: auto; }
+.prompt-wrap .copy {
+  position: absolute; top: 10px; right: 10px; z-index: 1;
+  font: 600 13px/1 var(--sans); padding: 8px 12px; border-radius: 4px; cursor: pointer;
+  background: var(--mint); color: #06080c; border: 0;
+}
+.prompt-wrap .copy:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+
+
 /* Highlighter: literal statements get the channel's yellow marker, swept left to right */
 mark.hl {
   color: inherit; padding: 0 .12em; margin: 0 -.06em;

@@ -12,8 +12,8 @@
 <link rel="preload" href="fonts/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/barlow-condensed-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>try{var t=localStorage.getItem("au-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=288ac537">
-<script src="site.js?v=60b519ef" defer></script>
+<link rel="stylesheet" href="style.css?v=86aae8e4">
+<script src="site.js?v=237ba4ef" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -54,11 +54,15 @@
 <h3>Google says “Access blocked: … has not completed the Google verification process”.</h3>
 <p>The app is in <em>Testing</em> and the Google account you signed in with is not a test user. In Google Cloud Console, open <em>Google Auth Platform → Audience → Test users</em>, add that account’s email address and sign in again. See <a href="install.html#branding">installation guide, §6</a>.</p>
 <h3>Why do I have to sign in again every week?</h3>
-<p>While an app is in <em>Testing</em>, Google expires every authorization seven days after consent. Run <code>subidor auth &lt;channel&gt; login</code> again, or select <em>Publish app</em> in <em>Audience</em> so the access no longer expires. A <em>Personal</em> app never expires this way. See <a href="install.html#audience">installation guide, §5</a>.</p>
+<p>While an app is in <em>Testing</em>, Google expires every authorization seven days after consent. Run <code>subidor auth &lt;channel&gt; login</code> again, or select <em>Publish app</em> in <em>Audience</em> so the access no longer expires. A <em>Personal</em> app never expires this way. See <a href="install.html#audience">installation guide, §4</a>.</p>
 <h3>Google says “Google hasn’t verified this app”.</h3>
 <p>This is expected for a published app that Google has not verified yet. If the app and its OAuth client are your own, choose <em>Advanced → Go to …</em> to continue. Unverified apps are limited to 100 users.</p>
 <h3>An upload fails saying the YouTube Data API is not enabled.</h3>
-<p>Enable <strong>YouTube Data API v3</strong> in <em>APIs &amp; Services → Library</em> of the same Google Cloud project as your OAuth client, wait a few minutes and try again. See <a href="install.html#project">installation guide, §4</a>.</p>
+<p>Enable <strong>YouTube Data API v3</strong> in <em>APIs &amp; Services → Library</em> of the same Google Cloud project as your OAuth client, wait a few minutes and try again. See <a href="install.html#project">installation guide, §8</a>.</p>
+<h3 id="verification">Does my app need Google verification?</h3>
+<p>Not while it is in <em>Personal mode</em> or in <em>Testing</em>: Google requires no verification in either. Each installation is its own app in its owner’s Google Cloud project, so one person’s setup never depends on another’s. Verification only matters if you publish your project for people outside your test users. Then Google asks for brand verification (a home page that describes the app, on a domain you have verified in Google Search Console, with the same privacy policy linked from the home page and the consent screen) and, because the YouTube scopes are sensitive, a demonstration video of the sign-in and the upload plus a reason for each scope. YouTube scopes are not restricted, so no paid security assessment applies. See <a href="https://support.google.com/cloud/answer/13464321">Google’s verification requirements</a>.</p>
+<h3>Why is there no “Sign in with Google” button on this site?</h3>
+<p>Because there is nothing on a server to sign in to. AutoUpload runs on your computer, and your access token never leaves it. A shared sign-in would mean every user authorizing one Ellipsio Studio project, which Google would first have to verify, and all users sharing that project’s daily quota of 100 uploads. With your own client, the quota and the access are yours alone, and you depend on no one else’s project.</p>
 <h3>Does AutoUpload see my Google password?</h3>
 <p>No. You sign in on Google's own page. AutoUpload only receives the access token Google issues for the permissions you allowed.</p>
 <h3>Does Ellipsio Studio see my videos or my channel?</h3>

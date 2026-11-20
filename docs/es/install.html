@@ -12,8 +12,8 @@
 <link rel="preload" href="../fonts/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../fonts/barlow-condensed-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>try{var t=localStorage.getItem("au-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="stylesheet" href="../style.css?v=288ac537">
-<script src="../site.js?v=60b519ef" defer></script>
+<link rel="stylesheet" href="../style.css?v=86aae8e4">
+<script src="../site.js?v=237ba4ef" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Ir al contenido</a>
@@ -27,7 +27,7 @@
 </div>
 </header>
 <div class="drawer has-rail">
-<nav class="rail" aria-label="Contenido"><h2>Contenido</h2><ol><li><a href="#requirements"><span>§1</span>Requisitos</a></li><li><a href="#download"><span>§2</span>Descarga</a></li><li><a href="#install"><span>§3</span>Instalación</a></li><li><a href="#project"><span>§4</span>Crea un proyecto en Google Cloud y habilita la API</a></li><li><a href="#audience"><span>§5</span>Elige quién puede usar la app</a></li><li><a href="#branding"><span>§6</span>Marca, permisos y usuarios de prueba</a></li><li><a href="#client"><span>§7</span>Crea el cliente OAuth</a></li><li><a href="#channel"><span>§8</span>Crea una carpeta para tu canal</a></li><li><a href="#connect"><span>§9</span>Conecta tu canal</a></li><li><a href="#queue"><span>§10</span>Pon un video en la cola</a></li><li><a href="#upload"><span>§11</span>Revisa el plan y sube</a></li><li><a href="#disconnect"><span>§12</span>Desconectar y desinstalar</a></li></ol></nav>
+<nav class="rail" aria-label="Contenido"><h2>Contenido</h2><ol><li><a href="#requirements"><span>§1</span>Requisitos</a></li><li><a href="#download"><span>§2</span>Descarga</a></li><li><a href="#install"><span>§3</span>Instalación</a></li><li><a href="#audience"><span>§4</span>Elige tu camino en Google Cloud</a></li><li><a href="#personal"><span>§5</span>Camino A: modo personal, proyecto y cliente en un paso</a></li><li><a href="#branding"><span>§6</span>Camino B: registra la app, la marca y los usuarios de prueba</a></li><li><a href="#client"><span>§7</span>Camino B: crea el cliente OAuth</a></li><li><a href="#project"><span>§8</span>Habilita la YouTube Data API y guarda el archivo del cliente</a></li><li><a href="#channel"><span>§9</span>Crea una carpeta para tu canal</a></li><li><a href="#connect"><span>§10</span>Conecta tu canal</a></li><li><a href="#queue"><span>§11</span>Pon un video en la cola</a></li><li><a href="#upload"><span>§12</span>Revisa el plan y sube</a></li><li><a href="#disconnect"><span>§13</span>Desconectar y desinstalar</a></li><li><a href="#ai"><span>§14</span>Instálalo con un agente de IA</a></li></ol></nav>
 <main id="main" class="card">
 <div class="card-head">
 <p class="callno"><span class="stamp">AU · 02 · INSTALACIÓN</span><span>Última actualización: 20 de noviembre de 2026</span></p>
@@ -35,11 +35,13 @@
 <p class="lede">AutoUpload funciona en tu propia computadora: lo instalas una vez y conectas tu canal desde ahí. Esta guía cubre cada paso, desde la descarga hasta tu primera subida programada. Calcula unos quince minutos.</p>
 </div>
 <div class="card-body">
-<nav class="toc" aria-label="Contenido"><h2>Contenido</h2><ol><li><a href="#requirements">Requisitos</a></li><li><a href="#download">Descarga</a></li><li><a href="#install">Instalación</a></li><li><a href="#project">Crea un proyecto en Google Cloud y habilita la API</a></li><li><a href="#audience">Elige quién puede usar la app</a></li><li><a href="#branding">Marca, permisos y usuarios de prueba</a></li><li><a href="#client">Crea el cliente OAuth</a></li><li><a href="#channel">Crea una carpeta para tu canal</a></li><li><a href="#connect">Conecta tu canal</a></li><li><a href="#queue">Pon un video en la cola</a></li><li><a href="#upload">Revisa el plan y sube</a></li><li><a href="#disconnect">Desconectar y desinstalar</a></li></ol></nav>
+<nav class="toc" aria-label="Contenido"><h2>Contenido</h2><ol><li><a href="#requirements">Requisitos</a></li><li><a href="#download">Descarga</a></li><li><a href="#install">Instalación</a></li><li><a href="#audience">Elige tu camino en Google Cloud</a></li><li><a href="#personal">Camino A: modo personal, proyecto y cliente en un paso</a></li><li><a href="#branding">Camino B: registra la app, la marca y los usuarios de prueba</a></li><li><a href="#client">Camino B: crea el cliente OAuth</a></li><li><a href="#project">Habilita la YouTube Data API y guarda el archivo del cliente</a></li><li><a href="#channel">Crea una carpeta para tu canal</a></li><li><a href="#connect">Conecta tu canal</a></li><li><a href="#queue">Pon un video en la cola</a></li><li><a href="#upload">Revisa el plan y sube</a></li><li><a href="#disconnect">Desconectar y desinstalar</a></li><li><a href="#ai">Instálalo con un agente de IA</a></li></ol></nav>
 <div class="next" style="margin-top:22px">
 <a class="btn mint" href="https://github.com/DaoSource111/autoupload/archive/refs/heads/main.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M4 20h16"/></svg>Descargar AutoUpload (ZIP)</a>
 <a class="btn" href="https://github.com/DaoSource111/autoupload" rel="noopener">Repositorio en GitHub</a>
 </div>
+
+<div class="note"><p><strong>Dos maneras de seguir esta guía.</strong> A mano, del §1 al §13. O encargándosela a un agente de IA que ejecute comandos en tu computadora, con el prompt listo del <a href="#ai">§14</a>. Los pasos son los mismos; el agente se detiene para ti en cada inicio de sesión y cada aprobación.</p></div>
 
 <h2 id="requirements"><span class="no">§1</span>Requisitos</h2>
 <ul>
@@ -47,6 +49,7 @@
 <li>Python 3.10 o posterior, desde <a href="https://www.python.org/downloads/">python.org</a>. Durante la instalación, marca <em>Add python.exe to PATH</em>.</li>
 <li>Una cuenta de Google que sea propietaria o administradora del canal de YouTube al que quieres subir.</li>
 <li>Acceso a <a href="https://console.cloud.google.com/">Google Cloud Console</a> con esa cuenta (gratuito; la YouTube Data API no requiere facturación).</li>
+<li>La verificación en dos pasos activada en esa cuenta: Google Cloud la exige para abrir la consola.</li>
 </ul>
 
 <h2 id="download"><span class="no">§2</span>Descarga</h2>
@@ -64,41 +67,59 @@ py -m venv .venv
 .\.venv\Scripts\subidor.exe --help</code></pre>
 <p>La herramienta de línea de comandos se llama <code>subidor</code>. Sus órdenes están en inglés; los nombres originales en español siguen funcionando como alias.</p>
 
-<h2 id="project"><span class="no">§4</span>Crea un proyecto en Google Cloud y habilita la API</h2>
-<p>AutoUpload se conecta a YouTube mediante un cliente OAuth que es tuyo. <mark class="hl">El archivo del cliente, <code>client_secret.json</code>, nunca se publica ni se comparte.</mark> Cada instalación crea el suyo:</p>
-<ol class="steps">
-<li>Entra en <a href="https://console.cloud.google.com/">Google Cloud Console</a> con la cuenta de Google propietaria o administradora de tu canal y crea un proyecto (por ejemplo, <em>AutoUpload</em>).</li>
-<li>Abre <em>APIs y servicios → Biblioteca</em>, busca <strong>YouTube Data API v3</strong>, ábrela y pulsa <strong>Habilitar</strong>. <mark class="hl">Sin este paso todas las subidas fallan</mark>, con un error que dice que la YouTube Data API no se ha usado en el proyecto o está inhabilitada.</li>
-</ol>
-
-<h2 id="audience"><span class="no">§5</span>Elige quién puede usar la app</h2>
-<p>Abre <em>Google Auth Platform → Público</em> (la primera vez, Google te pide configurar la app con <em>Comenzar</em>). El tipo de usuario y el estado de publicación deciden quién puede iniciar sesión y cuánto dura el acceso, según la guía de Google <a href="https://support.google.com/cloud/answer/15549945?hl=es-419">Administra el público de la app</a>:</p>
+<h2 id="audience"><span class="no">§4</span>Elige tu camino en Google Cloud</h2>
+<p>AutoUpload no tiene servidor central ni un inicio de sesión compartido. <mark class="hl">Cada instalación se conecta con su propio cliente OAuth, en un proyecto de Google Cloud que te pertenece.</mark> Para Google, ese proyecto es la app: su configuración decide quién puede iniciar sesión y cuánto dura el acceso, según <a href="https://support.google.com/cloud/answer/15549945?hl=es-419">Administra el público de la app</a>. Elige uno de dos caminos:</p>
 <div class="table-wrap"><table>
-<thead><tr><th>Configuración</th><th>Quién puede iniciar sesión</th><th>Qué esperar</th></tr></thead>
+<thead><tr><th>Camino</th><th>Quién puede iniciar sesión</th><th>Qué esperar</th></tr></thead>
 <tbody>
-<tr><td>Personal</td><td>Solo la cuenta de Google que creó el proyecto.</td><td>Sin verificación, sin la pantalla de «app no verificada» y sin caducidad a los 7 días. Es una elección única al crear el proyecto: no se puede cambiar después ni compartir con otras cuentas.</td></tr>
-<tr><td>Externo · Prueba</td><td>Solo los usuarios de prueba que añadas por su correo de Google, hasta 100.</td><td>Google muestra una advertencia antes de dar acceso y <strong>cada autorización caduca siete días después del consentimiento</strong>: cada usuario debe volver a iniciar sesión una vez por semana.</td></tr>
-<tr><td>Externo · En producción</td><td>Cualquier cuenta de Google.</td><td>Mientras Google no verifique la app, los usuarios ven la pantalla de «app no verificada» y la app tiene un límite de 100 usuarios en total. Las autorizaciones dejan de caducar a los siete días.</td></tr>
+<tr><td><strong>A · Modo personal</strong> (§5)</td><td>Solo la cuenta de Google que lo crea.</td><td>Una sola página crea el proyecto y el cliente a la vez. Sin verificación, sin la pantalla de «app no verificada» y sin caducidad a los 7 días. Es definitivo: un proyecto personal nunca se puede compartir con otras cuentas.</td></tr>
+<tr><td><strong>B · Externo · Prueba</strong> (§6–§7)</td><td>Solo los usuarios de prueba que añadas por su correo de Google, hasta 100.</td><td>Google muestra un aviso de pruebas al iniciar sesión y <strong>cada autorización caduca siete días después del consentimiento</strong>: cada usuario vuelve a iniciar sesión una vez por semana.</td></tr>
+<tr><td>B y luego <em>Publicar app</em></td><td>Cualquier cuenta de Google.</td><td>Mientras Google no verifique la app, se ve «Google no verificó esta app» y hay un límite de 100 usuarios durante toda la vida de la app. Las autorizaciones dejan de caducar a los siete días.</td></tr>
 </tbody>
 </table></div>
-<div class="note"><p><strong>Recomendado para una persona:</strong> elige <em>Personal</em> si solo vas a subir tú, desde la misma cuenta propietaria del canal. <strong>Para un equipo pequeño:</strong> empieza en <em>Externo · Prueba</em>, añade a cada persona como usuario de prueba y pulsa <em>Publicar app</em> cuando todo funcione, para dejar de iniciar sesión cada semana.</p></div>
+<div class="note"><p><strong>¿Cuál elijo?</strong> Si solo subes tú, desde la cuenta propietaria del canal, elige el <strong>camino A</strong>. Si varias personas, o una cuenta de marca administrada desde otro inicio de sesión, van a conectar canales, elige el <strong>camino B</strong>.</p>
+<p><strong>Antes de empezar:</strong> Google Cloud exige ahora la verificación en dos pasos. Si la consola dice «Google Cloud access blocked», actívala en la seguridad de tu cuenta de Google, espera unos minutos y recarga.</p></div>
 
-<h2 id="branding"><span class="no">§6</span>Marca, permisos y usuarios de prueba</h2>
+<h2 id="personal"><span class="no">§5</span>Camino A: modo personal, proyecto y cliente en un paso</h2>
 <ol class="steps">
-<li><strong>Marca.</strong> En <em>Google Auth Platform → Desarrollo de la marca</em>, escribe el nombre de la app y un correo de asistencia. Añade página principal, política de privacidad y condiciones del servicio si vas a publicar la app: Google las exige a las apps externas en producción. Deja el logotipo vacío salvo que vayas a pedir la verificación, porque el logotipo la exige.</li>
-<li><strong>Acceso a los datos.</strong> En <em>Acceso a los datos → Agregar o quitar permisos</em>, añade solo <code>youtube.upload</code>, <code>youtube.force-ssl</code> y <code>youtube.readonly</code>. No añadas otros: cada permiso sensible extra amplía lo que Google revisa.</li>
-<li><strong>Usuarios de prueba</strong> (solo Externo · Prueba). En <em>Público → Usuarios de prueba</em>, pulsa <em>Agregar usuarios</em> y escribe el correo de Google de cada persona que vaya a conectar un canal. Si el canal es una cuenta de marca, añade la cuenta personal de Google que la administra.</li>
+<li>Abre la <a href="https://console.cloud.google.com/auth/overview/personal">página de incorporación del modo personal</a> (<em>Google Auth Platform → Incorporación del modo personal</em>) con la cuenta propietaria del canal.</li>
+<li>En <em>Seleccionar proyecto</em>, deja <em>Crear un proyecto nuevo</em>. Google lo llama <code>personal-mode-app</code>.</li>
+<li>En <em>Tipo de aplicación</em>, elige <strong>App de escritorio</strong>.</li>
+<li><em>Usar este cliente para un agente potenciado por IA</em>: déjala sin marcar, salvo que un agente de IA vaya a manejar AutoUpload por ti (consulta la nota del §7).</li>
+<li>Acepta las condiciones del servicio y pulsa <em>Continuar</em>.</li>
+<li>En el cuadro <em>Cliente de OAuth creado</em>, pulsa <strong>Descargar JSON</strong> antes de cerrarlo. <mark class="hl">Google muestra el secreto completo del cliente una sola vez</mark>; si lo pierdes, tendrás que rotar el secreto o crear otro cliente.</li>
 </ol>
-<div class="note"><p><strong>«Acceso bloqueado: … no completó el proceso de verificación de Google» (Error 403: access_denied).</strong> Aparece cuando alguien que no es usuario de prueba intenta iniciar sesión mientras la app está en Prueba. Añade el correo de Google de esa persona en <em>Público → Usuarios de prueba</em> y vuelve a intentarlo.</p></div>
+<p>Sigue en el §8 para habilitar la API de YouTube.</p>
 
-<h2 id="client"><span class="no">§7</span>Crea el cliente OAuth</h2>
+<h2 id="branding"><span class="no">§6</span>Camino B: registra la app, la marca y los usuarios de prueba</h2>
 <ol class="steps">
-<li>En <em>Google Auth Platform → Clientes</em>, pulsa <em>Crear cliente</em> y elige el tipo de aplicación <strong>App de escritorio</strong>.</li>
-<li>Créalo y descarga el archivo JSON.</li>
-<li>Guárdalo en la carpeta de AutoUpload como <code>config\client_secret.json</code>. No lo compartas ni lo subas a ningún repositorio.</li>
+<li><strong>Proyecto.</strong> En <a href="https://console.cloud.google.com/">Google Cloud Console</a>, usa el selector de proyectos de arriba para crear un proyecto (por ejemplo, <em>AutoUpload</em>) y selecciónalo.</li>
+<li><strong>Comenzar.</strong> Abre <em>Google Auth Platform → Descripción general</em> y pulsa <em>Comenzar</em>. Escribe el nombre de la app y un correo de asistencia, elige el público <strong>Externo</strong>, añade tu correo de contacto y acepta la Política de Datos del Usuario de los Servicios de las API de Google.</li>
+<li><strong>Información de la marca.</strong> Esta página guarda lo que se ve en la pantalla de consentimiento: nombre de la aplicación, correo de asistencia, logotipo, página principal, política de privacidad y condiciones del servicio, dominios autorizados y contacto del desarrollador. En Prueba solo hacen falta el nombre y los correos; los enlaces pasan a ser obligatorios si publicas la app. Con la app publicada, un logotipo obliga a verificarla.</li>
+<li><strong>Usuarios de prueba.</strong> Abre <em>Público</em>. Muestra el estado de publicación (<em>Prueba</em>), el tipo de usuario (<em>Usuarios externos</em>) y cuántos usuarios llevas de un límite de 100. En <em>Usuarios de prueba</em>, pulsa <em>Add users</em> y escribe el correo de Google de cada persona que vaya a conectar un canal, incluido el tuyo. Si es una cuenta de marca, añade la cuenta personal que la administra.</li>
+<li><strong>Acceso a los datos.</strong> Abre <em>Acceso a los datos → Agregar o quitar permisos</em>, marca solo <code>.../auth/youtube.upload</code>, <code>.../auth/youtube.force-ssl</code> y <code>.../auth/youtube.readonly</code>, confirma y pulsa <em>Save</em>. Quita cualquier otro permiso que aparezca: cada permiso sensible de más amplía lo que Google revisaría.</li>
 </ol>
+<div class="note"><p><strong>«Acceso bloqueado: … no completó el proceso de verificación de Google» (Error 403: access_denied).</strong> Alguien que no es usuario de prueba intentó iniciar sesión mientras la app está en Prueba. Añade su correo de Google en <em>Público → Usuarios de prueba</em> y vuelve a intentarlo.</p>
+<p><strong>Publicar.</strong> <em>Público → Publicar app</em> elimina el inicio de sesión semanal. Google solo lo permite con la información de la marca completa, y publicar no inicia una verificación por sí solo: consulta <a href="support.html#verification">Soporte</a>.</p></div>
 
-<h2 id="channel"><span class="no">§8</span>Crea una carpeta para tu canal</h2>
+<h2 id="client"><span class="no">§7</span>Camino B: crea el cliente OAuth</h2>
+<ol class="steps">
+<li>Abre <em>Google Auth Platform → Clientes</em> y pulsa <em>Crear cliente</em>.</li>
+<li>En <em>Tipo de aplicación</em>, elige <strong>App de escritorio</strong>. La lista también ofrece Aplicación web, Android, Extensión de Chrome, iOS y TVs y dispositivos de entrada limitada; ninguno de ellos funciona con AutoUpload.</li>
+<li>Ponle un nombre, por ejemplo <em>AutoUpload Desktop</em>. Solo lo ves tú, en la consola.</li>
+<li><em>Usar este cliente para un agente potenciado por IA</em>: consulta la nota de abajo.</li>
+<li>Pulsa <em>Crear</em> y después <strong>Descargar JSON</strong> en ese momento. <mark class="hl">El secreto completo del cliente solo se muestra al crearlo.</mark> Google avisa de que la configuración puede tardar entre 5 minutos y algunas horas en aplicarse.</li>
+</ol>
+<div class="note"><p><strong>La casilla «agente potenciado por IA».</strong> Es una declaración propia de que el cliente representa a un agente de IA que actúa por sus usuarios. Déjala sin marcar si manejas AutoUpload tú o desde la tarea programada. Márcala solo en un cliente que vaya a usar un agente de IA (un asistente que ejecuta comandos, un servidor MCP) para manejar AutoUpload por ti. Google pide que los flujos de agentes usen su propio cliente, separado del que usan las personas a mano: crea un segundo cliente de escritorio para el agente en lugar de compartir uno. La casilla no da permisos extra, y las reglas de consentimiento y verificación son las mismas (<a href="https://support.google.com/cloud/answer/15549257?hl=es-419#agentic-client">explicación de Google</a>).</p></div>
+
+<h2 id="project"><span class="no">§8</span>Habilita la YouTube Data API y guarda el archivo del cliente</h2>
+<ol class="steps">
+<li>En el mismo proyecto, abre <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com">APIs y servicios → Biblioteca → YouTube Data API v3</a> y pulsa <strong>Habilitar</strong>. La página mostrará <em>API habilitada</em>. <mark class="hl">Sin este paso todas las subidas fallan</mark>, con un error que dice que la YouTube Data API no se ha usado en el proyecto o está inhabilitada.</li>
+<li>Mueve el JSON descargado a la carpeta de AutoUpload como <code>config\client_secret.json</code>. No lo compartas ni lo subas a ningún repositorio.</li>
+</ol>
+<p>Cada proyecto tiene su propia cuota diaria de YouTube, que se reinicia a medianoche, hora del Pacífico: por defecto 100 subidas de video, más 10 000 unidades para todo lo demás. Una miniatura cuesta 50 unidades, añadir un video a una lista 50 y subir un archivo de subtítulos 400 (<a href="https://developers.google.com/youtube/v3/determine_quota_cost">tabla de cuotas de Google</a>).</p>
+
+<h2 id="channel"><span class="no">§9</span>Crea una carpeta para tu canal</h2>
 <pre><code>.\.venv\Scripts\subidor.exe channel new micanal</code></pre>
 <p>Esto crea <code>canales\micanal\</code> con tres elementos:</p>
 <div class="table-wrap"><table>
@@ -110,18 +131,18 @@ py -m venv .venv
 </tbody>
 </table></div>
 
-<h2 id="connect"><span class="no">§9</span>Conecta tu canal</h2>
+<h2 id="connect"><span class="no">§10</span>Conecta tu canal</h2>
 <pre><code>.\.venv\Scripts\subidor.exe auth micanal login</code></pre>
 <ol class="steps">
 <li>Se abre tu navegador en la página de inicio de sesión de Google. Elige tu cuenta y, si administra varios canales, el canal correcto.</li>
 <li>Google enumera los tres permisos que pide AutoUpload. Se explican uno a uno en la <a href="index.html#permissions">página de inicio</a>. Pulsa <em>Permitir</em>.</li>
 <li>AutoUpload guarda el token de acceso en <code>%APPDATA%\subidor-youtube</code> y anota el ID de tu canal. Desde entonces se niega a subir si el token pertenece a otro canal.</li>
 </ol>
-<div class="note"><p><strong>Qué puedes ver.</strong> Con la app en <em>Externo · Prueba</em>, Google avisa primero de que la app está en pruebas; con la app en producción y sin verificar, muestra «Google no verificó esta app». En ambos casos, si la app es tuya, elige <em>Continuar</em> (o <em>Configuración avanzada → Ir a …</em>). Una app <em>Personal</em> no muestra ninguna de las dos pantallas.</p><p><strong>Inicio de sesión semanal en Prueba.</strong> Mientras la app está en Prueba, el acceso caduca siete días después de permitirlo y las subidas se detienen con un error de autenticación. Vuelve a ejecutar <code>auth micanal login</code>, o publica la app (§5) para que deje de caducar.</p></div>
+<div class="note"><p><strong>Qué puedes ver.</strong> Con la app en <em>Externo · Prueba</em>, Google avisa primero de que la app está en pruebas; con la app en producción y sin verificar, muestra «Google no verificó esta app». En ambos casos, si la app es tuya, elige <em>Continuar</em> (o <em>Configuración avanzada → Ir a …</em>). Una app <em>Personal</em> no muestra ninguna de las dos pantallas.</p><p><strong>Inicio de sesión semanal en Prueba.</strong> Mientras la app está en Prueba, el acceso caduca siete días después de permitirlo y las subidas se detienen con un error de autenticación. Vuelve a ejecutar <code>auth micanal login</code>, o publica la app (§6) para que deje de caducar.</p></div>
 <p>Para comprobar qué canal está conectado:</p>
 <pre><code>.\.venv\Scripts\subidor.exe auth micanal whoami</code></pre>
 
-<h2 id="queue"><span class="no">§10</span>Pon un video en la cola</h2>
+<h2 id="queue"><span class="no">§11</span>Pon un video en la cola</h2>
 <p>Cada video de <code>queue\</code> necesita una ficha con el mismo nombre. La miniatura con el mismo nombre es opcional.</p>
 <pre><code>canales\micanal\queue\
   episodio-004.mp4     <span class="c"># el video</span>
@@ -137,16 +158,62 @@ lista: PLxxxxxxxxxxxx
 subtitulos:
   - {language: es, name: Español, path: episodio-004.es.srt}</code></pre>
 
-<h2 id="upload"><span class="no">§11</span>Revisa el plan y sube</h2>
+<h2 id="upload"><span class="no">§12</span>Revisa el plan y sube</h2>
 <pre><code><span class="c"># muestra la fecha que recibirá cada video de la cola; no sube nada</span>
 .\.venv\Scripts\subidor.exe schedule micanal
 <span class="c"># sube de verdad</span>
 .\.venv\Scripts\subidor.exe schedule micanal --yes</code></pre>
 <p>Los videos se suben en privado y se hacen públicos a su hora programada. Revísalos en YouTube Studio después de la primera vez.</p>
 
-<h2 id="disconnect"><span class="no">§12</span>Desconectar y desinstalar</h2>
+<h2 id="disconnect"><span class="no">§13</span>Desconectar y desinstalar</h2>
 <pre><code>.\.venv\Scripts\subidor.exe auth micanal logout</code></pre>
 <p>Esto revoca el token ante Google y lo borra. También puedes quitar el acceso en <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. Para desinstalar, borra la carpeta de AutoUpload y <code>%APPDATA%\subidor-youtube</code>.</p>
+<h2 id="ai"><span class="no">§14</span>Instálalo con un agente de IA</h2>
+<p>Un agente de IA que pueda ejecutar comandos en tu computadora (Claude Code, Codex u otro parecido) puede hacer la instalación por ti siguiendo esta guía. Algunos pasos siguen siendo tuyos: <mark class="hl">iniciar sesión en Google, la verificación en dos pasos, aceptar condiciones y aprobar la primera subida</mark>. Si el agente además puede manejar un navegador, hará los pasos de Google Cloud Console; si no, te guiará clic a clic.</p>
+<ol class="steps">
+<li>Rellena los valores del principio del prompt de abajo.</li>
+<li>Pega el prompt entero en el agente, abierto en una carpeta vacía.</li>
+<li>Quédate frente a la computadora: el agente se detiene y te devuelve el control en cada inicio de sesión y cada aprobación.</li>
+</ol>
+<div class="prompt-wrap"><button class="copy" type="button" data-done="Copiado">Copiar prompt</button>
+<pre class="prompt" tabindex="0"><code>Vas a instalar AutoUpload en esta computadora con Windows. AutoUpload es una herramienta de línea de comandos de código abierto que sube videos a mi propio canal de YouTube en privado y programa su publicación. Sigue la guía oficial paso a paso e infórmame al terminar cada paso.
+
+Lee primero, completos:
+- Guía: https://daosource111.github.io/autoupload/es/install.html
+- Repositorio: https://github.com/DaoSource111/autoupload
+
+Mis valores (edítalos antes de empezar):
+- CARPETA = C:\AutoUpload
+- CANAL = micanal                (minúsculas, números, - o _)
+- CAMINO = A                     (A = modo personal, solo yo; B = Externo, Prueba)
+- TESTERS = (solo camino B) los correos de Google que se añaden como usuarios de prueba
+- ZONA = America/Lima ; HORAS = 08:00
+
+Reglas, que mandan sobre todo lo demás:
+1. Nunca escribas, pidas ni leas mi contraseña de Google ni mis códigos de verificación en dos pasos. Cuando aparezca un inicio de sesión, el selector de cuentas o una pantalla de consentimiento de Google, detente y pídeme que lo termine yo.
+2. Pregúntame antes de aceptar cualquier condición del servicio, de pulsar "Publicar app" o de ejecutar cualquier comando con --yes.
+3. Nunca muestres, pegues, subas ni guardes en un repositorio el contenido de config\client_secret.json ni de ningún token. Nómbralos solo por su ruta.
+4. En Google Cloud, pide solo los permisos youtube.upload, youtube.force-ssl y youtube.readonly, y habilita solo YouTube Data API v3. No cambies nada más.
+5. No edites el código de AutoUpload. Si un comando falla, muéstrame el error exacto, propón el arreglo de la página de Soporte de la guía y espera.
+6. Si lo que ves en Google Cloud Console no coincide con la guía, describe la diferencia y pregúntame antes de improvisar.
+
+Pasos (cada uno termina con su comprobación):
+1. Requisitos. Ejecuta `py --version` (hace falta 3.10 o posterior) y `git --version`. Si falta Python, dime que lo instale desde python.org marcando "Add python.exe to PATH", y espera. Comprobación: ambos comandos muestran una versión.
+2. Descarga. Ejecuta `git clone https://github.com/DaoSource111/autoupload.git CARPETA` (o descarga y descomprime el ZIP de la guía). Comprobación: existe CARPETA\pyproject.toml.
+3. Instalación. En CARPETA ejecuta `py -m venv .venv` y luego `.\.venv\Scripts\pip install .`. Comprobación: `.\.venv\Scripts\subidor.exe --help` muestra la lista de comandos.
+4. Google Cloud. Sigue los apartados 4 a 8 de la guía según CAMINO:
+   - Camino A: abre https://console.cloud.google.com/auth/overview/personal, crea un proyecto nuevo, tipo de aplicación "App de escritorio", deja sin marcar "Usar este cliente para un agente potenciado por IA", pídeme que acepte las condiciones, pulsa Continuar y luego Descargar JSON antes de cerrar el cuadro (el secreto se muestra una vez).
+   - Camino B: crea un proyecto; Google Auth Platform > Descripción general > Comenzar (público Externo); Público > Usuarios de prueba > Add users con TESTERS; Acceso a los datos solo con los tres permisos; Clientes > Crear cliente > App de escritorio llamado "AutoUpload Desktop"; Crear; Descargar JSON en ese momento.
+   - Ambos: APIs y servicios > Biblioteca > YouTube Data API v3 > Habilitar.
+   Si no puedes manejar un navegador, dame una instrucción cada vez y espera a que diga "listo".
+   Comprobación: la página de la API dice "API habilitada" y el JSON está en mi carpeta Descargas.
+5. Archivo del cliente. Mueve el JSON descargado a CARPETA\config\client_secret.json. Comprobación: `Test-Path CARPETA\config\client_secret.json` devuelve True.
+6. Canal. Ejecuta `.\.venv\Scripts\subidor.exe channel new CANAL` y pon timezone = ZONA y hours = HORAS en canales\CANAL\canal.yaml. Enséñame el archivo antes de guardarlo. Comprobación: `subidor.exe channels` muestra CANAL.
+7. Conexión. Ejecuta `.\.venv\Scripts\subidor.exe auth CANAL login`. Se abre el navegador: pásame el control para el inicio de sesión y el consentimiento. Luego ejecuta `auth CANAL whoami`. Comprobación: muestra el nombre de mi canal y yo confirmo que es el correcto.
+8. Prueba en seco. Pídeme que ponga un video y su ficha .yaml en canales\CANAL\queue\ y ejecuta `subidor.exe schedule CANAL` sin --yes. Comprobación: muestra un plan con fecha y no sube nada. Sube solo cuando yo responda "sube".
+9. Informe. Di qué instalaste y dónde, qué camino de Google se usó y qué implica (camino B: volver a iniciar sesión cada 7 días hasta publicar la app), y qué me queda por hacer.</code></pre></div>
+<p>El prompt es texto plano: léelo antes de usarlo. No da al agente ningún acceso aparte del que tú le concedas en el propio agente.</p>
+
 <p>Si algo no funciona, consulta <a href="support.html">Soporte</a>.</p>
 </div>
 </main>

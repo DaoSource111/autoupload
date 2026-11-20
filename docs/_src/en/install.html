@@ -10,12 +10,15 @@ rail: yes
 <a class="btn" href="{REPO}" rel="noopener">Repository on GitHub</a>
 </div>
 
+<div class="note"><p><strong>Two ways to follow this guide.</strong> By hand, from §1 to §13. Or hand it to an AI agent that runs commands on your computer, with the ready-made prompt in <a href="#ai">§14</a>. The steps are the same; the agent stops for you at every sign-in and approval.</p></div>
+
 <h2 id="requirements"><span class="no">§1</span>Requirements</h2>
 <ul>
 <li>Windows 10 or Windows 11.</li>
 <li>Python 3.10 or later, from <a href="https://www.python.org/downloads/">python.org</a>. During installation, tick <em>Add python.exe to PATH</em>.</li>
 <li>A Google account that owns or manages the YouTube channel you want to upload to.</li>
 <li>Access to <a href="https://console.cloud.google.com/">Google Cloud Console</a> with that account (free; no billing is needed for the YouTube Data API).</li>
+<li>2-Step Verification turned on for that account: Google Cloud requires it to open the console.</li>
 </ul>
 
 <h2 id="download"><span class="no">§2</span>Download</h2>
@@ -33,41 +36,59 @@ py -m venv .venv
 .\.venv\Scripts\subidor.exe --help</code></pre>
 <p>The command-line tool is called <code>subidor</code>. Its commands are in English; the original Spanish command names still work as aliases.</p>
 
-<h2 id="project"><span class="no">§4</span>Create a Google Cloud project and enable the API</h2>
-<p>AutoUpload connects to YouTube through an OAuth client that you own. <mark class="hl">The client file, <code>client_secret.json</code>, is never published or shared.</mark> Each installation creates its own:</p>
-<ol class="steps">
-<li>Sign in to <a href="https://console.cloud.google.com/">Google Cloud Console</a> with the Google account that owns or manages your channel, and create a project (for example, <em>AutoUpload</em>).</li>
-<li>Open <em>APIs &amp; Services → Library</em>, search for <strong>YouTube Data API v3</strong>, open it and select <strong>Enable</strong>. <mark class="hl">Without this step every upload fails</mark>, with an error saying that the YouTube Data API has not been used in the project or is disabled.</li>
-</ol>
-
-<h2 id="audience"><span class="no">§5</span>Choose who can use the app</h2>
-<p>Open <em>Google Auth Platform → Audience</em> (the first time, Google asks you to configure the app with <em>Get started</em>). The user type and publishing status decide who can sign in and for how long the access lasts, as described in Google's <a href="https://support.google.com/cloud/answer/15549945">Manage App Audience</a> guide:</p>
+<h2 id="audience"><span class="no">§4</span>Choose your path in Google Cloud</h2>
+<p>AutoUpload has no central server and no shared login. <mark class="hl">Each installation connects through its own OAuth client, in a Google Cloud project that belongs to you.</mark> To Google, that project is the app: its settings decide who can sign in and for how long, as described in <a href="https://support.google.com/cloud/answer/15549945">Manage App Audience</a>. Pick one of two paths:</p>
 <div class="table-wrap"><table>
-<thead><tr><th>Setting</th><th>Who can sign in</th><th>What to expect</th></tr></thead>
+<thead><tr><th>Path</th><th>Who can sign in</th><th>What to expect</th></tr></thead>
 <tbody>
-<tr><td>Personal</td><td>Only the Google account that created the project.</td><td>No verification, no “unverified app” screen and no 7-day expiry. It is a one-time choice when the project is created: it cannot be changed later or shared with other accounts.</td></tr>
-<tr><td>External · Testing</td><td>Only the test users you add by their Google email address, up to 100.</td><td>Google shows a warning before granting access, and <strong>every authorization expires seven days after consent</strong>: each user must sign in again once a week.</td></tr>
-<tr><td>External · In production</td><td>Any Google account.</td><td>Until Google verifies the app, users see an “unverified app” screen and the app is limited to 100 users in total. Authorizations no longer expire after seven days.</td></tr>
+<tr><td><strong>A · Personal mode</strong> (§5)</td><td>Only the Google account that creates it.</td><td>One page creates the project and the client together. No verification, no “unverified app” screen and no 7-day expiry. Permanent: a Personal project can never be shared with other accounts.</td></tr>
+<tr><td><strong>B · External · Testing</strong> (§6–§7)</td><td>Only the test users you add by their Google email address, up to 100.</td><td>Google shows a testing notice at sign-in and <strong>every authorization expires seven days after consent</strong>, so each user signs in again once a week.</td></tr>
+<tr><td>B, then <em>Publish app</em></td><td>Any Google account.</td><td>Until Google verifies the app, users see “Google hasn’t verified this app” and the app is limited to 100 users over its lifetime. Authorizations stop expiring after seven days.</td></tr>
 </tbody>
 </table></div>
-<div class="note"><p><strong>Recommended for one person:</strong> choose <em>Personal</em> if only you will upload, from the same account that owns the channel. <strong>For a small team:</strong> start in <em>External · Testing</em>, add each person as a test user, and select <em>Publish app</em> when the setup works, to stop the weekly sign-in.</p></div>
+<div class="note"><p><strong>Which one?</strong> If only you upload, from the account that owns the channel, choose <strong>Path A</strong>. If several people, or a Brand Account managed from another login, will connect channels, choose <strong>Path B</strong>.</p>
+<p><strong>Before you start:</strong> Google Cloud now requires 2-Step Verification. If the console says “Google Cloud access blocked”, turn it on in your Google Account security settings, wait a few minutes and reload.</p></div>
 
-<h2 id="branding"><span class="no">§6</span>Branding, permissions and test users</h2>
+<h2 id="personal"><span class="no">§5</span>Path A: Personal mode, project and client in one step</h2>
 <ol class="steps">
-<li><strong>Branding.</strong> In <em>Google Auth Platform → Branding</em>, enter the app name and a support email. Add a home page, privacy policy and terms of service if you will publish the app: Google requires them for external apps in production. Leave the logo empty unless you plan to request verification, because a logo requires it.</li>
-<li><strong>Data access.</strong> In <em>Data Access → Add or remove scopes</em>, add only <code>youtube.upload</code>, <code>youtube.force-ssl</code> and <code>youtube.readonly</code>. Do not add other scopes: every extra sensitive scope widens what Google reviews.</li>
-<li><strong>Test users</strong> (External · Testing only). In <em>Audience → Test users</em>, select <em>Add users</em> and enter the Google email address of every person who will connect a channel. If the channel is a Brand Account, add the personal Google account that manages it.</li>
+<li>Open the <a href="https://console.cloud.google.com/auth/overview/personal">Personal mode onboarding page</a> (<em>Google Auth Platform → Personal mode onboarding</em>), signed in with the account that owns the channel.</li>
+<li>Under <em>Select project</em>, keep <em>Create a new project</em>. Google names it <code>personal-mode-app</code>.</li>
+<li>For <em>Application type</em>, choose <strong>Desktop app</strong>.</li>
+<li><em>Use this client for an AI-powered agent</em>: leave it unticked, unless an AI agent will run AutoUpload for you (see the note in §7).</li>
+<li>Accept the Terms of Service and select <em>Continue</em>.</li>
+<li>In the <em>OAuth client created</em> dialog, select <strong>Download JSON</strong> before closing it. <mark class="hl">Google shows the full client secret only once</mark>; if you lose it, you must rotate the secret or create a new client.</li>
 </ol>
-<div class="note"><p><strong>“Access blocked: … has not completed the Google verification process” (Error 403: access_denied).</strong> This appears when someone who is not a test user tries to sign in while the app is in Testing. Add that person's Google email address under <em>Audience → Test users</em> and try again.</p></div>
+<p>Continue at §8 to enable the YouTube API.</p>
 
-<h2 id="client"><span class="no">§7</span>Create the OAuth client</h2>
+<h2 id="branding"><span class="no">§6</span>Path B: register the app, branding and test users</h2>
 <ol class="steps">
-<li>In <em>Google Auth Platform → Clients</em>, select <em>Create client</em> and choose the application type <strong>Desktop app</strong>.</li>
-<li>Create it and download the JSON file.</li>
-<li>Save it in the AutoUpload folder as <code>config\client_secret.json</code>. Do not share it or upload it to any repository.</li>
+<li><strong>Project.</strong> In <a href="https://console.cloud.google.com/">Google Cloud Console</a>, use the project picker at the top to create a project (for example, <em>AutoUpload</em>) and select it.</li>
+<li><strong>Get started.</strong> Open <em>Google Auth Platform → Overview</em> and select <em>Get started</em>. Enter the app name and a user support email, choose the audience <strong>External</strong>, add your contact email and accept the Google API Services User Data Policy.</li>
+<li><strong>Branding.</strong> The <em>Branding</em> page holds what users see on the consent screen: app name, support email, logo, home page, privacy policy and terms of service, authorized domains and developer contact. In Testing you only need the name and emails; the links become mandatory if you publish the app. A logo forces verification once the app is published.</li>
+<li><strong>Test users.</strong> Open <em>Audience</em>. It shows the publishing status (<em>Testing</em>), the user type (<em>External</em>) and the user count against the limit of 100. Under <em>Test users</em>, select <em>Add users</em> and enter the Google email address of every person who will connect a channel, yours included. For a Brand Account, add the personal account that manages it.</li>
+<li><strong>Data access.</strong> Open <em>Data Access → Add or remove scopes</em>, select only <code>.../auth/youtube.upload</code>, <code>.../auth/youtube.force-ssl</code> and <code>.../auth/youtube.readonly</code>, confirm and select <em>Save</em>. Remove any other scope listed there: every extra sensitive scope widens what Google would review.</li>
 </ol>
+<div class="note"><p><strong>“Access blocked: … has not completed the Google verification process” (Error 403: access_denied).</strong> Someone who is not a test user tried to sign in while the app is in Testing. Add that person’s Google email address under <em>Audience → Test users</em> and try again.</p>
+<p><strong>Publishing.</strong> <em>Audience → Publish app</em> ends the weekly sign-in. Google only enables it once the Branding page is complete, and it does not start a verification by itself: see <a href="support.html#verification">Support</a>.</p></div>
 
-<h2 id="channel"><span class="no">§8</span>Create a folder for your channel</h2>
+<h2 id="client"><span class="no">§7</span>Path B: create the OAuth client</h2>
+<ol class="steps">
+<li>Open <em>Google Auth Platform → Clients</em> and select <em>Create client</em>.</li>
+<li>For <em>Application type</em>, choose <strong>Desktop app</strong>. The list also offers Web application, Android, Chrome extension, iOS and TVs and Limited Input devices; none of those work with AutoUpload.</li>
+<li>Give it a name, for example <em>AutoUpload Desktop</em>. Only you see it, in the console.</li>
+<li><em>Use this client for an AI-powered agent</em>: see the note below.</li>
+<li>Select <em>Create</em> and then <strong>Download JSON</strong> straight away. <mark class="hl">The full client secret is shown only at creation.</mark> Google adds that new settings can take from five minutes to a few hours to apply.</li>
+</ol>
+<div class="note"><p><strong>The “AI-powered agent” box.</strong> It is a self-declaration that the client represents an AI agent acting for its users. Leave it unticked if you run AutoUpload yourself or from the scheduled task. Tick it only on a client that an AI agent (an assistant running commands, an MCP server) will use to run AutoUpload for you. Google asks that agent workflows use their own client, separate from the one people use by hand, so create a second Desktop client for the agent rather than sharing one. The box grants no extra permissions, and consent and verification rules stay the same (<a href="https://support.google.com/cloud/answer/15549257#agentic-client">Google’s explanation</a>).</p></div>
+
+<h2 id="project"><span class="no">§8</span>Enable the YouTube Data API and save the client file</h2>
+<ol class="steps">
+<li>In the same project, open <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com">APIs &amp; Services → Library → YouTube Data API v3</a> and select <strong>Enable</strong>. The page then shows <em>API enabled</em>. <mark class="hl">Without this step every upload fails</mark>, with an error saying the YouTube Data API has not been used in the project or is disabled.</li>
+<li>Move the downloaded JSON file into the AutoUpload folder as <code>config\client_secret.json</code>. Do not share it or upload it to any repository.</li>
+</ol>
+<p>Each project gets its own daily YouTube quota, which resets at midnight Pacific Time: by default 100 video uploads, plus 10,000 units for everything else. A thumbnail costs 50 units, adding a video to a playlist 50, and uploading a subtitle file 400 (<a href="https://developers.google.com/youtube/v3/determine_quota_cost">Google’s quota table</a>).</p>
+
+<h2 id="channel"><span class="no">§9</span>Create a folder for your channel</h2>
 <pre><code>.\.venv\Scripts\subidor.exe channel new mychannel</code></pre>
 <p>This creates <code>canales\mychannel\</code> with three items:</p>
 <div class="table-wrap"><table>
@@ -79,18 +100,18 @@ py -m venv .venv
 </tbody>
 </table></div>
 
-<h2 id="connect"><span class="no">§9</span>Connect your channel</h2>
+<h2 id="connect"><span class="no">§10</span>Connect your channel</h2>
 <pre><code>.\.venv\Scripts\subidor.exe auth mychannel login</code></pre>
 <ol class="steps">
 <li>Your browser opens on Google's sign-in page. Choose your account and, if it manages several channels, the right channel.</li>
 <li>Google lists the three permissions AutoUpload requests. They are explained one by one on the <a href="index.html#permissions">home page</a>. Select <em>Allow</em>.</li>
 <li>AutoUpload stores the access token in <code>%APPDATA%\subidor-youtube</code> and records your channel ID. From then on, it refuses to upload if the token belongs to a different channel.</li>
 </ol>
-<div class="note"><p><strong>What you may see.</strong> With an app in <em>External · Testing</em>, Google first shows that the app is in testing; with an app in production that Google has not verified, it shows “Google hasn’t verified this app”. In both cases, if the app is yours, choose <em>Continue</em> (or <em>Advanced → Go to …</em>). A <em>Personal</em> app shows neither screen.</p><p><strong>Weekly sign-in in Testing.</strong> While the app is in Testing, the access expires seven days after you allowed it and uploads stop with an authentication error. Run <code>auth mychannel login</code> again, or publish the app (§5) so it no longer expires.</p></div>
+<div class="note"><p><strong>What you may see.</strong> With an app in <em>External · Testing</em>, Google first shows that the app is in testing; with an app in production that Google has not verified, it shows “Google hasn’t verified this app”. In both cases, if the app is yours, choose <em>Continue</em> (or <em>Advanced → Go to …</em>). A <em>Personal</em> app shows neither screen.</p><p><strong>Weekly sign-in in Testing.</strong> While the app is in Testing, the access expires seven days after you allowed it and uploads stop with an authentication error. Run <code>auth mychannel login</code> again, or publish the app (§6) so it no longer expires.</p></div>
 <p>To check which channel is connected:</p>
 <pre><code>.\.venv\Scripts\subidor.exe auth mychannel whoami</code></pre>
 
-<h2 id="queue"><span class="no">§10</span>Queue a video</h2>
+<h2 id="queue"><span class="no">§11</span>Queue a video</h2>
 <p>Each video in <code>queue\</code> needs a details file with the same name. A thumbnail with the same name is optional.</p>
 <pre><code>canales\mychannel\queue\
   episode-004.mp4     <span class="c"># the video</span>
@@ -106,14 +127,60 @@ playlist_id: PLxxxxxxxxxxxx
 captions:
   - {language: en, name: English, path: episode-004.en.srt}</code></pre>
 
-<h2 id="upload"><span class="no">§11</span>Preview, then upload</h2>
+<h2 id="upload"><span class="no">§12</span>Preview, then upload</h2>
 <pre><code><span class="c"># show the date each queued video will receive; uploads nothing</span>
 .\.venv\Scripts\subidor.exe schedule mychannel
 <span class="c"># upload for real</span>
 .\.venv\Scripts\subidor.exe schedule mychannel --yes</code></pre>
 <p>Videos are uploaded as private and become public at their scheduled time. Check them in YouTube Studio after the first run.</p>
 
-<h2 id="disconnect"><span class="no">§12</span>Disconnect and remove</h2>
+<h2 id="disconnect"><span class="no">§13</span>Disconnect and remove</h2>
 <pre><code>.\.venv\Scripts\subidor.exe auth mychannel logout</code></pre>
 <p>This revokes the token with Google and deletes it. You can also remove access at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. To uninstall, delete the AutoUpload folder and <code>%APPDATA%\subidor-youtube</code>.</p>
+<h2 id="ai"><span class="no">§14</span>Install it with an AI agent</h2>
+<p>An AI coding agent that can run commands on your computer (Claude Code, Codex or similar) can do the installation for you, following this guide. Some steps stay yours: <mark class="hl">signing in to Google, 2-Step Verification, accepting terms and approving the first upload</mark>. If the agent can also drive a browser, it can do the Google Cloud Console steps; otherwise it walks you through them click by click.</p>
+<ol class="steps">
+<li>Fill in the four values at the top of the prompt below.</li>
+<li>Paste the whole prompt into the agent, started in an empty folder.</li>
+<li>Stay at the computer: the agent stops and hands control back to you at every sign-in and approval.</li>
+</ol>
+<div class="prompt-wrap"><button class="copy" type="button" data-done="Copied">Copy prompt</button>
+<pre class="prompt" tabindex="0"><code>You are installing AutoUpload on this Windows computer. AutoUpload is an open-source command-line tool that uploads videos to my own YouTube channel as private and schedules their publication. Follow the official guide, step by step, and report after each step.
+
+Read these first, in full:
+- Guide: https://daosource111.github.io/autoupload/install.html
+- Repository: https://github.com/DaoSource111/autoupload
+
+My values (edit before running):
+- INSTALL_DIR = C:\AutoUpload
+- CHANNEL = mychannel            (lowercase letters, digits, - or _)
+- GOOGLE_PATH = A                (A = Personal mode, only me; B = External, Testing)
+- TEST_USERS = (Path B only) the Google email addresses to add as test users
+- TIMEZONE = America/Lima ; HOURS = 08:00
+
+Rules, which override anything else:
+1. Never type, ask for or read my Google password or 2-Step Verification codes. When a Google sign-in, account chooser or consent screen appears, stop and ask me to finish it.
+2. Ask me before you accept any terms of service, select "Publish app", or run any command with --yes.
+3. Never print, paste, upload or commit the contents of config\client_secret.json or of any token file. Refer to them by path only.
+4. In Google Cloud, request only the scopes youtube.upload, youtube.force-ssl and youtube.readonly, and enable only the YouTube Data API v3. Change nothing else.
+5. Do not edit AutoUpload's source code. If a command fails, show me the exact error, suggest the fix from the guide's Support page, and wait.
+6. If what you see in Google Cloud Console differs from the guide, describe the difference and ask me before improvising.
+
+Steps (each ends with its check):
+1. Prerequisites. Run `py --version` (needs 3.10 or later) and `git --version`. If Python is missing, tell me to install it from python.org with "Add python.exe to PATH" ticked, and wait. Check: both commands print a version.
+2. Download. Run `git clone https://github.com/DaoSource111/autoupload.git INSTALL_DIR` (or download and extract the ZIP from the guide). Check: INSTALL_DIR\pyproject.toml exists.
+3. Install. In INSTALL_DIR run `py -m venv .venv`, then `.\.venv\Scripts\pip install .`. Check: `.\.venv\Scripts\subidor.exe --help` prints the list of commands.
+4. Google Cloud. Follow guide sections 4 to 8 for GOOGLE_PATH:
+   - Path A: open https://console.cloud.google.com/auth/overview/personal, create a new project, application type "Desktop app", leave "Use this client for an AI-powered agent" unticked, ask me to accept the terms, select Continue, then Download JSON before closing the dialog (the secret is shown only once).
+   - Path B: create a project; Google Auth Platform > Overview > Get started (audience External); Audience > Test users > Add users with TEST_USERS; Data Access with the three scopes only; Clients > Create client > Desktop app named "AutoUpload Desktop"; Create; Download JSON at once.
+   - Both: APIs & Services > Library > YouTube Data API v3 > Enable.
+   If you cannot drive a browser, give me one instruction at a time and wait for "done".
+   Check: the API page shows "API enabled" and the JSON file is in my Downloads folder.
+5. Client file. Move the downloaded JSON to INSTALL_DIR\config\client_secret.json. Check: `Test-Path INSTALL_DIR\config\client_secret.json` returns True.
+6. Channel. Run `.\.venv\Scripts\subidor.exe channel new CHANNEL`, then set timezone to TIMEZONE and hours to HOURS in canales\CHANNEL\canal.yaml. Show me the edited file before saving. Check: `subidor.exe channels` lists CHANNEL.
+7. Connect. Run `.\.venv\Scripts\subidor.exe auth CHANNEL login`. A browser opens: hand over to me for the sign-in and consent. Then run `auth CHANNEL whoami`. Check: it prints my channel's name, and I confirm it is the right channel.
+8. Dry run. Ask me to put one video and its .yaml file in canales\CHANNEL\queue\, then run `subidor.exe schedule CHANNEL` without --yes. Check: it prints a plan with a date and uploads nothing. Upload only after I reply "upload".
+9. Report. List what you installed and where, which Google path was used and what that means (Path B: a new sign-in every 7 days until the app is published), and anything left for me to do.</code></pre></div>
+<p>The prompt is plain text: read it before you run it. It gives the agent no access beyond what you grant in the agent itself.</p>
+
 <p>If something does not work, see <a href="support.html">Support</a>.</p>

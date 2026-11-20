@@ -33,19 +33,41 @@ py -m venv .venv
 .\.venv\Scripts\subidor.exe --help</code></pre>
 <p>The command-line tool is called <code>subidor</code>. Its commands are in English; the original Spanish command names still work as aliases.</p>
 
-<h2 id="client"><span class="no">§4</span>Create your Google OAuth client</h2>
-<p>AutoUpload connects to YouTube through an OAuth client of type <em>Desktop app</em>. <mark class="hl">The client file, <code>client_secret.json</code>, is never published or shared.</mark> Each installation uses its own, created in a few minutes:</p>
+<h2 id="project"><span class="no">§4</span>Create a Google Cloud project and enable the API</h2>
+<p>AutoUpload connects to YouTube through an OAuth client that you own. <mark class="hl">The client file, <code>client_secret.json</code>, is never published or shared.</mark> Each installation creates its own:</p>
 <ol class="steps">
-<li>In <a href="https://console.cloud.google.com/">Google Cloud Console</a>, create a project (for example, <em>AutoUpload</em>).</li>
-<li>In <em>APIs &amp; Services → Library</em>, search for <strong>YouTube Data API v3</strong> and select <em>Enable</em>.</li>
-<li>In <em>Google Auth Platform → Branding</em>, fill in the app name and your support email. In <em>Audience</em>, choose <strong>External</strong> and add your own Google account as a test user.</li>
-<li>In <em>Google Auth Platform → Data Access</em>, add only these three scopes: <code>youtube.upload</code>, <code>youtube.force-ssl</code> and <code>youtube.readonly</code>.</li>
-<li>In <em>Clients → Create client</em>, choose <strong>Desktop app</strong>, create it and download the JSON file.</li>
-<li>Save that file in the AutoUpload folder as <code>config\client_secret.json</code>. Do not share it or upload it to any repository.</li>
+<li>Sign in to <a href="https://console.cloud.google.com/">Google Cloud Console</a> with the Google account that owns or manages your channel, and create a project (for example, <em>AutoUpload</em>).</li>
+<li>Open <em>APIs &amp; Services → Library</em>, search for <strong>YouTube Data API v3</strong>, open it and select <strong>Enable</strong>. <mark class="hl">Without this step every upload fails</mark>, with an error saying that the YouTube Data API has not been used in the project or is disabled.</li>
 </ol>
-<div class="note"><p>While the app is in <em>Testing</em> status, Google expires its tokens after seven days and you must sign in again. To avoid this, select <em>Publish app</em> in <em>Audience</em>. For your own use, Google's verification is not required: you will see an “unverified app” notice when you sign in, where you choose <em>Advanced → Go to the app</em>.</p></div>
 
-<h2 id="channel"><span class="no">§5</span>Create a folder for your channel</h2>
+<h2 id="audience"><span class="no">§5</span>Choose who can use the app</h2>
+<p>Open <em>Google Auth Platform → Audience</em> (the first time, Google asks you to configure the app with <em>Get started</em>). The user type and publishing status decide who can sign in and for how long the access lasts, as described in Google's <a href="https://support.google.com/cloud/answer/15549945">Manage App Audience</a> guide:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Setting</th><th>Who can sign in</th><th>What to expect</th></tr></thead>
+<tbody>
+<tr><td>Personal</td><td>Only the Google account that created the project.</td><td>No verification, no “unverified app” screen and no 7-day expiry. It is a one-time choice when the project is created: it cannot be changed later or shared with other accounts.</td></tr>
+<tr><td>External · Testing</td><td>Only the test users you add by their Google email address, up to 100.</td><td>Google shows a warning before granting access, and <strong>every authorization expires seven days after consent</strong>: each user must sign in again once a week.</td></tr>
+<tr><td>External · In production</td><td>Any Google account.</td><td>Until Google verifies the app, users see an “unverified app” screen and the app is limited to 100 users in total. Authorizations no longer expire after seven days.</td></tr>
+</tbody>
+</table></div>
+<div class="note"><p><strong>Recommended for one person:</strong> choose <em>Personal</em> if only you will upload, from the same account that owns the channel. <strong>For a small team:</strong> start in <em>External · Testing</em>, add each person as a test user, and select <em>Publish app</em> when the setup works, to stop the weekly sign-in.</p></div>
+
+<h2 id="branding"><span class="no">§6</span>Branding, permissions and test users</h2>
+<ol class="steps">
+<li><strong>Branding.</strong> In <em>Google Auth Platform → Branding</em>, enter the app name and a support email. Add a home page, privacy policy and terms of service if you will publish the app: Google requires them for external apps in production. Leave the logo empty unless you plan to request verification, because a logo requires it.</li>
+<li><strong>Data access.</strong> In <em>Data Access → Add or remove scopes</em>, add only <code>youtube.upload</code>, <code>youtube.force-ssl</code> and <code>youtube.readonly</code>. Do not add other scopes: every extra sensitive scope widens what Google reviews.</li>
+<li><strong>Test users</strong> (External · Testing only). In <em>Audience → Test users</em>, select <em>Add users</em> and enter the Google email address of every person who will connect a channel. If the channel is a Brand Account, add the personal Google account that manages it.</li>
+</ol>
+<div class="note"><p><strong>“Access blocked: … has not completed the Google verification process” (Error 403: access_denied).</strong> This appears when someone who is not a test user tries to sign in while the app is in Testing. Add that person's Google email address under <em>Audience → Test users</em> and try again.</p></div>
+
+<h2 id="client"><span class="no">§7</span>Create the OAuth client</h2>
+<ol class="steps">
+<li>In <em>Google Auth Platform → Clients</em>, select <em>Create client</em> and choose the application type <strong>Desktop app</strong>.</li>
+<li>Create it and download the JSON file.</li>
+<li>Save it in the AutoUpload folder as <code>config\client_secret.json</code>. Do not share it or upload it to any repository.</li>
+</ol>
+
+<h2 id="channel"><span class="no">§8</span>Create a folder for your channel</h2>
 <pre><code>.\.venv\Scripts\subidor.exe channel new mychannel</code></pre>
 <p>This creates <code>canales\mychannel\</code> with three items:</p>
 <div class="table-wrap"><table>
@@ -57,17 +79,18 @@ py -m venv .venv
 </tbody>
 </table></div>
 
-<h2 id="connect"><span class="no">§6</span>Connect your channel</h2>
+<h2 id="connect"><span class="no">§9</span>Connect your channel</h2>
 <pre><code>.\.venv\Scripts\subidor.exe auth mychannel login</code></pre>
 <ol class="steps">
 <li>Your browser opens on Google's sign-in page. Choose your account and, if it manages several channels, the right channel.</li>
 <li>Google lists the three permissions AutoUpload requests. They are explained one by one on the <a href="index.html#permissions">home page</a>. Select <em>Allow</em>.</li>
 <li>AutoUpload stores the access token in <code>%APPDATA%\subidor-youtube</code> and records your channel ID. From then on, it refuses to upload if the token belongs to a different channel.</li>
 </ol>
+<div class="note"><p><strong>What you may see.</strong> With an app in <em>External · Testing</em>, Google first shows that the app is in testing; with an app in production that Google has not verified, it shows “Google hasn’t verified this app”. In both cases, if the app is yours, choose <em>Continue</em> (or <em>Advanced → Go to …</em>). A <em>Personal</em> app shows neither screen.</p><p><strong>Weekly sign-in in Testing.</strong> While the app is in Testing, the access expires seven days after you allowed it and uploads stop with an authentication error. Run <code>auth mychannel login</code> again, or publish the app (§5) so it no longer expires.</p></div>
 <p>To check which channel is connected:</p>
 <pre><code>.\.venv\Scripts\subidor.exe auth mychannel whoami</code></pre>
 
-<h2 id="queue"><span class="no">§7</span>Queue a video</h2>
+<h2 id="queue"><span class="no">§10</span>Queue a video</h2>
 <p>Each video in <code>queue\</code> needs a details file with the same name. A thumbnail with the same name is optional.</p>
 <pre><code>canales\mychannel\queue\
   episode-004.mp4     <span class="c"># the video</span>
@@ -83,14 +106,14 @@ playlist_id: PLxxxxxxxxxxxx
 captions:
   - {language: en, name: English, path: episode-004.en.srt}</code></pre>
 
-<h2 id="upload"><span class="no">§8</span>Preview, then upload</h2>
+<h2 id="upload"><span class="no">§11</span>Preview, then upload</h2>
 <pre><code><span class="c"># show the date each queued video will receive; uploads nothing</span>
 .\.venv\Scripts\subidor.exe schedule mychannel
 <span class="c"># upload for real</span>
 .\.venv\Scripts\subidor.exe schedule mychannel --yes</code></pre>
 <p>Videos are uploaded as private and become public at their scheduled time. Check them in YouTube Studio after the first run.</p>
 
-<h2 id="disconnect"><span class="no">§9</span>Disconnect and remove</h2>
+<h2 id="disconnect"><span class="no">§12</span>Disconnect and remove</h2>
 <pre><code>.\.venv\Scripts\subidor.exe auth mychannel logout</code></pre>
 <p>This revokes the token with Google and deletes it. You can also remove access at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. To uninstall, delete the AutoUpload folder and <code>%APPDATA%\subidor-youtube</code>.</p>
 <p>If something does not work, see <a href="support.html">Support</a>.</p>

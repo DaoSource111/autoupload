@@ -381,8 +381,8 @@ td:first-child { white-space: nowrap; }
 /* Load: the sheet lands decelerating from slight oversize, the seal crashes in; no fades */
 .card { animation: land .8s var(--ease-land) both; }
 .seal svg { animation: crash .7s var(--ease-land) both; }
-@keyframes land { from { transform: translateY(18px) scale(1.012); filter: blur(4px); } to { transform: none; filter: none; } }
-@keyframes crash { from { transform: translateY(14px) scale(1.6); filter: blur(5px); } to { transform: none; filter: none; } }
+@keyframes land { from { transform: translateY(18px) scale(1.012); } to { transform: none; } }
+@keyframes crash { from { transform: translateY(14px) scale(1.6); } to { transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   .card, .seal svg { animation: none; }

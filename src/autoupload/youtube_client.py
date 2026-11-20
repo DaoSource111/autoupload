@@ -27,7 +27,7 @@ class YouTubeClient:
         from googleapiclient.discovery import build
         return cls(build("youtube", "v3", credentials=creds, cache_discovery=False))
 
-    # --- lectura -------------------------------------------------------------------------------
+    # --- reads ---
     def my_channel(self) -> dict:
         r = self.s.channels().list(part="id,snippet", mine=True).execute()
         items = r.get("items", [])
@@ -57,7 +57,7 @@ class YouTubeClient:
         items = r.get("items", [])
         return items[0] if items else None
 
-    # --- escritura ------------------------------------------------------------------------------
+    # --- writes ---
     def insert_video(self, body: dict, part: str, path: Path, notify: bool, on_progress=lambda p: None) -> dict:
         req = self.s.videos().insert(part=part, body=body, notifySubscribers=notify,
                                      media_body=self.media(path, "video/*", True))

@@ -50,11 +50,11 @@
 
 <h2 id="faq">Preguntas frecuentes</h2>
 <h3>¿Cómo desconecto AutoUpload de mi canal?</h3>
-<p>Quítalo en <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, o ejecuta <code>subidor auth &lt;canal&gt; logout</code>. Después borra <code>%APPDATA%\subidor-youtube</code> si no quieres dejar rastro local.</p>
+<p>Quítalo en <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, o ejecuta <code>autoupload auth &lt;canal&gt; logout</code>. Después borra <code>%APPDATA%\AutoUpload</code> si no quieres dejar rastro local.</p>
 <h3>Google dice «Acceso bloqueado: … no completó el proceso de verificación de Google».</h3>
 <p>La app está en <em>Prueba</em> y la cuenta de Google con la que entraste no es usuario de prueba. En Google Cloud Console, abre <em>Google Auth Platform → Público → Usuarios de prueba</em>, añade el correo de esa cuenta y vuelve a iniciar sesión. Consulta la <a href="install.html#branding">guía de instalación, §6</a>.</p>
 <h3>¿Por qué tengo que iniciar sesión cada semana?</h3>
-<p>Mientras una app está en <em>Prueba</em>, Google hace caducar cada autorización siete días después del consentimiento. Vuelve a ejecutar <code>subidor auth &lt;canal&gt; login</code>, o pulsa <em>Publicar app</em> en <em>Público</em> para que el acceso deje de caducar. Una app <em>Personal</em> no caduca así. Consulta la <a href="install.html#audience">guía de instalación, §4</a>.</p>
+<p>Mientras una app está en <em>Prueba</em>, Google hace caducar cada autorización siete días después del consentimiento. Vuelve a ejecutar <code>autoupload auth &lt;canal&gt; login</code>, o pulsa <em>Publicar app</em> en <em>Público</em> para que el acceso deje de caducar. Una app <em>Personal</em> no caduca así. Consulta la <a href="install.html#audience">guía de instalación, §4</a>.</p>
 <h3>Google dice «Google no verificó esta app».</h3>
 <p>Es lo esperado en una app publicada que Google aún no ha verificado. Si la app y su cliente OAuth son tuyos, elige <em>Configuración avanzada → Ir a …</em> para continuar. Las apps sin verificar tienen un límite de 100 usuarios.</p>
 <h3>Una subida falla porque la YouTube Data API no está habilitada.</h3>

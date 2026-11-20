@@ -50,11 +50,11 @@
 
 <h2 id="faq">Common questions</h2>
 <h3>How do I disconnect AutoUpload from my channel?</h3>
-<p>Remove it at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, or run <code>subidor auth &lt;channel&gt; logout</code>. Then delete <code>%APPDATA%\subidor-youtube</code> if you want no local trace left.</p>
+<p>Remove it at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, or run <code>autoupload auth &lt;channel&gt; logout</code>. Then delete <code>%APPDATA%\AutoUpload</code> if you want no local trace left.</p>
 <h3>Google says “Access blocked: … has not completed the Google verification process”.</h3>
 <p>The app is in <em>Testing</em> and the Google account you signed in with is not a test user. In Google Cloud Console, open <em>Google Auth Platform → Audience → Test users</em>, add that account’s email address and sign in again. See <a href="install.html#branding">installation guide, §6</a>.</p>
 <h3>Why do I have to sign in again every week?</h3>
-<p>While an app is in <em>Testing</em>, Google expires every authorization seven days after consent. Run <code>subidor auth &lt;channel&gt; login</code> again, or select <em>Publish app</em> in <em>Audience</em> so the access no longer expires. A <em>Personal</em> app never expires this way. See <a href="install.html#audience">installation guide, §4</a>.</p>
+<p>While an app is in <em>Testing</em>, Google expires every authorization seven days after consent. Run <code>autoupload auth &lt;channel&gt; login</code> again, or select <em>Publish app</em> in <em>Audience</em> so the access no longer expires. A <em>Personal</em> app never expires this way. See <a href="install.html#audience">installation guide, §4</a>.</p>
 <h3>Google says “Google hasn’t verified this app”.</h3>
 <p>This is expected for a published app that Google has not verified yet. If the app and its OAuth client are your own, choose <em>Advanced → Go to …</em> to continue. Unverified apps are limited to 100 users.</p>
 <h3>An upload fails saying the YouTube Data API is not enabled.</h3>

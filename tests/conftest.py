@@ -6,10 +6,10 @@ from pathlib import Path
 import pytest
 import yaml
 
-from subidor.manifest import load_manifest
+from autoupload.manifest import load_manifest
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
-SRT = "1\n00:00:00,000 --> 00:00:02,000\nHola\n\n2\n00:00:02,500 --> 00:00:04,000\nAdiós\n"
+SRT = "1\n00:00:00,000 --> 00:00:02,000\nHello\n\n2\n00:00:02,500 --> 00:00:04,000\nGoodbye\n"
 
 
 class FakeHttpError(Exception):
@@ -33,7 +33,7 @@ class FakeClient:
     def my_channel(self):
         self.calls.append("channels.list")
         self._maybe_fail("channels.list")
-        return {"id": "UC_TEST", "title": "Canal de prueba"}
+        return {"id": "UC_TEST", "title": "Test channel"}
 
     def insert_video(self, body, part, path, notify, on_progress=lambda p: None):
         self.calls.append("videos.insert")
@@ -79,10 +79,10 @@ def workdir(tmp_path: Path) -> Path:
 def manifest_file(workdir: Path):
     def make(**over) -> Path:
         data = {
-            "id": "ep-prueba", "video": "video.mp4", "thumbnail": "thumb.png",
-            "default_language": "es", "default_audio_language": "es",
-            "title": "¿Y si la oscuridad tuviera peso?", "description": "Prueba", "tags": ["what if"],
-            "localizations": {"en": {"title": "What if darkness had weight?", "description": "Test"}},
+            "id": "ep-test", "video": "video.mp4", "thumbnail": "thumb.png",
+            "default_language": "en", "default_audio_language": "en",
+            "title": "What if darkness had weight?", "description": "Test", "tags": ["what if"],
+            "localizations": {"de": {"title": "Was waere, wenn Dunkelheit Gewicht haette?", "description": "Test"}},
             "captions": [{"language": "en", "name": "English", "path": "en.srt"}],
             "audio_tracks": [{"language": "en", "path": "audio-en.wav"}],
             "playlist_id": "PL_TEST",

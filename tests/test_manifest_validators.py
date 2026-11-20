@@ -3,18 +3,18 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from pydantic import ValidationError
 
-from subidor.manifest import Manifest, load_manifest
-from subidor.metadata import insert_body, merge_for_update
-from subidor import validators
-from subidor.validators import validate, validate_caption_text
+from autoupload.manifest import Manifest, load_manifest
+from autoupload.metadata import insert_body, merge_for_update
+from autoupload import validators
+from autoupload.validators import validate, validate_caption_text
 
 
 def test_default_privacy_is_private_and_explicit(manifest):
     body, part = insert_body(manifest)
     assert body["status"]["privacyStatus"] == "private"
     assert part == "snippet,status,localizations"
-    assert body["snippet"]["defaultLanguage"] == "es"
-    assert body["localizations"]["en"]["title"] == "What if darkness had weight?"
+    assert body["snippet"]["defaultLanguage"] == "en"
+    assert body["localizations"]["de"]["title"] == "Was waere, wenn Dunkelheit Gewicht haette?"
 
 
 def test_paths_resolved_relative_to_manifest(manifest, workdir):
@@ -24,8 +24,8 @@ def test_paths_resolved_relative_to_manifest(manifest, workdir):
 @pytest.mark.parametrize("over,msg", [
     ({"title": "x" * 101}, "maximum 100"),
     ({"title": "   "}, "empty"),
-    ({"default_language": "español"}, "BCP-47"),
-    ({"localizations": {"es": {"title": "dup"}}}, "default language"),
+    ({"default_language": "english"}, "BCP-47"),
+    ({"localizations": {"en": {"title": "dup"}}}, "default language"),
     ({"tags": ["a" * 300, "b" * 300]}, "maximum 500"),
     ({"description": "<script>"}, "< or >"),
     ({"privacy": "public", "publish_at": "2099-01-01T10:00:00Z"}, "privacy: private"),

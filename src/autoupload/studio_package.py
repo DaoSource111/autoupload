@@ -29,7 +29,7 @@ thumbnails per language. Do it in Studio (requires the channel's advanced featur
 1. Studio → **Languages** → language → **Add** next to "Thumbnail" → **Update**.
 
 When you finish each language, mark its status with:
-    subidor studio-done <manifest> --language <code>
+    autoupload studio-done <manifest> --language <code>
 """
 
 

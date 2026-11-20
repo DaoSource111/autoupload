@@ -74,12 +74,12 @@ class Manifest(BaseModel):
     id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{1,60}$")
     video: Path
     thumbnail: Optional[Path] = None
-    default_language: str = "es"
-    default_audio_language: str = "es"
+    default_language: str = "en"
+    default_audio_language: str = "en"
     title: str
     description: str = ""
     tags: list[str] = []
-    category_id: str = "24"  # Entertainment
+    category_id: str = "27"  # Education
     privacy: Privacy = Privacy.private
     publish_at: Optional[datetime] = None
     made_for_kids: bool = False

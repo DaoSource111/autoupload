@@ -33,8 +33,8 @@ py -m venv .venv
 <span class="c"># install AutoUpload and its dependencies into it</span>
 .\.venv\Scripts\pip install .
 <span class="c"># check that the command works</span>
-.\.venv\Scripts\subidor.exe --help</code></pre>
-<p>The command-line tool is called <code>subidor</code>. Its commands are in English; the original Spanish command names still work as aliases.</p>
+.\.venv\Scripts\autoupload.exe --help</code></pre>
+<p>The command-line tool is called <code>autoupload</code>.</p>
 
 <h2 id="audience"><span class="no">§4</span>Choose your path in Google Cloud</h2>
 <p>AutoUpload has no central server and no shared login. <mark class="hl">Each installation connects through its own OAuth client, in a Google Cloud project that belongs to you.</mark> To Google, that project is the app: its settings decide who can sign in and for how long, as described in <a href="https://support.google.com/cloud/answer/15549945">Manage App Audience</a>. Pick one of two paths:</p>
@@ -89,31 +89,31 @@ py -m venv .venv
 <p>Each project gets its own daily YouTube quota, which resets at midnight Pacific Time: by default 100 video uploads, plus 10,000 units for everything else. A thumbnail costs 50 units, adding a video to a playlist 50, and uploading a subtitle file 400 (<a href="https://developers.google.com/youtube/v3/determine_quota_cost">Google’s quota table</a>).</p>
 
 <h2 id="channel"><span class="no">§9</span>Create a folder for your channel</h2>
-<pre><code>.\.venv\Scripts\subidor.exe channel new mychannel</code></pre>
-<p>This creates <code>canales\mychannel\</code> with three items:</p>
+<pre><code>.\.venv\Scripts\autoupload.exe channel new mychannel</code></pre>
+<p>This creates <code>channels\mychannel\</code> with three items:</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Item</th><th>Purpose</th></tr></thead>
 <tbody>
-<tr><td><code>canal.yaml</code></td><td>Your publishing hours, time zone, language, category and default tags.</td></tr>
+<tr><td><code>channel.yaml</code></td><td>Your publishing hours and their UTC offset (<code>+00:00</code> by default), language, category and default tags.</td></tr>
 <tr><td><code>queue\</code></td><td>The queue: put the videos to upload here.</td></tr>
 <tr><td><code>uploaded\</code></td><td>Uploaded videos are moved here, each with a report.</td></tr>
 </tbody>
 </table></div>
 
 <h2 id="connect"><span class="no">§10</span>Connect your channel</h2>
-<pre><code>.\.venv\Scripts\subidor.exe auth mychannel login</code></pre>
+<pre><code>.\.venv\Scripts\autoupload.exe auth mychannel login</code></pre>
 <ol class="steps">
 <li>Your browser opens on Google's sign-in page. Choose your account and, if it manages several channels, the right channel.</li>
 <li>Google lists the three permissions AutoUpload requests. They are explained one by one on the <a href="index.html#permissions">home page</a>. Select <em>Allow</em>.</li>
-<li>AutoUpload stores the access token in <code>%APPDATA%\subidor-youtube</code> and records your channel ID. From then on, it refuses to upload if the token belongs to a different channel.</li>
+<li>AutoUpload stores the access token in <code>%APPDATA%\AutoUpload</code> and records your channel ID. From then on, it refuses to upload if the token belongs to a different channel.</li>
 </ol>
 <div class="note"><p><strong>What you may see.</strong> With an app in <em>External · Testing</em>, Google first shows that the app is in testing; with an app in production that Google has not verified, it shows “Google hasn’t verified this app”. In both cases, if the app is yours, choose <em>Continue</em> (or <em>Advanced → Go to …</em>). A <em>Personal</em> app shows neither screen.</p><p><strong>Weekly sign-in in Testing.</strong> While the app is in Testing, the access expires seven days after you allowed it and uploads stop with an authentication error. Run <code>auth mychannel login</code> again, or publish the app (§6) so it no longer expires.</p></div>
 <p>To check which channel is connected:</p>
-<pre><code>.\.venv\Scripts\subidor.exe auth mychannel whoami</code></pre>
+<pre><code>.\.venv\Scripts\autoupload.exe auth mychannel whoami</code></pre>
 
 <h2 id="queue"><span class="no">§11</span>Queue a video</h2>
 <p>Each video in <code>queue\</code> needs a details file with the same name. A thumbnail with the same name is optional.</p>
-<pre><code>canales\mychannel\queue\
+<pre><code>channels\mychannel\queue\
   episode-004.mp4     <span class="c"># the video</span>
   episode-004.yaml    <span class="c"># its details (required)</span>
   episode-004.jpg     <span class="c"># thumbnail (optional, .jpg or .png)</span></code></pre>
@@ -122,21 +122,21 @@ py -m venv .venv
 description: |
   What happens when one company holds the whole chain?
 tags: [ai, hardware, markets]
-publish_at: 2026-11-21T08:00:00-05:00   <span class="c"># fixed date; otherwise the next free slot</span>
+publish_at: 2026-11-21T08:00:00+00:00   <span class="c"># fixed date; otherwise the next free slot</span>
 playlist_id: PLxxxxxxxxxxxx
 captions:
   - {language: en, name: English, path: episode-004.en.srt}</code></pre>
 
 <h2 id="upload"><span class="no">§12</span>Preview, then upload</h2>
 <pre><code><span class="c"># show the date each queued video will receive; uploads nothing</span>
-.\.venv\Scripts\subidor.exe schedule mychannel
+.\.venv\Scripts\autoupload.exe schedule mychannel
 <span class="c"># upload for real</span>
-.\.venv\Scripts\subidor.exe schedule mychannel --yes</code></pre>
+.\.venv\Scripts\autoupload.exe schedule mychannel --yes</code></pre>
 <p>Videos are uploaded as private and become public at their scheduled time. Check them in YouTube Studio after the first run.</p>
 
 <h2 id="disconnect"><span class="no">§13</span>Disconnect and remove</h2>
-<pre><code>.\.venv\Scripts\subidor.exe auth mychannel logout</code></pre>
-<p>This revokes the token with Google and deletes it. You can also remove access at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. To uninstall, delete the AutoUpload folder and <code>%APPDATA%\subidor-youtube</code>.</p>
+<pre><code>.\.venv\Scripts\autoupload.exe auth mychannel logout</code></pre>
+<p>This revokes the token with Google and deletes it. You can also remove access at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. To uninstall, delete the AutoUpload folder and <code>%APPDATA%\AutoUpload</code>.</p>
 <h2 id="ai"><span class="no">§14</span>Install it with an AI agent</h2>
 <p>An AI coding agent that can run commands on your computer (Claude Code, Codex or similar) can do the installation for you, following this guide. Some steps stay yours: <mark class="hl">signing in to Google, 2-Step Verification, accepting terms and approving the first upload</mark>. If the agent can also drive a browser, it can do the Google Cloud Console steps; otherwise it walks you through them click by click.</p>
 <ol class="steps">
@@ -156,7 +156,8 @@ My values (edit before running):
 - CHANNEL = mychannel            (lowercase letters, digits, - or _)
 - GOOGLE_PATH = A                (A = Personal mode, only me; B = External, Testing)
 - TEST_USERS = (Path B only) the Google email addresses to add as test users
-- TIMEZONE = America/Lima ; HOURS = 08:00
+- TIMEZONE = +00:00              (UTC offset of HOURS, e.g. +00:00 for UTC, -05:00, +01:00)
+- HOURS = 08:00                  (one or more publishing times per day, HH:MM)
 
 Rules, which override anything else:
 1. Never type, ask for or read my Google password or 2-Step Verification codes. When a Google sign-in, account chooser or consent screen appears, stop and ask me to finish it.
@@ -169,7 +170,7 @@ Rules, which override anything else:
 Steps (each ends with its check):
 1. Prerequisites. Run `py --version` (needs 3.10 or later) and `git --version`. If Python is missing, tell me to install it from python.org with "Add python.exe to PATH" ticked, and wait. Check: both commands print a version.
 2. Download. Run `git clone https://github.com/DaoSource111/autoupload.git INSTALL_DIR` (or download and extract the ZIP from the guide). Check: INSTALL_DIR\pyproject.toml exists.
-3. Install. In INSTALL_DIR run `py -m venv .venv`, then `.\.venv\Scripts\pip install .`. Check: `.\.venv\Scripts\subidor.exe --help` prints the list of commands.
+3. Install. In INSTALL_DIR run `py -m venv .venv`, then `.\.venv\Scripts\pip install .`. Check: `.\.venv\Scripts\autoupload.exe --help` prints the list of commands.
 4. Google Cloud. Follow guide sections 4 to 8 for GOOGLE_PATH:
    - Path A: open https://console.cloud.google.com/auth/overview/personal, create a new project, application type "Desktop app", leave "Use this client for an AI-powered agent" unticked, ask me to accept the terms, select Continue, then Download JSON before closing the dialog (the secret is shown only once).
    - Path B: create a project; Google Auth Platform > Overview > Get started (audience External); Audience > Test users > Add users with TEST_USERS; Data Access with the three scopes only; Clients > Create client > Desktop app named "AutoUpload Desktop"; Create; Download JSON at once.
@@ -177,9 +178,9 @@ Steps (each ends with its check):
    If you cannot drive a browser, give me one instruction at a time and wait for "done".
    Check: the API page shows "API enabled" and the JSON file is in my Downloads folder.
 5. Client file. Move the downloaded JSON to INSTALL_DIR\config\client_secret.json. Check: `Test-Path INSTALL_DIR\config\client_secret.json` returns True.
-6. Channel. Run `.\.venv\Scripts\subidor.exe channel new CHANNEL`, then set timezone to TIMEZONE and hours to HOURS in canales\CHANNEL\canal.yaml. Show me the edited file before saving. Check: `subidor.exe channels` lists CHANNEL.
-7. Connect. Run `.\.venv\Scripts\subidor.exe auth CHANNEL login`. A browser opens: hand over to me for the sign-in and consent. Then run `auth CHANNEL whoami`. Check: it prints my channel's name, and I confirm it is the right channel.
-8. Dry run. Ask me to put one video and its .yaml file in canales\CHANNEL\queue\, then run `subidor.exe schedule CHANNEL` without --yes. Check: it prints a plan with a date and uploads nothing. Upload only after I reply "upload".
+6. Channel. Run `.\.venv\Scripts\autoupload.exe channel new CHANNEL`, then set timezone to "TIMEZONE" and hours to ["HOURS"] in channels\CHANNEL\channel.yaml. Show me the edited file before saving. Check: `autoupload.exe channels` lists CHANNEL.
+7. Connect. Run `.\.venv\Scripts\autoupload.exe auth CHANNEL login`. A browser opens: hand over to me for the sign-in and consent. Then run `auth CHANNEL whoami`. Check: it prints my channel's name, and I confirm it is the right channel.
+8. Dry run. Ask me to put one video and its .yaml file in channels\CHANNEL\queue\, then run `autoupload.exe schedule CHANNEL` without --yes. Check: it prints a plan with a date and uploads nothing. Upload only after I reply "upload".
 9. Report. List what you installed and where, which Google path was used and what that means (Path B: a new sign-in every 7 days until the app is published), and anything left for me to do.</code></pre></div>
 <p>The prompt is plain text: read it before you run it. It gives the agent no access beyond what you grant in the agent itself.</p>
 

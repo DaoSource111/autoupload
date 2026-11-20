@@ -89,8 +89,8 @@
 <div class="table-wrap"><table>
 <thead><tr><th>Item</th><th>Where it lives</th><th>Contents</th></tr></thead>
 <tbody>
-<tr><td>Access token</td><td><code>%APPDATA%\subidor-youtube</code></td><td>The OAuth token Google issues after you allow access. It lets the app act on your channel without asking you to sign in each time.</td></tr>
-<tr><td>Upload log</td><td><code>estado.sqlite</code> in your channel folder</td><td>File name, YouTube video ID and scheduled time of each upload, so no file is uploaded twice.</td></tr>
+<tr><td>Access token</td><td><code>%APPDATA%\AutoUpload</code></td><td>The OAuth token Google issues after you allow access. It lets the app act on your channel without asking you to sign in each time.</td></tr>
+<tr><td>Upload log</td><td><code>state.sqlite</code> in your channel folder</td><td>File name, YouTube video ID and scheduled time of each upload, so no file is uploaded twice.</td></tr>
 <tr><td>Videos and details</td><td>Folders you choose</td><td>Your own files. AutoUpload reads them and sends them to YouTube; it does not copy them elsewhere.</td></tr>
 </tbody>
 </table></div>
@@ -117,8 +117,8 @@
 
 <h2 id="revoke"><span class="no">§8</span>Revoking access and deleting data</h2>
 <ol>
-<li>Open <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, choose AutoUpload and remove its access. Or run <code>subidor auth &lt;channel&gt; logout</code>, which revokes the token with Google and deletes it.</li>
-<li>Delete the folder <code>%APPDATA%\subidor-youtube</code> and the <code>estado.sqlite</code> file in your channel folder.</li>
+<li>Open <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, choose AutoUpload and remove its access. Or run <code>autoupload auth &lt;channel&gt; logout</code>, which revokes the token with Google and deletes it.</li>
+<li>Delete the folder <code>%APPDATA%\AutoUpload</code> and the <code>state.sqlite</code> file in your channel folder.</li>
 </ol>
 <p>After these two steps, nothing AutoUpload stored remains.</p>
 

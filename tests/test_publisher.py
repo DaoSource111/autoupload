@@ -2,12 +2,13 @@ import json
 
 import pytest
 
-from subidor import cli
-from subidor.manifest import load_manifest
-from subidor.publisher import SafetyError, make_plan, publish
-from subidor.state import State
-from subidor.studio_package import build, mark_done
-from subidor.upload import UploadError, run_resumable
+from autoupload import channels, cli
+from autoupload import auth
+from autoupload.manifest import load_manifest
+from autoupload.publisher import SafetyError, make_plan, publish
+from autoupload.state import State
+from autoupload.studio_package import build, mark_done
+from autoupload.upload import UploadError, run_resumable
 from conftest import FakeClient, FakeHttpError
 
 
@@ -157,39 +158,35 @@ def test_studio_package_tracks_status_separately(manifest, tmp_path):
     assert mark_done(out, "en")["audio_tracks"]["en"]["status"] == "uploaded_in_studio"
 
 
-def test_cli_validar_y_plan(manifest_file, capsys):
+def test_cli_validate_and_plan(manifest_file, capsys):
     p = manifest_file()
-    assert cli.main(["validar", str(p)]) == cli.OK
+    assert cli.main(["validate", str(p)]) == cli.OK
     assert cli.main(["plan", str(p)]) == cli.OK
     assert "PLAN" in capsys.readouterr().out
 
 
-def test_cli_publicar_sin_yes_no_sube(manifest_file, capsys, monkeypatch, tmp_path):
-    import subidor.auth as auth
-    from subidor import canales
-    monkeypatch.setenv("SUBIDOR_RAIZ", str(tmp_path / "raiz"))
-    canales.crear("prueba")
-    monkeypatch.setattr(auth, "load", lambda *a, **k: pytest.fail("no debe autenticar sin --yes"))
-    assert cli.main(["publicar", str(manifest_file()), "--canal", "prueba"]) == cli.OK
+def test_cli_publish_without_yes_uploads_nothing(manifest_file, capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("AUTOUPLOAD_HOME", str(tmp_path / "home"))
+    channels.create_channel("test")
+    monkeypatch.setattr(auth, "load", lambda *a, **k: pytest.fail("must not authenticate without --yes"))
+    assert cli.main(["publish", str(manifest_file()), "--channel", "test"]) == cli.OK
     assert "Nothing has been uploaded" in capsys.readouterr().out
 
 
-def test_cli_credenciales_caducadas(manifest_file, monkeypatch, tmp_path):
-    import subidor.auth as auth
-    from subidor import canales
-    monkeypatch.setenv("SUBIDOR_RAIZ", str(tmp_path / "raiz"))
-    canales.crear("prueba")
+def test_cli_expired_credentials(manifest_file, monkeypatch, tmp_path):
+    monkeypatch.setenv("AUTOUPLOAD_HOME", str(tmp_path / "home"))
+    channels.create_channel("test")
 
-    def caducado(*a, **k):
+    def expired(*a, **k):
         raise auth.AuthError("permission expired")
-    monkeypatch.setattr(auth, "load", caducado)
-    assert cli.main(["publicar", str(manifest_file()), "--canal", "prueba", "--yes"]) == cli.AUTH
-    assert cli.main(["programar", "prueba", "--yes"]) == cli.OK  # empty queue: does not even authenticate
-    (tmp_path / "raiz" / "canales" / "prueba" / "queue" / "a.mp4").write_bytes(b"x")
-    assert cli.main(["programar", "prueba", "--yes"]) == cli.AUTH
+    monkeypatch.setattr(auth, "load", expired)
+    assert cli.main(["publish", str(manifest_file()), "--channel", "test", "--yes"]) == cli.AUTH
+    assert cli.main(["schedule", "test", "--yes"]) == cli.OK  # empty queue: does not even authenticate
+    (tmp_path / "home" / "channels" / "test" / "queue" / "a.mp4").write_bytes(b"x")
+    assert cli.main(["schedule", "test", "--yes"]) == cli.AUTH
 
 
-def test_cli_manifiesto_malo(tmp_path):
+def test_cli_bad_manifest(tmp_path):
     bad = tmp_path / "m.yaml"
     bad.write_text("id: X\n", encoding="utf-8")
-    assert cli.main(["validar", str(bad)]) == cli.INVALIDO
+    assert cli.main(["validate", str(bad)]) == cli.INVALID

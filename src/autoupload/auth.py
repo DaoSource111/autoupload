@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import stat
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -24,11 +25,15 @@ class AuthError(RuntimeError):
 
 
 def config_dir() -> Path:
-    base = os.environ.get("SUBIDOR_HOME")
-    if base:
-        return Path(base)
-    root = os.environ.get("APPDATA") or os.environ.get("XDG_CONFIG_HOME") or str(Path.home() / ".config")
-    return Path(root) / "subidor-youtube"
+    """Token folder: AUTOUPLOAD_CONFIG_DIR, else %APPDATA%\\AutoUpload on Windows, else $XDG_CONFIG_HOME/autoupload or ~/.config/autoupload."""
+    override = os.environ.get("AUTOUPLOAD_CONFIG_DIR")
+    if override:
+        return Path(override)
+    appdata = os.environ.get("APPDATA")
+    if sys.platform == "win32" and appdata:
+        return Path(appdata) / "AutoUpload"
+    xdg = os.environ.get("XDG_CONFIG_HOME") or str(Path.home() / ".config")
+    return Path(xdg) / "autoupload"
 
 
 def token_path(profile: str = "default") -> Path:
@@ -63,7 +68,7 @@ def load(profile: str = "default"):
     """Saved credentials; refreshes them if they have expired. Raises AuthError if the user must sign in again."""
     p = token_path(profile)
     if not p.exists():
-        raise AuthError("no session: run `subidor auth <channel> login`")
+        raise AuthError("no session: run `autoupload auth <channel> login`")
     from google.oauth2.credentials import Credentials
     from google.auth.transport.requests import Request
     from google.auth.exceptions import RefreshError
@@ -73,11 +78,11 @@ def load(profile: str = "default"):
             try:
                 creds.refresh(Request())
             except RefreshError as exc:
-                raise AuthError("the permission expired or was revoked: run `subidor auth <channel> login` again") from exc
+                raise AuthError("the permission expired or was revoked: run `autoupload auth <channel> login` again") from exc
             p.write_text(creds.to_json(), encoding="utf-8")
             _protect(p)
         else:
-            raise AuthError("invalid token: run `subidor auth <channel> login` again")
+            raise AuthError("invalid token: run `autoupload auth <channel> login` again")
     return creds
 
 

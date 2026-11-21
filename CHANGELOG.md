@@ -3,7 +3,7 @@
 All notable changes to AutoUpload. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [semantic versioning](https://semver.org/).
 
-## [1.2.0] — unreleased
+## [1.2.0] — 2026-11-21
 
 ### Fixed
 - An installed copy (`pip install .`) kept `channels/` and `config/` inside the venv (`.venv\Lib\`), so the

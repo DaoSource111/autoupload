@@ -2,7 +2,7 @@
 _Actualizado: 2026-11-21 · Versión publicada: v1.1.0 · Nota de la auditoría: 6,5/10_
 
 ## Estado actual
-v1.2.0 en main (sin release aún): fases 1 y 2 hechas. 130 tests; CI en verde el 2026-11-21 (11 trabajos: lint, 9 combinaciones SO × Python y wheel instalado).
+v1.2.0 publicada el 2026-11-21 (release con wheel, sdist, SHA256SUMS y atestación de procedencia): fases 1 y 2 hechas. 130 tests; CI en verde el 2026-11-21 (11 trabajos: lint, 9 combinaciones SO × Python y wheel instalado).
 Nota técnica estimada: 8,5/10. Lo que falta para 10 es sobre todo uso real (madurez) y facilidad para no técnicos.
 
 ## Hecho
@@ -55,7 +55,7 @@ Nota técnica estimada: 8,5/10. Lo que falta para 10 es sobre todo uso real (mad
 - [F4] Metadatos con IA opcional (clave del usuario, desactivado por defecto).
 
 ### Web pública y marca
-- [F1] Publicar la release 1.2.0 (CHANGELOG listo) tras ver la CI en verde.
+- [F3] Publicar en PyPI desde el workflow de release (falta crear el proyecto en PyPI y su trusted publisher).
 - [F3] Demo en GIF, CHANGELOG, CONTRIBUTING, SECURITY.md, plantillas de issues, FAQ y solución de problemas.
 - [F3] Referencia completa en MkDocs; página de comparación honesta con otras herramientas.
 - [F4] Difusión (r/NewTubers, Show HN) y respuesta rápida a issues.

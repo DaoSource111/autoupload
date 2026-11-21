@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import sys
 from datetime import date, datetime, time, timedelta, timezone, tzinfo
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -144,6 +145,37 @@ def legacy_root() -> Optional[Path]:
     if _is_checkout(parent) or parent == root():
         return None
     return parent if (parent / "channels").is_dir() or (parent / "config").is_dir() else None
+
+
+def migrate_legacy(execute: bool, src: Optional[Path] = None, dest: Optional[Path] = None) -> list[str]:
+    """Moves channels and OAuth client files left inside the venv by 1.1.0 to the data folder.
+
+    Never overwrites: anything that already exists at the destination is reported and left where it is.
+    With execute=False it only lists what it would do.
+    """
+    src = src or legacy_root()
+    dest = dest or root()
+    if src is None:
+        return []
+    actions: list[str] = []
+    moves: list[tuple[Path, Path]] = []
+    old_channels = src / "channels"
+    if old_channels.is_dir():
+        for ch in sorted(p for p in old_channels.iterdir() if p.is_dir()):
+            moves.append((ch, dest / "channels" / ch.name))
+    old_config = src / "config"
+    if old_config.is_dir():
+        for f in sorted(old_config.glob("client_secret*.json")):
+            moves.append((f, dest / "config" / f.name))
+    for a, b in moves:
+        if b.exists():
+            actions.append(f"skip {a} (already exists: {b})")
+            continue
+        actions.append(f"move {a} → {b}")
+        if execute:
+            b.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(a), str(b))
+    return actions
 
 
 def channels_dir(base: Optional[Path] = None) -> Path:

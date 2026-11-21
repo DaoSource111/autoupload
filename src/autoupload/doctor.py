@@ -62,7 +62,7 @@ def run(base: Optional[Path] = None) -> list[Check]:
     legacy = None if base else channels.legacy_root()
     if legacy:
         out.append(Check(WARN, f"old data found inside the Python environment: {legacy}",
-                         f"move its channels\\ and config\\ folders to {home} (a new venv would delete them)"))
+                         f"run: autoupload migrate --yes (moves it to {home}; a new venv would delete it)"))
 
     out.append(Check(OK if find_ffprobe() else WARN, "ffprobe " + ("found" if find_ffprobe() else "not found"),
                      "" if find_ffprobe() else "optional: install FFmpeg so video and caption durations are checked"))

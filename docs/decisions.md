@@ -34,6 +34,18 @@ habitual (clonar y ejecutar) el repositorio sigue siendo la carpeta de datos.
 **Decisión:** `timezone` acepta `Europe/Madrid` (con `zoneinfo`) o `+01:00`. `tzdata` es dependencia solo en Windows.
 **Motivo:** con offsets fijos las franjas se movían una hora con cada cambio de horario; los `channel.yaml` existentes siguen valiendo.
 
+## 2026-11-21 — Reanudación y anti-duplicados sin tocar los metadatos
+**Decisión:** guardar la URI de la sesión reanudable en SQLite y, si se perdió la respuesta, buscar el vídeo en las
+50 últimas subidas por `fileDetails.fileName` + `fileSize` (solo visible para el dueño).
+**Motivo:** evita duplicados sin añadir marcas visibles en el título, la descripción o las etiquetas.
+**Riesgo aceptado:** reanudar usa el camino interno de googleapiclient (`resumable_uri`, `_in_error_state`); si la
+librería cambia, falla con SessionExpired/UploadError y se sube de nuevo tras buscar por archivo.
+
+## 2026-11-21 — Errores por reason; la miniatura 403 no es fatal
+**Decisión:** clasificar por `error.reason`; `quotaExceeded`/`uploadLimitExceeded`/`dailyLimitExceeded` paran la
+ejecución, `rateLimitExceeded` y 429/5xx se reintentan. Una miniatura rechazada con 403 es un aviso.
+**Motivo:** un límite momentáneo no debe detener el día, y un canal sin verificar no debe bloquear la cola para siempre.
+
 ## 2026-11-21 — Notas de desarrollo en docs/, fuera de la web
 **Decisión:** `progress.md`, `decisions.md` y `known-issues.md` viven en `docs/` y se excluyen de GitHub Pages en `docs/_config.yml`.
 **Motivo:** mantener la convención Omega sin publicar las notas como páginas de la web.

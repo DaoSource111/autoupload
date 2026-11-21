@@ -35,16 +35,28 @@ class FakeClient:
         self._maybe_fail("channels.list")
         return {"id": "UC_TEST", "title": "Test channel"}
 
-    def insert_video(self, body, part, path, notify, on_progress=lambda p: None):
-        self.calls.append("videos.insert")
+    def insert_video(self, body, part, path, notify, on_progress=lambda p: None, *, session_uri=None,
+                     on_session=lambda uri: None):
+        self.calls.append("videos.insert" + (":resume" if session_uri else ""))
+        self.sessions_used = getattr(self, "sessions_used", []) + [session_uri]
+        on_session(f"https://upload.example/session/{self.n + 1}")
         self._maybe_fail("videos.insert")
         self.n += 1
         vid = f"VID{self.n}"
         self.videos[vid] = {"id": vid, "snippet": dict(body["snippet"]), "status": {**body["status"], "uploadStatus": "uploaded"},
-                            "localizations": body.get("localizations", {})}
+                            "localizations": body.get("localizations", {}),
+                            "fileDetails": {"fileName": Path(path).name, "fileSize": Path(path).stat().st_size}}
         self.last_body, self.last_part, self.last_notify = body, part, notify
         on_progress(1.0)
         return {"id": vid}
+
+    def find_by_file(self, file_name, file_size, recent=50):
+        self.calls.append("find_by_file")
+        for vid, v in self.videos.items():
+            fd = v.get("fileDetails", {})
+            if fd.get("fileName") == file_name and fd.get("fileSize") == file_size:
+                return vid
+        return None
 
     def set_thumbnail(self, video_id, path):
         self.calls.append("thumbnails.set")
@@ -64,6 +76,12 @@ class FakeClient:
     def get_video(self, video_id, parts=""):
         self.calls.append("videos.list")
         return self.videos.get(video_id)
+
+
+@pytest.fixture(autouse=True)
+def _no_settle_wait(monkeypatch):
+    """Test videos are written a moment before use; the 'still copying' wait is tested on its own."""
+    monkeypatch.setattr("autoupload.queue.SETTLE_SECONDS", 0.0)
 
 
 @pytest.fixture

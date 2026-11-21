@@ -151,3 +151,51 @@ def test_same_file_twice_is_not_duplicated(channel):
     r = process_queue(channel, cli, execute=True, now=NOW, notify=lambda s: None)
     assert cli.calls.count("videos.insert") == 1 and len(r.done) == 1
     assert len(r.errors) == 1 and (channel.queue / "a2.mp4").exists()
+
+
+def test_video_still_copying_waits(channel, monkeypatch):
+    import autoupload.queue as q
+    monkeypatch.setattr(q, "SETTLE_SECONDS", 120.0)
+    put(channel, "a", {"title": "A"})
+    msgs = []
+    r = process_queue(channel, Client(), execute=True, now=NOW, notify=msgs.append)
+    assert not r.done and (channel.queue / "a.mp4").exists() and any("still copying" in m for m in msgs)
+
+
+def test_second_run_on_same_channel_is_blocked(channel):
+    import autoupload.queue as q
+    put(channel, "a", {"title": "A"})
+    with q.channel_lock(channel):
+        with pytest.raises(StopRun, match="another AutoUpload run"):
+            process_queue(channel, Client(), execute=True, now=NOW, notify=lambda s: None)
+    assert not (channel.folder / "run.lock").exists()
+    r = process_queue(channel, Client(), execute=True, now=NOW, notify=lambda s: None)
+    assert len(r.done) == 1 and not (channel.folder / "run.lock").exists()
+
+
+def test_stale_lock_is_taken_over(channel):
+    import os
+    import time as _t
+    lock = channel.folder / "run.lock"
+    lock.write_text("pid=1")
+    old = _t.time() - 7 * 3600
+    os.utime(lock, (old, old))
+    put(channel, "a", {"title": "A"})
+    r = process_queue(channel, Client(), execute=True, now=NOW, notify=lambda s: None)
+    assert len(r.done) == 1
+
+
+def test_interrupted_item_is_completed_and_moved_on_next_run(channel):
+    put(channel, "a", {"title": "A"})
+    cli = Client(fail={"playlistItems.insert": [RuntimeError("boom")]})
+    (channel.queue / "a.yaml").write_text("title: A\nplaylist_id: PL_X\n", encoding="utf-8")
+    r1 = process_queue(channel, cli, execute=True, now=NOW, notify=lambda s: None)
+    assert r1.errors and (channel.queue / "a.mp4").exists()
+    r2 = process_queue(channel, cli, execute=True, now=NOW, notify=lambda s: None)
+    assert len(r2.done) == 1 and not r2.errors and cli.calls.count("videos.insert") == 1
+    assert not (channel.queue / "a.mp4").exists()
+
+
+def test_rate_limit_is_not_a_daily_stop():
+    from autoupload.upload import is_stop_error
+    assert is_stop_error(RuntimeError("uploadLimitExceeded")) and not is_stop_error(RuntimeError("rateLimitExceeded"))

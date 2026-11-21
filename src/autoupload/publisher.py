@@ -11,10 +11,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from .fsutil import write_atomic
 from .manifest import Manifest, Privacy
 from .metadata import insert_body
 from .state import State, file_sha256
-from .upload import http_status
+from .upload import SessionExpired, http_status
 from .validators import Report, validate
 
 log = logging.getLogger(__name__)
@@ -97,23 +98,30 @@ def publish(m: Manifest, client, state: State, *, confirm: bool, allow_public: b
     stages = prev["stages"] if prev else []
     video_id = prev["video_id"] if prev else None
     result = {"manifest_id": m.id, "channel": channel, "video_id": video_id, "resumed": bool(prev), "steps": [],
+              "previous_manifest_id": prev["manifest_id"] if prev else None, "warnings": [],
               "studio_pending": [a.language for a in m.audio_tracks]}
 
     state.record(m.id, sha, channel["id"], stage="validated")
     if "uploaded" not in stages:
-        body, part = insert_body(m)
-        resp = client.insert_video(body, part, m.video, m.notify_subscribers, on_progress)
-        video_id = resp["id"]
+        video_id, how = _upload(m, client, state, sha, channel["id"], prev, on_progress)
         state.record(m.id, sha, channel["id"], video_id=video_id, stage="uploaded")
         state.event(m.id, "uploaded", video_id)
-        result["steps"].append("videos.insert")
+        result["steps"].append(how)
     else:
         result["steps"].append("videos.insert (skipped: already uploaded)")
 
     if m.thumbnail and "thumbnail" not in stages:
-        client.set_thumbnail(video_id, m.thumbnail)
-        state.record(m.id, sha, channel["id"], stage="thumbnail")
-        result["steps"].append("thumbnails.set")
+        try:
+            client.set_thumbnail(video_id, m.thumbnail)
+            state.record(m.id, sha, channel["id"], stage="thumbnail")
+            result["steps"].append("thumbnails.set")
+        except Exception as exc:  # noqa: BLE001
+            if http_status(exc) != 403:
+                raise
+            # Custom thumbnails need a verified channel; the video itself is fine, so this does not fail the upload.
+            result["warnings"].append("thumbnail rejected by YouTube (403): custom thumbnails need a verified channel, "
+                                      "see https://www.youtube.com/verify; set it later in YouTube Studio")
+            result["steps"].append("thumbnails.set (rejected: channel not verified)")
 
     if m.captions and "captions" not in stages:
         for c in m.captions:
@@ -141,6 +149,42 @@ def publish(m: Manifest, client, state: State, *, confirm: bool, allow_public: b
     return result
 
 
+def _find_existing(m: Manifest, client) -> Optional[str]:
+    finder = getattr(client, "find_by_file", None)
+    return finder(m.video.name, m.video.stat().st_size) if finder else None
+
+
+def _upload(m: Manifest, client, state: State, sha: str, channel_id: str, prev: Optional[dict],
+            on_progress) -> tuple[str, str]:
+    """Uploads the video once: resumes a saved session, or finds an upload whose response was lost. Returns (id, step)."""
+    session = prev["session"] if prev else None
+    started_before = bool(prev and "upload_started" in prev["stages"])
+    if started_before and not session:
+        # An earlier run started uploading but never learned the result: the video may already be on the channel.
+        found = _find_existing(m, client)
+        if found:
+            return found, "videos.insert (skipped: found on the channel from an earlier run)"
+
+    def keep(uri: str) -> None:
+        state.record(m.id, sha, channel_id, session=uri)
+
+    state.record(m.id, sha, channel_id, stage="upload_started")
+    body, part = insert_body(m)
+    if session:
+        try:
+            resp = client.insert_video(body, part, m.video, m.notify_subscribers, on_progress,
+                                       session_uri=session, on_session=keep)
+            return resp["id"], "videos.insert (resumed)"
+        except SessionExpired:
+            state.clear_session(sha, channel_id)
+            found = _find_existing(m, client)
+            if found:
+                return found, "videos.insert (skipped: found on the channel from an earlier run)"
+            log.warning("saved upload session expired; uploading %s again from the start", m.video.name)
+    resp = client.insert_video(body, part, m.video, m.notify_subscribers, on_progress, on_session=keep)
+    return resp["id"], "videos.insert"
+
+
 def verify(m: Manifest, client, video_id: str) -> dict:
     v = client.get_video(video_id)
     if v is None:
@@ -162,5 +206,5 @@ def verify(m: Manifest, client, video_id: str) -> dict:
 def write_report(result: dict, out: Path) -> Path:
     out.parent.mkdir(parents=True, exist_ok=True)
     result = {**result, "generated": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-    out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_atomic(out, json.dumps(result, ensure_ascii=False, indent=2))
     return out

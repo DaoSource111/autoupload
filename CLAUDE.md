@@ -36,13 +36,13 @@ Nunca ejecutes `schedule --yes`, `publish --yes` ni `auth … login` sin que el 
 |---|---|
 | Autenticación OAuth | `auth.py` |
 | Cliente YouTube y subida reanudable | `youtube_client.py`, `upload.py` |
-| Publicación por etapas y estado | `publisher.py`, `state.py`, `metadata.py` |
-| Canales y calendario de franjas | `channels.py` |
-| Cola de vídeos | `queue.py` |
+| Publicación por etapas y estado | `publisher.py`, `state.py` (esquema versionado, `PRAGMA user_version`), `metadata.py`, `fsutil.py` |
+| Canales, carpeta de datos y calendario | `channels.py` (`root()`, `migrate_legacy`, zonas IANA) |
+| Cola de vídeos | `queue.py` (lock por canal, espera de archivos en copia) |
 | Manifiesto y validación | `manifest.py`, `validators.py`, `studio_package.py` |
-| CLI y ejecución programada | `cli.py`, `install-task.ps1`, `upload-all.ps1` |
+| CLI, diagnóstico y ejecución programada | `cli.py`, `doctor.py`, `install-task.ps1`, `upload-all.ps1` |
 | Web pública y marca | `docs/_src/`, `tools/build_site.py`, `assets/brand/` |
-| Calidad (tests, CI, empaquetado) | `tests/`, `pyproject.toml`, `.github/` (por crear) |
+| Calidad y comunidad | `tests/`, `pyproject.toml`, `.github/` (CI, Dependabot, plantillas), `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md` |
 
 (Los archivos `.py` están en `src/autoupload/`.)
 

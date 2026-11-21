@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .fsutil import write_atomic
 
 OK, INVALID, AUTH, REMOTE = 0, 2, 3, 4
 
@@ -33,6 +34,8 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("name")
     sub.add_parser("channels", help="list the configured channels and their queue")
     sub.add_parser("doctor", help="check the installation offline and say how to fix each problem")
+    mg = sub.add_parser("migrate", help="move data left inside the venv by version 1.1.0 to the data folder")
+    mg.add_argument("--yes", action="store_true", help="move the files (without it, only list what would move)")
 
     a = sub.add_parser("auth", help="connect a channel: autoupload auth <channel> login | whoami | logout")
     a.add_argument("channel")
@@ -104,6 +107,15 @@ def _run(args) -> int:
         print(f"Channel created in {folder}\n1) Review {folder / 'channel.yaml'}\n2) Connect it: autoupload auth {args.name} login")
         return OK
 
+    if args.cmd == "migrate":
+        actions = channels.migrate_legacy(execute=args.yes)
+        if not actions:
+            print(f"Nothing to migrate. Data folder: {channels.root()}")
+            return OK
+        print("\n".join(actions))
+        print("Done." if args.yes else "Nothing was moved. Run again with --yes to move these files.")
+        return OK
+
     if args.cmd == "doctor":
         from . import doctor
         checks = doctor.run()
@@ -129,7 +141,7 @@ def _run(args) -> int:
                 previous = channel.expected_channel_id()
                 if previous and previous != yt["id"]:
                     print(f"Note: this channel used to be {previous}, and you have now signed in as {yt['title']} ({yt['id']}).")
-                channel.channel_id_file.write_text(yt["id"], encoding="utf-8")
+                write_atomic(channel.channel_id_file, yt["id"])
                 print(f"Connected '{args.channel}' → {yt['title']} ({yt['id']})")
             elif args.action == "logout":
                 print("Signed out." if auth.logout(channel.profile) else "There was no session.")

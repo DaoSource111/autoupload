@@ -68,11 +68,11 @@ def _named(tmp_path, monkeypatch, zone: str):
 
 def test_named_zone_keeps_local_hour_across_daylight_saving(tmp_path, monkeypatch):
     c = _named(tmp_path, monkeypatch, "Europe/Madrid")
-    # Europe moves the clocks back on 2026-10-25: 08:00 Madrid is 06:00 UTC before and 07:00 UTC after.
+    # Europe moves the clocks back at 03:00 on 2026-10-25: 08:00 Madrid is 06:00 UTC on the 24th, 07:00 UTC from the 25th.
     now = datetime(2026, 10, 23, 12, 0, tzinfo=timezone.utc)
     slots = channels.next_slots(c, 3, [], now=now)
-    assert [s.hour for s in slots] == [8, 8, 8]
-    assert [s.astimezone(timezone.utc).hour for s in slots] == [6, 6, 7]
+    assert [(s.day, s.hour) for s in slots] == [(24, 8), (25, 8), (26, 8)]
+    assert [s.astimezone(timezone.utc).hour for s in slots] == [6, 7, 7]
 
 
 def test_named_zone_round_trips_booked_dates(tmp_path, monkeypatch):
@@ -82,3 +82,41 @@ def test_named_zone_round_trips_booked_dates(tmp_path, monkeypatch):
     assert booked[0].hour == 8                      # Lima is UTC-5 all year
     now = datetime(2026, 12, 1, 0, 0, tzinfo=timezone.utc)
     assert [s.day for s in channels.next_slots(c, 2, booked, now=now)] == [1, 3]
+
+
+def test_migrate_moves_without_overwriting(tmp_path):
+    old, new = tmp_path / "venv" / "Lib", tmp_path / "data"
+    (old / "channels" / "a").mkdir(parents=True)
+    (old / "channels" / "a" / "channel.yaml").write_text("hours: ['08:00']\n")
+    (old / "channels" / "b").mkdir()
+    (old / "config").mkdir()
+    (old / "config" / "client_secret.json").write_text("{}")
+    (new / "channels" / "b").mkdir(parents=True)              # already there: must be left alone
+    preview = channels.migrate_legacy(execute=False, src=old, dest=new)
+    assert any(x.startswith("skip") and "b" in x for x in preview) and (old / "channels" / "a").exists()
+    channels.migrate_legacy(execute=True, src=old, dest=new)
+    assert (new / "channels" / "a" / "channel.yaml").exists() and (new / "config" / "client_secret.json").exists()
+    assert (old / "channels" / "b").exists() and not (old / "channels" / "a").exists()
+
+
+def test_write_atomic_replaces_whole_file(tmp_path):
+    from autoupload.fsutil import write_atomic
+    p = tmp_path / "x" / "token.json"
+    write_atomic(p, "one")
+    write_atomic(p, "two")
+    assert p.read_text() == "two" and [f.name for f in p.parent.iterdir()] == ["token.json"]
+
+
+def test_state_schema_migrates_old_database(tmp_path):
+    import sqlite3
+    from autoupload.state import SCHEMA_VERSION, State
+    db = tmp_path / "state.sqlite"
+    con = sqlite3.connect(db)
+    con.execute("""CREATE TABLE uploads(manifest_id TEXT NOT NULL, sha256 TEXT NOT NULL, channel_id TEXT NOT NULL,
+                   video_id TEXT, stages TEXT NOT NULL DEFAULT '', updated TEXT NOT NULL, PRIMARY KEY(sha256, channel_id))""")
+    con.execute("INSERT INTO uploads VALUES('m','s','c','V9','validated,uploaded','2026-11-20')")
+    con.commit()
+    con.close()
+    st = State(db)
+    assert st.schema_version == SCHEMA_VERSION
+    assert st.find("s", "c") == {"manifest_id": "m", "video_id": "V9", "stages": ["validated", "uploaded"], "session": None}

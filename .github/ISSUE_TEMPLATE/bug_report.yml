@@ -1,0 +1,57 @@
+name: Bug report
+description: Report something that does not work as expected
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please do not paste OAuth tokens, `client_secret.json` or private channel data.
+  - type: input
+    id: version
+    attributes:
+      label: AutoUpload version
+      description: Output of `autoupload --version`
+      placeholder: "1.2.0"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: For example Windows 11 Pro 23H2, macOS 14.5, Ubuntu 24.04
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `autoupload doctor`
+      description: |
+        Run `autoupload doctor` and paste the output here.
+        Before posting, remove any channel IDs or account identifiers you do not want public.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands and steps that lead to the problem.
+      placeholder: |
+        1. Run `autoupload schedule mychannel`
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include the full error message or log output if there is one.
+    validations:
+      required: true

@@ -95,7 +95,7 @@ offset, e.g. `2026-11-21T08:00:00+00:00`), `playlist_id`, `privacy`, `category_i
 - OAuth tokens are stored in `%APPDATA%\AutoUpload` on your own computer (override with `AUTOUPLOAD_CONFIG_DIR`).
   `channels/` and `config/` live in the data folder: `AUTOUPLOAD_HOME` if set, else the repository when running
   from source, else `Documents\AutoUpload` (`~/AutoUpload` on macOS/Linux). Version 1.1.0 kept them inside the
-  venv (`.venv\Lib\`) when installed with `pip install .`; `autoupload doctor` detects that and says where to move them.
+  venv (`.venv\Lib\`) when installed with `pip install .`; `autoupload doctor` detects that and `autoupload migrate --yes` moves them.
 
 ## Repository layout
 

@@ -13,6 +13,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from .fsutil import write_atomic
+
 SCOPES = [
     "https://www.googleapis.com/auth/youtube.upload",     # videos.insert, thumbnails.set
     "https://www.googleapis.com/auth/youtube.force-ssl",  # captions.insert, videos.update, playlistItems.insert
@@ -59,7 +61,7 @@ def login(client_secret: Path, profile: str = "default"):
         raise AuthError(f"not all permissions were granted: {missing}")
     p = token_path(profile)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(creds.to_json(), encoding="utf-8")
+    write_atomic(p, creds.to_json())
     _protect(p)
     return creds
 
@@ -79,7 +81,7 @@ def load(profile: str = "default"):
                 creds.refresh(Request())
             except RefreshError as exc:
                 raise AuthError("the permission expired or was revoked: run `autoupload auth <channel> login` again") from exc
-            p.write_text(creds.to_json(), encoding="utf-8")
+            write_atomic(p, creds.to_json())
             _protect(p)
         else:
             raise AuthError("invalid token: run `autoupload auth <channel> login` again")

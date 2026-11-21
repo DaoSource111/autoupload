@@ -3,6 +3,8 @@
 $ErrorActionPreference = 'Continue'
 Set-Location $PSScriptRoot
 New-Item -ItemType Directory -Force logs | Out-Null
+# Keep 60 days of logs.
+Get-ChildItem logs -Filter *.log | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-60) } | Remove-Item -ErrorAction SilentlyContinue
 $log = "logs\{0:yyyy-MM-dd_HHmm}.log" -f (Get-Date)
 & .\.venv\Scripts\autoupload.exe schedule --all --yes *>&1 | Tee-Object -FilePath $log
 $code = $LASTEXITCODE

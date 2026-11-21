@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
+import time
 import unicodedata
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,6 +17,7 @@ import yaml
 
 from .channels import Channel, booked_from_youtube, next_slots
 from .manifest import Manifest
+from .upload import is_stop_error
 from .validators import VIDEO_EXT
 
 # Keys allowed in a video sheet: the manifest field names. Any other key is an error.
@@ -21,6 +25,8 @@ SHEET_KEYS = {"title", "description", "tags", "category_id", "default_language",
               "made_for_kids", "contains_synthetic_media", "notify_subscribers", "playlist_id", "privacy",
               "publish_at", "thumbnail", "localizations", "captions"}
 THUMBNAIL_EXT = (".jpg", ".jpeg", ".png")
+SETTLE_SECONDS = 120.0          # a video modified this recently may still be copying: it waits for the next run
+LOCK_STALE_SECONDS = 6 * 3600   # a lock older than this is left over from a crashed run
 
 
 class StopRun(RuntimeError):
@@ -104,23 +110,71 @@ def build_manifest(channel: Channel, item: QueueItem, when: Optional[datetime]) 
     return Manifest.model_validate(data).resolve(channel.queue)
 
 
-def _is_stop_error(exc: Exception) -> bool:
-    t = str(exc)
-    return any(k in t for k in ("quotaExceeded", "uploadLimitExceeded", "dailyLimitExceeded", "rateLimitExceeded"))
+def is_settling(path: Path, now: Optional[float] = None) -> bool:
+    """True if the file changed in the last SETTLE_SECONDS (it may still be being copied into the queue)."""
+    try:
+        return (now or time.time()) - path.stat().st_mtime < SETTLE_SECONDS
+    except OSError:
+        return True
+
+
+@contextmanager
+def channel_lock(channel: Channel):
+    """Only one run at a time per channel (the daily task and a manual run must not upload the same queue)."""
+    lock = channel.folder / "run.lock"
+    for _ in range(2):
+        try:
+            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            break
+        except FileExistsError:
+            try:
+                age = time.time() - lock.stat().st_mtime
+            except OSError:
+                continue
+            if age > LOCK_STALE_SECONDS:
+                lock.unlink(missing_ok=True)
+                continue
+            raise StopRun(f"[{channel.name}] another AutoUpload run is using this channel (started {age / 60:.0f} min ago). "
+                          f"If none is running, delete {lock}") from None
+    else:
+        raise StopRun(f"[{channel.name}] could not take the run lock {lock}")
+    try:
+        stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        os.write(fd, f"pid={os.getpid()} started={stamp}\n".encode())
+        os.close(fd)
+        yield
+    finally:
+        lock.unlink(missing_ok=True)
 
 
 def process_queue(channel: Channel, client, *, execute: bool, limit: Optional[int] = None, allow_public: bool = False,
                   now: Optional[datetime] = None, notify: Callable[[str], None] = print,
                   progress: Callable[[float], None] = lambda p: None) -> RunResult:
     """Schedules the queue. With execute=False it only shows the plan (reads the channel calendar, uploads nothing)."""
-    from .publisher import SafetyError, publish, write_report
-    from .state import State
-
     result = RunResult()
-    pending = queue_items(channel)[: limit or channel.max_per_run]
+    ready = []
+    for item in queue_items(channel):
+        if is_settling(item.video):
+            notify(f"[{channel.name}] {item.video.name} changed less than {SETTLE_SECONDS:.0f}s ago "
+                   f"(still copying?); it waits for the next run")
+        else:
+            ready.append(item)
+    pending = ready[: limit or channel.max_per_run]
     if not pending:
         notify(f"[{channel.name}] queue empty")
         return result
+    if execute:
+        with channel_lock(channel):
+            return _process(channel, client, pending, result, allow_public=allow_public, now=now, notify=notify,
+                            progress=progress, execute=True)
+    return _process(channel, client, pending, result, allow_public=allow_public, now=now, notify=notify,
+                    progress=progress, execute=False)
+
+
+def _process(channel: Channel, client, pending: list[QueueItem], result: RunResult, *, execute: bool, allow_public: bool,
+             now: Optional[datetime], notify: Callable[[str], None], progress: Callable[[float], None]) -> RunResult:
+    from .publisher import SafetyError, publish, write_report
+    from .state import State
 
     yt_channel = client.my_channel()
     expected = channel.expected_channel_id()
@@ -153,17 +207,20 @@ def process_queue(channel: Channel, client, *, execute: bool, limit: Optional[in
             notify(f"\n  ✗ blocked: {e}")
             continue
         except Exception as e:  # noqa: BLE001
-            if _is_stop_error(e):
+            if is_stop_error(e):
                 raise StopRun(f"[{channel.name}] YouTube does not accept more uploads today: {e}") from e
             result.errors.append(f"{item.video.name}: {e}")
             notify(f"\n  ✗ error (the saved state allows retrying without duplicates): {e}")
             continue
-        if r["resumed"] and any(s.startswith("videos.insert (skipped") for s in r["steps"]):
+        same_file_other_item = r.get("previous_manifest_id") not in (None, m.id)
+        if same_file_other_item and any(s.startswith("videos.insert (skipped: already uploaded") for s in r["steps"]):
             msg = (f"{item.video.name}: this same file was already uploaded to this channel ({r['url']}); "
                    f"it will not be uploaded again. Remove it from the queue.")
             result.errors.append(msg)
             notify(f"\n  ✗ {msg}")
             continue
+        for w in r.get("warnings", []):
+            notify(f"\n  ! {w}")
         dest = channel.uploaded / f"{datetime.now(timezone.utc).astimezone(channel.tz):%Y-%m-%d}_{item.id}"
         dest.mkdir(parents=True, exist_ok=True)
         write_report(r, dest / "report.json")

@@ -6,7 +6,7 @@ from autoupload import channels, cli
 from autoupload import auth
 from autoupload.manifest import load_manifest
 from autoupload.publisher import SafetyError, make_plan, publish
-from autoupload.state import State
+from autoupload.state import State, file_sha256
 from autoupload.studio_package import build, mark_done
 from autoupload.upload import UploadError, run_resumable
 from conftest import FakeClient, FakeHttpError
@@ -74,13 +74,57 @@ def test_force_new_uploads_again(manifest, state):
 
 
 def test_partial_failure_resumes_without_reupload(manifest, state):
-    c = FakeClient(fail={"thumbnails.set": [FakeHttpError(403)]})
+    c = FakeClient(fail={"thumbnails.set": [FakeHttpError(400)]})
     with pytest.raises(FakeHttpError):
         publish(manifest, c, state, confirm=True)
     assert c.calls.count("videos.insert") == 1
     c.calls.clear()
     res = publish(manifest, c, state, confirm=True)
     assert "videos.insert" not in c.calls and "thumbnails.set" in c.calls and res["verification"]["ok"]
+
+
+def test_thumbnail_rejected_for_unverified_channel_does_not_fail_the_video(manifest, state):
+    c = FakeClient(fail={"thumbnails.set": [FakeHttpError(403)]})
+    res = publish(manifest, c, state, confirm=True)
+    assert res["verification"]["ok"] and "playlistItems.insert" in c.calls
+    assert any("verified channel" in w for w in res["warnings"])
+
+
+def test_saved_session_is_resumed(manifest, state):
+    c = FakeClient(fail={"videos.insert": [ConnectionError("network down")]})
+    with pytest.raises(ConnectionError):
+        publish(manifest, c, state, confirm=True)
+    prev = state.find(file_sha256(manifest.video), "UC_TEST")
+    assert prev["session"] and "upload_started" in prev["stages"] and not prev["video_id"]
+    res = publish(manifest, c, state, confirm=True)
+    assert c.sessions_used[-1] == prev["session"] and "videos.insert (resumed)" in res["steps"]
+    assert state.find(file_sha256(manifest.video), "UC_TEST")["session"] is None
+
+
+def test_expired_session_finds_the_upload_instead_of_duplicating(manifest, state):
+    from autoupload.upload import SessionExpired
+    c = FakeClient()
+    publish(manifest, c, state, confirm=True)            # the video is on the channel...
+    sha = file_sha256(manifest.video)
+    state.forget(sha, "UC_TEST")                         # ...but pretend the response was lost mid-upload
+    state.record(manifest.id, sha, "UC_TEST", stage="upload_started", session="https://upload.example/old")
+    c.fail = {"videos.insert": [SessionExpired("gone")]}
+    c.calls.clear()
+    res = publish(manifest, c, state, confirm=True)
+    assert c.calls.count("videos.insert:resume") == 1 and "videos.insert" not in c.calls
+    assert res["video_id"] == "VID1" and "found on the channel" in res["steps"][0]
+
+
+def test_lost_response_without_session_is_found_by_file(manifest, state):
+    c = FakeClient()
+    publish(manifest, c, state, confirm=True)
+    sha = file_sha256(manifest.video)
+    state.forget(sha, "UC_TEST")
+    state.record(manifest.id, sha, "UC_TEST", stage="upload_started")
+    c.calls.clear()
+    res = publish(manifest, c, state, confirm=True)
+    assert "find_by_file" in c.calls and not any(x.startswith("videos.insert") for x in c.calls)
+    assert res["video_id"] == "VID1"
 
 
 def test_caption_conflict_is_idempotent(manifest, state):

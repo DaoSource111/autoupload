@@ -2,7 +2,7 @@
 _Actualizado: 2026-11-21 · Versión publicada: v1.1.0 · Nota de la auditoría: 6,5/10_
 
 ## Estado actual
-v1.2.0 lista en local (sin publicar): fases 1 y 2 hechas. 130 tests, CI preparada (no ejecutada aún en GitHub).
+v1.2.0 en main (sin release aún): fases 1 y 2 hechas. 130 tests; CI en verde el 2026-11-21 (11 trabajos: lint, 9 combinaciones SO × Python y wheel instalado).
 Nota técnica estimada: 8,5/10. Lo que falta para 10 es sobre todo uso real (madurez) y facilidad para no técnicos.
 
 ## Hecho
@@ -19,7 +19,7 @@ Nota técnica estimada: 8,5/10. Lo que falta para 10 es sobre todo uso real (mad
 ## Pendiente (por sistema · [F1]–[F4] = fase)
 
 ### Calidad (tests, CI, empaquetado)
-- [F1] Comprobar que la CI pasa en GitHub (push pendiente); fijar un umbral de cobertura con el dato real.
+- [F1] Fijar un umbral de cobertura con el dato real de la CI.
 - [F2] mypy --strict, pre-commit (ruff completo, gitleaks), lockfile.
 - [F2] Hypothesis para `next_slots`.
 - [F2] Test de integración opcional contra un canal de pruebas (incluye cortar una subida real y reanudarla).

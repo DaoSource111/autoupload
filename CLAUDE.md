@@ -1,56 +1,67 @@
 # AutoUpload
 
-Programador de subidas a YouTube para Windows: cada vídeo de `channels/<canal>/queue/`, con su ficha YAML,
-se sube como privado y se programa en la siguiente franja libre del canal (YouTube Data API v3).
-Todo local: sin servidor, con el cliente OAuth y la cuota del propio usuario. Autor: Ellipsio Studio.
+YouTube upload scheduler for Windows: each video in `channels/<channel>/queue/`, with its YAML sheet, is uploaded as
+private and scheduled in the channel's next free publishing slot (YouTube Data API v3).
+Fully local: no server, the user's own OAuth client and quota. Author: Ellipsio Studio.
 
 **Stack:** Python ≥3.10 · google-api-python-client, google-auth-oauthlib · pydantic v2 · PyYAML · SQLite · pytest.
-Web pública: HTML/CSS estático en `docs/` (GitHub Pages), generado con `tools/build_site.py`.
+Public website: static HTML/CSS in `docs/` (GitHub Pages), generated with `tools/build_site.py`.
 
-## Ejecutar y probar
+## Language — always English
+- **English is the project's primary language. All documentation is written in English, always**: CLAUDE.md,
+  `docs/*.md` (progress, decisions, known issues), README.md, CHANGELOG, CONTRIBUTING, SECURITY, code comments,
+  docstrings, CLI messages, commit messages, PR descriptions and release notes.
+- Spanish exists only as a translation of user-facing material (`README.es.md`, `docs/_src/es/`). English is the
+  source of truth: write or change the English text first, then update the Spanish translation to match.
+- This applies even when the conversation with the user is in Spanish.
+
+## Run and test
 ```powershell
 py -m venv .venv ; .\.venv\Scripts\pip install -e .[test]
-.\.venv\Scripts\autoupload.exe channels                  # lista canales y colas
-.\.venv\Scripts\autoupload.exe schedule <canal>          # plan, no sube nada
-.\.venv\Scripts\autoupload.exe schedule <canal> --yes    # sube de verdad (¡canal real!)
-py -3 -m pytest -q                                       # tests, sin red (FakeClient)
-py -3 tools/build_site.py                                # regenera docs/ desde docs/_src/
+.\.venv\Scripts\autoupload.exe doctor                    # offline setup check, shows the data folder
+.\.venv\Scripts\autoupload.exe channels                  # channels and their queues
+.\.venv\Scripts\autoupload.exe schedule <channel>        # plan only, uploads nothing
+.\.venv\Scripts\autoupload.exe schedule <channel> --yes  # real upload (real channel!)
+py -3 -m pytest -q                                       # tests, no network (FakeClient)
+py -3 tools/build_site.py                                # rebuild docs/ from docs/_src/
 ```
 
-Nunca ejecutes `schedule --yes`, `publish --yes` ni `auth … login` sin que el usuario lo pida: actúan sobre canales reales.
+Never run `schedule --yes`, `publish --yes` or `auth … login` unless the user asks: they act on real channels.
 
-## Mapa de carpetas
-| Carpeta | Contenido |
+Releases: bump `version` in `pyproject.toml` and `src/autoupload/__init__.py`, date the section in `CHANGELOG.md`,
+push, then push a tag `vX.Y.Z`; `.github/workflows/release.yml` builds, attests and publishes the GitHub release.
+
+## Folder map
+| Folder | Contents |
 |---|---|
-| `src/autoupload/` | la aplicación (paquete instalable, CLI `autoupload`) |
-| `tests/` | pytest; `conftest.py` contiene `FakeClient`, un YouTube falso |
-| `channels/` | datos locales por canal: `channel.yaml`, `queue/`, `uploaded/`, `state.sqlite`, `channel_id.txt` (fuera de git) |
-| `config/` | `client_secret.json` del usuario (fuera de git, nunca leer ni mostrar) |
-| `docs/` | web pública en GitHub Pages; **editar `docs/_src/{en,es}/`**, no el HTML generado. `progress.md`, `decisions.md` y `known-issues.md` están excluidos de la web en `docs/_config.yml` |
-| `tools/` | `build_site.py` (generador de la web) |
-| `assets/brand/` | logos y social preview |
-| raíz | `install-task.ps1`, `upload-all.ps1` (tarea diaria de Windows), `pyproject.toml` |
+| `src/autoupload/` | the application (installable package, `autoupload` CLI) |
+| `tests/` | pytest; `conftest.py` holds `FakeClient`, a fake YouTube |
+| `channels/` | local per-channel data: `channel.yaml`, `queue/`, `uploaded/`, `state.sqlite`, `channel_id.txt` (not in git) |
+| `config/` | the user's `client_secret.json` (not in git; never read or print it) |
+| `docs/` | public website on GitHub Pages; **edit `docs/_src/{en,es}/`**, not the generated HTML. `progress.md`, `decisions.md` and `known-issues.md` are excluded from the site by `docs/_config.yml` |
+| `tools/` | `build_site.py` (website generator) |
+| `assets/brand/` | logos and social preview |
+| root | `install-task.ps1`, `upload-all.ps1` (Windows daily task), `pyproject.toml` |
 
-## Sistemas
-| Sistema | Archivos principales |
+## Systems
+| System | Main files |
 |---|---|
-| Autenticación OAuth | `auth.py` |
-| Cliente YouTube y subida reanudable | `youtube_client.py`, `upload.py` |
-| Publicación por etapas y estado | `publisher.py`, `state.py` (esquema versionado, `PRAGMA user_version`), `metadata.py`, `fsutil.py` |
-| Canales, carpeta de datos y calendario | `channels.py` (`root()`, `migrate_legacy`, zonas IANA) |
-| Cola de vídeos | `queue.py` (lock por canal, espera de archivos en copia) |
-| Manifiesto y validación | `manifest.py`, `validators.py`, `studio_package.py` |
-| CLI, diagnóstico y ejecución programada | `cli.py`, `doctor.py`, `install-task.ps1`, `upload-all.ps1` |
-| Web pública y marca | `docs/_src/`, `tools/build_site.py`, `assets/brand/` |
-| Calidad y comunidad | `tests/`, `pyproject.toml`, `.github/` (CI, Dependabot, plantillas), `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md` |
+| OAuth authentication | `auth.py` |
+| YouTube client and resumable upload | `youtube_client.py`, `upload.py` |
+| Staged publishing and state | `publisher.py`, `state.py` (versioned schema, `PRAGMA user_version`), `metadata.py`, `fsutil.py` |
+| Channels, data folder and calendar | `channels.py` (`root()`, `migrate_legacy`, IANA zones) |
+| Video queue | `queue.py` (per-channel lock, waits for files still copying) |
+| Manifest and validation | `manifest.py`, `validators.py`, `studio_package.py` |
+| CLI, diagnostics and scheduled run | `cli.py`, `doctor.py`, `install-task.ps1`, `upload-all.ps1` |
+| Public website and brand | `docs/_src/`, `tools/build_site.py`, `assets/brand/` |
+| Quality and community | `tests/`, `pyproject.toml`, `.github/` (CI, release, Dependabot, templates), `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md` |
 
-(Los archivos `.py` están en `src/autoupload/`.)
+(The `.py` files live in `src/autoupload/`.)
 
-## Convenciones
-- Código, mensajes y claves en inglés; README y web en inglés y español.
-- `from __future__ import annotations` y tipado en todas las firmas; pydantic con `extra="forbid"` (las claves desconocidas son error).
-- Las librerías de Google se importan dentro de las funciones, para que los tests no las necesiten.
-- Toda llamada remota pasa por `YouTubeClient`; los tests usan `FakeClient`, nunca la red.
-- Seguridad por defecto: nada se sube sin `--yes` y nada se publica sin `--allow-public`; el token debe ser del canal esperado.
-- Códigos de salida de la CLI: `OK=0, INVALID=2, AUTH=3, REMOTE=4`.
-- Commits pequeños y descriptivos en inglés, con `Co-Authored-By` cuando intervenga Claude.
+## Conventions
+- `from __future__ import annotations` and type hints on every signature; pydantic with `extra="forbid"` (unknown keys are errors).
+- Google libraries are imported inside functions, so the tests do not need them.
+- Every remote call goes through `YouTubeClient`; tests use `FakeClient`, never the network.
+- Safe by default: nothing is uploaded without `--yes`, nothing goes public without `--allow-public`, and the token must belong to the expected channel.
+- CLI exit codes: `OK=0, INVALID=2, AUTH=3, REMOTE=4`.
+- Small, descriptive commits, with `Co-Authored-By` when Claude contributed.

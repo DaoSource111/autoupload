@@ -1,61 +1,64 @@
-# Progreso — AutoUpload
-_Actualizado: 2026-11-21 · Versión publicada: v1.1.0 · Nota de la auditoría: 6,5/10_
+# Progress — AutoUpload
+_Updated: 2026-11-21 · Latest release: v1.2.0 · Audit score: 6.5/10 at v1.1.0, about 8.5/10 now_
 
-## Estado actual
-v1.2.0 publicada el 2026-11-21 (release con wheel, sdist, SHA256SUMS y atestación de procedencia): fases 1 y 2 hechas. 130 tests; CI en verde el 2026-11-21 (11 trabajos: lint, 9 combinaciones SO × Python y wheel instalado).
-Nota técnica estimada: 8,5/10. Lo que falta para 10 es sobre todo uso real (madurez) y facilidad para no técnicos.
+## Current state
+v1.2.0 released on 2026-11-21 (GitHub release with wheel, sdist, SHA256SUMS and build provenance attestation).
+Phases 1 and 2 are done. 130 tests; CI green on 2026-11-21 (11 jobs: lint, 9 OS × Python combinations, installed wheel).
+What stands between this and 10/10 is mostly real-world use (maturity) and ease of use for non-technical creators.
 
-## Hecho
-- v1.1.0: cola por carpetas, franjas por canal, subida privada programada, miniatura, subtítulos, playlist,
-  estado SQLite por etapas, deduplicación por SHA-256, comprobación del canal del token, tarea diaria de Windows.
-- Web pública en inglés y español y marca.
-- 2026-11-21 · Configuración Omega (CLAUDE.md y docs/).
-- 2026-11-21 · Fase 1: tests sin fecha fija; carpeta de datos fuera del venv; zonas IANA; `doctor`; CI; guía con `pip install -e .`.
-- 2026-11-21 · Fase 2 (v1.2.0): subida reanudable entre ejecuciones; recuperación de respuesta perdida por `fileDetails`;
-  reintentos con `Retry-After` en todas las llamadas; errores por `reason`; miniatura 403 no fatal; reanudar completa
-  etapas; lock por canal; espera de archivos en copia; escritura atómica; SQLite WAL + esquema versionado; `migrate`;
-  rotación de logs; CI con lint y cobertura; Dependabot; CHANGELOG, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, plantillas.
+## Done
+- v1.1.0: queue folders, publishing slots per channel, private scheduled upload, thumbnail, captions, playlist,
+  staged SQLite state, SHA-256 duplicate protection, token channel check, Windows daily task.
+- Public website in English and Spanish, and brand assets.
+- 2026-11-21 · Omega setup (CLAUDE.md and docs/).
+- 2026-11-21 · Phase 1: tests without fixed dates; data folder outside the venv; IANA time zones; `doctor`; CI;
+  install guide with `pip install -e .`.
+- 2026-11-21 · Phase 2 (v1.2.0): uploads resumable across runs; lost responses recovered through `fileDetails`;
+  retries with `Retry-After` on every call; errors classified by `reason`; thumbnail 403 is not fatal; resuming
+  completes the remaining stages; per-channel lock; waiting for files still copying; atomic writes (token included);
+  SQLite WAL and versioned schema; `migrate`; log rotation; CI with lint and coverage; Dependabot; CHANGELOG,
+  CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, issue and PR templates.
+- 2026-11-21 · Release workflow: a `v*` tag builds, tests, attests and publishes the GitHub release from CHANGELOG.md.
+- 2026-11-21 · Rule: English is the primary language; all documentation is written in English.
 
-## Pendiente (por sistema · [F1]–[F4] = fase)
+## Pending (by system · [P1]–[P4] = phase)
 
-### Calidad (tests, CI, empaquetado)
-- [F1] Fijar un umbral de cobertura con el dato real de la CI.
-- [F2] mypy --strict, pre-commit (ruff completo, gitleaks), lockfile.
-- [F2] Hypothesis para `next_slots`.
-- [F2] Test de integración opcional contra un canal de pruebas (incluye cortar una subida real y reanudarla).
-- [F3] Releases firmadas con checksums y attestations; publicar en PyPI (`pipx install autoupload`) y winget.
-- [F3] Instalador `.exe` (PyInstaller o Nuitka).
+### Quality (tests, CI, packaging)
+- [P1] Set a coverage threshold from the real CI figure.
+- [P2] mypy --strict, pre-commit (full ruff, gitleaks), lockfile.
+- [P2] Hypothesis for `next_slots`.
+- [P2] Optional integration test against a test channel (including cutting a real upload and resuming it).
+- [P3] Publish to PyPI from the release workflow (needs the PyPI project and its trusted publisher) and to winget.
+- [P3] Windows installer `.exe` (PyInstaller or Nuitka).
 
-### Canales y calendario
-- [F2] Horas inexistentes en el salto de primavera (ver known-issues).
-- [F4] Exportar el calendario a `.ics`; reprogramar o cancelar vídeos ya programados.
-- [F4] Reglas propias para Shorts.
+### Channels and calendar
+- [P2] Non-existent hours at the spring daylight-saving jump (see known-issues).
+- [P4] Export the calendar to `.ics`; reschedule or cancel already scheduled videos.
+- [P4] Separate rules for Shorts.
 
-### Publicación y estado
-- [F2] Parar antes de agotar la cuota (avisar si el plan supera las unidades restantes).
-- [F4] Repartir la cuota entre varios canales.
+### Publishing and state
+- [P2] Stop before the quota runs out (warn if the plan exceeds the remaining units).
+- [P4] Share the quota across several channels.
 
-### Cliente YouTube y subida
-- [F2] Canales no verificados: aviso previo para vídeos de más de 15 min (la miniatura ya está resuelta).
+### YouTube client and upload
+- [P2] Unverified channels: warn before uploading videos longer than 15 minutes (thumbnails are already handled).
 
-### Cola
-- [F3] Ficha opcional (título = nombre del archivo); plantillas con variables.
-- [F4] Modo vigilante de la carpeta `queue/`.
+### Queue
+- [P3] Optional sheet (title = file name); templates with variables.
+- [P4] Watch mode for the `queue/` folder.
 
-### Autenticación OAuth
-- [F3] Token en el gestor de credenciales del sistema (`keyring`); revisar si los 3 ámbitos son mínimos.
-- [F3] Escritura atómica del token.
+### OAuth authentication
+- [P3] Token in the system credential store (`keyring`); check whether the 3 scopes are minimal.
 
-### CLI y ejecución programada
-- [F2] `doctor --online`: comprobar la API habilitada y renovar el token de verdad.
-- [F2] Logs JSON; `--quiet` (la rotación ya está hecha).
-- [F3] `autoupload init` (asistente) e `install-schedule` multiplataforma, sustituyendo los `.ps1`.
-- [F3] Notificaciones (aviso de Windows y webhook); interfaz en español e inglés con gettext.
-- [F4] GUI mínima (bandeja o app local).
-- [F4] Metadatos con IA opcional (clave del usuario, desactivado por defecto).
+### CLI and scheduled run
+- [P2] `doctor --online`: check that the API is enabled and really refresh the token.
+- [P2] JSON logs; `--quiet` (rotation is done).
+- [P3] `autoupload init` (wizard) and a cross-platform `install-schedule` replacing the `.ps1` scripts.
+- [P3] Notifications (Windows toast and webhook); CLI in English and Spanish with gettext.
+- [P4] Minimal GUI (tray or local app).
+- [P4] Optional AI metadata (user's own key, off by default).
 
-### Web pública y marca
-- [F3] Publicar en PyPI desde el workflow de release (falta crear el proyecto en PyPI y su trusted publisher).
-- [F3] Demo en GIF, CHANGELOG, CONTRIBUTING, SECURITY.md, plantillas de issues, FAQ y solución de problemas.
-- [F3] Referencia completa en MkDocs; página de comparación honesta con otras herramientas.
-- [F4] Difusión (r/NewTubers, Show HN) y respuesta rápida a issues.
+### Public website and brand
+- [P3] GIF demo, FAQ and troubleshooting page.
+- [P3] Full reference with MkDocs; an honest comparison page with other tools.
+- [P4] Outreach (r/NewTubers, Show HN) and fast answers to issues.

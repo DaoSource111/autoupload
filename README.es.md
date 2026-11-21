@@ -44,7 +44,8 @@ AutoUpload pide exactamente tres permisos OAuth de Google: `youtube.upload`, `yo
 
 ```powershell
 py -m venv .venv
-.\.venv\Scripts\pip install .
+.\.venv\Scripts\pip install -e .
+.\.venv\Scripts\autoupload.exe doctor                    # revisa la instalación y muestra la carpeta de datos
 .\.venv\Scripts\autoupload.exe channel new mychannel
 .\.venv\Scripts\autoupload.exe auth mychannel login
 .\.venv\Scripts\autoupload.exe schedule mychannel           # vista previa: no sube nada
@@ -52,7 +53,9 @@ py -m venv .venv
 ```
 
 Antes de `auth … login`, crea tu propio cliente OAuth de tipo **App de escritorio** en Google Cloud, habilita
-la YouTube Data API v3 y guarda el archivo del cliente como `config/client_secret.json`. La guía paso a paso,
+la YouTube Data API v3 y guarda el archivo del cliente como `config\client_secret.json` dentro de la carpeta de datos
+(`Documentos\AutoUpload` en una copia instalada; la carpeta del repositorio si lo ejecutas desde el código con
+`pip install -e .`; `autoupload doctor` la muestra). La guía paso a paso,
 para hacerlo a mano o con un agente de IA, está en https://daosource111.github.io/autoupload/es/install.html
 
 ## Configuración del canal (`channels/<canal>/channel.yaml`)
@@ -61,7 +64,7 @@ para hacerlo a mano o con un agente de IA, está en https://daosource111.github.
 |---|---|---|
 | `profile` | nombre del canal | nombre del token OAuth |
 | `client_secret` | `../../config/client_secret.json` | archivo del cliente OAuth de escritorio |
-| `timezone` | `"+00:00"` | desfase de `hours` respecto a UTC (`+00:00` = UTC, `-05:00`, `+01:00`…) |
+| `timezone` | `"+00:00"` | zona de `hours`: un nombre que sigue el horario de verano (`Europe/Madrid`, `America/Lima`) o un desfase fijo respecto a UTC (`+00:00`, `-05:00`) |
 | `hours` | `["08:00"]` | horas de publicación de cada día |
 | `days_between` | `1` | 1 = cada día, 7 = una vez por semana |
 | `min_lead_hours` | `3` | nunca programar más cerca de ahora que esto |
@@ -92,7 +95,9 @@ desfase, p. ej. `2026-11-21T08:00:00+00:00`), `playlist_id`, `privacy`, `categor
 
 - `config/client_secret.json`, los tokens OAuth y los datos de los canales nunca deben subirse a un repositorio. `.gitignore` los excluye.
 - Los tokens OAuth se guardan en `%APPDATA%\AutoUpload` en tu propia computadora (se cambia con `AUTOUPLOAD_CONFIG_DIR`).
-  `AUTOUPLOAD_HOME` apunta a otra carpeta que contenga `channels/` y `config/`.
+  `channels/` y `config/` están en la carpeta de datos: `AUTOUPLOAD_HOME` si está definida; si no, el repositorio
+  cuando se ejecuta desde el código; si no, `Documentos\AutoUpload` (`~/AutoUpload` en macOS/Linux). La versión 1.1.0
+  los guardaba dentro del venv (`.venv\Lib\`) al instalar con `pip install .`; `autoupload doctor` lo detecta y dice adónde moverlos.
 
 ## Estructura del repositorio
 

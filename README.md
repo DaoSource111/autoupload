@@ -42,7 +42,8 @@ AutoUpload requests exactly three Google OAuth scopes: `youtube.upload`, `youtub
 
 ```powershell
 py -m venv .venv
-.\.venv\Scripts\pip install .
+.\.venv\Scripts\pip install -e .
+.\.venv\Scripts\autoupload.exe doctor                    # checks the setup and shows the data folder
 .\.venv\Scripts\autoupload.exe channel new mychannel
 .\.venv\Scripts\autoupload.exe auth mychannel login
 .\.venv\Scripts\autoupload.exe schedule mychannel           # preview: uploads nothing
@@ -50,7 +51,9 @@ py -m venv .venv
 ```
 
 Before `auth … login`, create your own OAuth client of type **Desktop app** in Google Cloud, enable the
-YouTube Data API v3 and save the client file as `config/client_secret.json`. The step-by-step guide, for
+YouTube Data API v3 and save the client file as `config\client_secret.json` inside the data folder
+(`Documents\AutoUpload` for an installed copy; the repository folder when you run from source with `pip install -e .`;
+`autoupload doctor` prints it). The step-by-step guide, for
 doing it by hand or with an AI agent, is at https://daosource111.github.io/autoupload/install.html
 
 ## Channel settings (`channels/<channel>/channel.yaml`)
@@ -59,7 +62,7 @@ doing it by hand or with an AI agent, is at https://daosource111.github.io/autou
 |---|---|---|
 | `profile` | channel name | name of the OAuth token |
 | `client_secret` | `../../config/client_secret.json` | Desktop OAuth client file |
-| `timezone` | `"+00:00"` | UTC offset of `hours` (`+00:00` = UTC, `-05:00`, `+01:00`…) |
+| `timezone` | `"+00:00"` | zone of `hours`: a name that follows daylight saving (`Europe/Madrid`, `America/Lima`) or a fixed UTC offset (`+00:00`, `-05:00`) |
 | `hours` | `["08:00"]` | publishing times for each day |
 | `days_between` | `1` | 1 = every day, 7 = once a week |
 | `min_lead_hours` | `3` | never schedule closer than this to now |
@@ -90,7 +93,9 @@ offset, e.g. `2026-11-21T08:00:00+00:00`), `playlist_id`, `privacy`, `category_i
 
 - `config/client_secret.json`, OAuth tokens and channel data must never be committed. `.gitignore` excludes them.
 - OAuth tokens are stored in `%APPDATA%\AutoUpload` on your own computer (override with `AUTOUPLOAD_CONFIG_DIR`).
-  `AUTOUPLOAD_HOME` points to another folder holding `channels/` and `config/`.
+  `channels/` and `config/` live in the data folder: `AUTOUPLOAD_HOME` if set, else the repository when running
+  from source, else `Documents\AutoUpload` (`~/AutoUpload` on macOS/Linux). Version 1.1.0 kept them inside the
+  venv (`.venv\Lib\`) when installed with `pip install .`; `autoupload doctor` detects that and says where to move them.
 
 ## Repository layout
 

@@ -31,7 +31,7 @@ rail: yes
 <pre><code><span class="c"># create a private Python environment for AutoUpload</span>
 py -m venv .venv
 <span class="c"># install AutoUpload and its dependencies into it</span>
-.\.venv\Scripts\pip install .
+.\.venv\Scripts\pip install -e .
 <span class="c"># check that the command works</span>
 .\.venv\Scripts\autoupload.exe --help</code></pre>
 <p>The command-line tool is called <code>autoupload</code>.</p>
@@ -94,7 +94,7 @@ py -m venv .venv
 <div class="table-wrap"><table>
 <thead><tr><th>Item</th><th>Purpose</th></tr></thead>
 <tbody>
-<tr><td><code>channel.yaml</code></td><td>Your publishing hours and their UTC offset (<code>+00:00</code> by default), language, category and default tags.</td></tr>
+<tr><td><code>channel.yaml</code></td><td>Your publishing hours and their time zone (a name such as <code>Europe/Madrid</code>, or an offset; <code>+00:00</code> by default), language, category and default tags.</td></tr>
 <tr><td><code>queue\</code></td><td>The queue: put the videos to upload here.</td></tr>
 <tr><td><code>uploaded\</code></td><td>Uploaded videos are moved here, each with a report.</td></tr>
 </tbody>
@@ -170,7 +170,7 @@ Rules, which override anything else:
 Steps (each ends with its check):
 1. Prerequisites. Run `py --version` (needs 3.10 or later) and `git --version`. If Python is missing, tell me to install it from python.org with "Add python.exe to PATH" ticked, and wait. Check: both commands print a version.
 2. Download. Run `git clone https://github.com/DaoSource111/autoupload.git INSTALL_DIR` (or download and extract the ZIP from the guide). Check: INSTALL_DIR\pyproject.toml exists.
-3. Install. In INSTALL_DIR run `py -m venv .venv`, then `.\.venv\Scripts\pip install .`. Check: `.\.venv\Scripts\autoupload.exe --help` prints the list of commands.
+3. Install. In INSTALL_DIR run `py -m venv .venv`, then `.\.venv\Scripts\pip install -e .`. Check: `.\.venv\Scripts\autoupload.exe --help` prints the list of commands.
 4. Google Cloud. Follow guide sections 4 to 8 for GOOGLE_PATH:
    - Path A: open https://console.cloud.google.com/auth/overview/personal, create a new project, application type "Desktop app", leave "Use this client for an AI-powered agent" unticked, ask me to accept the terms, select Continue, then Download JSON before closing the dialog (the secret is shown only once).
    - Path B: create a project; Google Auth Platform > Overview > Get started (audience External); Audience > Test users > Add users with TEST_USERS; Data Access with the three scopes only; Clients > Create client > Desktop app named "AutoUpload Desktop"; Create; Download JSON at once.

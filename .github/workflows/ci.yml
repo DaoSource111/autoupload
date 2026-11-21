@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        python: ["3.10", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[test]"
+      - run: python -m pytest -q -rs
+
+  installed-wheel:
+    # Guards against the 1.1.0 bug: a pip-installed copy must keep its data outside the venv.
+    name: installed wheel keeps data outside the venv
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install build
+      - run: python -m build --wheel
+      - name: install the wheel in a clean venv and create a channel
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $fakeHome = Join-Path $env:RUNNER_TEMP 'home'
+          New-Item -ItemType Directory -Force $fakeHome | Out-Null
+          $env:USERPROFILE = $fakeHome
+          python -m venv "$env:RUNNER_TEMP\clean"
+          & "$env:RUNNER_TEMP\clean\Scripts\pip.exe" install (Get-ChildItem dist\*.whl).FullName
+          Set-Location $env:RUNNER_TEMP
+          & "$env:RUNNER_TEMP\clean\Scripts\autoupload.exe" channel new ci
+          $expected = Join-Path $fakeHome 'Documents\AutoUpload\channels\ci\channel.yaml'
+          if (-not (Test-Path $expected)) { throw "channel not created in $expected" }
+          if (Test-Path "$env:RUNNER_TEMP\clean\Lib\channels") { throw "data was written inside the venv" }
+          $out = & "$env:RUNNER_TEMP\clean\Scripts\autoupload.exe" doctor
+          $out
+          if (-not ($out -match [regex]::Escape((Join-Path $fakeHome 'Documents\AutoUpload')))) { throw "doctor shows another data folder" }
+          Write-Host "OK: data in $expected"
+          $global:LASTEXITCODE = 0   # doctor exits 2 here on purpose (no OAuth client in CI)

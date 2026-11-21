@@ -1,7 +1,7 @@
 """Channels, slots and queue, with a fake YouTube: nothing touches the network."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 import yaml
@@ -10,7 +10,20 @@ from autoupload import channels
 from autoupload.queue import StopRun, build_manifest, calendar_rows, process_queue, queue_items
 from conftest import FakeClient
 
-NOW = datetime(2026, 11, 20, 12, 0, tzinfo=timezone.utc)
+# Dates are relative to the real clock: the manifest rejects publish_at in the past, so fixed dates expire.
+# BASE is "day 20" of the original scenario, a month ahead; at(d, h) is day 20+d at h:00 UTC.
+BASE = (datetime.now(timezone.utc) + timedelta(days=30)).replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def at(day: int, hour: int) -> datetime:
+    return BASE + timedelta(days=day - 20, hours=hour)
+
+
+def day(x: datetime) -> int:
+    return 20 + (x.astimezone(timezone.utc) - BASE).days
+
+
+NOW = at(20, 12)
 
 
 class Client(FakeClient):
@@ -54,23 +67,23 @@ def test_template_is_valid(channel):
 
 
 def test_slots_skip_booked_and_lead_time(channel):
-    booked = datetime(2026, 11, 22, 8, 0, tzinfo=timezone.utc)
+    booked = at(22, 8)
     r = channels.next_slots(channel, 3, [booked], now=NOW)
-    assert [x.day for x in r] == [21, 23, 24]       # the 20th at 08:00 has already passed; the 22nd is taken
+    assert [day(x) for x in r] == [21, 23, 24]       # the 20th at 08:00 has already passed; the 22nd is taken
     assert all(x.hour == 8 for x in r)
 
 
 def test_slots_every_other_day(channel):
     c = channel.model_copy(update={"days_between": 2, "hours": ["08:00", "19:00"]})
-    r = channels.next_slots(c, 4, [datetime(2026, 11, 21, 8, 0, tzinfo=timezone.utc)], now=NOW)
-    assert [(x.day, x.hour) for x in r] == [(21, 19), (23, 8), (23, 19), (25, 8)]
+    r = channels.next_slots(c, 4, [at(21, 8)], now=NOW)
+    assert [(day(x), x.hour) for x in r] == [(21, 19), (23, 8), (23, 19), (25, 8)]
 
 
 def test_sheet_in_english_and_channel_defaults(channel):
     c = channel.model_copy(update={"base_tags": ["channel"], "description_footer": "Subscribe", "contains_ai": True})
     put(c, "My Video 1", {"title": "Hello", "description": "Text", "tags": ["one", "channel"]}, thumb=True)
     item = queue_items(c)[0]
-    m = build_manifest(c, item, datetime(2026, 11, 21, 8, 0, tzinfo=timezone.utc))
+    m = build_manifest(c, item, at(21, 8))
     assert m.id == "my-video-1" and m.title == "Hello" and m.tags == ["channel", "one"]
     assert m.description.endswith("Subscribe") and m.contains_synthetic_media is True
     assert m.privacy.value == "private" and m.publish_at.hour == 8 and m.thumbnail.name == "My Video 1.png"
@@ -94,9 +107,9 @@ def test_schedules_and_moves_to_uploaded(channel):
     put(channel, "a", {"title": "A"})
     put(channel, "b", {"title": "B"})
     put(channel, "c")                                   # no sheet: error, the video stays in the queue
-    cli = Client(existing=[scheduled(datetime(2026, 11, 21, 8, 0, tzinfo=timezone.utc))])
+    cli = Client(existing=[scheduled(at(21, 8))])
     r = process_queue(channel, cli, execute=True, now=NOW, notify=lambda s: None)
-    assert [h["date"] for h in r.done] == ["2026-11-22 08:00", "2026-11-23 08:00"]
+    assert [h["date"] for h in r.done] == [f"{at(22, 8):%Y-%m-%d %H:%M}", f"{at(23, 8):%Y-%m-%d %H:%M}"]
     assert cli.calls.count("videos.insert") == 2
     assert cli.last_body["status"]["privacyStatus"] == "private" and "publishAt" in cli.last_body["status"]
     assert len(r.errors) == 1 and (channel.queue / "c.mp4").exists()
@@ -125,7 +138,7 @@ def test_quota_stops_the_run(channel):
 
 
 def test_calendar_rows(channel):
-    cli = Client(existing=[scheduled(datetime(2026, 11, 25, 8, 0, tzinfo=timezone.utc))])
+    cli = Client(existing=[scheduled(at(25, 8))])
     rows = calendar_rows(channel, cli, now=NOW)
     assert len(rows) == 1 and rows[0][1] == "private"
 

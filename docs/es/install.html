@@ -62,7 +62,7 @@
 <pre><code><span class="c"># crea un entorno de Python propio para AutoUpload</span>
 py -m venv .venv
 <span class="c"># instala AutoUpload y sus dependencias en él</span>
-.\.venv\Scripts\pip install .
+.\.venv\Scripts\pip install -e .
 <span class="c"># comprueba que el comando funciona</span>
 .\.venv\Scripts\autoupload.exe --help</code></pre>
 <p>La herramienta de línea de comandos se llama <code>autoupload</code>. Sus órdenes, carpetas y opciones están en inglés.</p>
@@ -125,7 +125,7 @@ py -m venv .venv
 <div class="table-wrap"><table>
 <thead><tr><th>Elemento</th><th>Para qué sirve</th></tr></thead>
 <tbody>
-<tr><td><code>channel.yaml</code></td><td>Tus horas de publicación y su desfase respecto a UTC (<code>+00:00</code> por defecto), idioma, categoría y etiquetas por defecto.</td></tr>
+<tr><td><code>channel.yaml</code></td><td>Tus horas de publicación y su zona horaria (un nombre como <code>America/Lima</code>, o un desfase; <code>+00:00</code> por defecto), idioma, categoría y etiquetas por defecto.</td></tr>
 <tr><td><code>queue\</code></td><td>La cola: aquí pones los videos por subir.</td></tr>
 <tr><td><code>uploaded\</code></td><td>Aquí se mueven los videos ya subidos, cada uno con su informe.</td></tr>
 </tbody>
@@ -201,7 +201,7 @@ Reglas, que mandan sobre todo lo demás:
 Pasos (cada uno termina con su comprobación):
 1. Requisitos. Ejecuta `py --version` (hace falta 3.10 o posterior) y `git --version`. Si falta Python, dime que lo instale desde python.org marcando "Add python.exe to PATH", y espera. Comprobación: ambos comandos muestran una versión.
 2. Descarga. Ejecuta `git clone https://github.com/DaoSource111/autoupload.git CARPETA` (o descarga y descomprime el ZIP de la guía). Comprobación: existe CARPETA\pyproject.toml.
-3. Instalación. En CARPETA ejecuta `py -m venv .venv` y luego `.\.venv\Scripts\pip install .`. Comprobación: `.\.venv\Scripts\autoupload.exe --help` muestra la lista de comandos.
+3. Instalación. En CARPETA ejecuta `py -m venv .venv` y luego `.\.venv\Scripts\pip install -e .`. Comprobación: `.\.venv\Scripts\autoupload.exe --help` muestra la lista de comandos.
 4. Google Cloud. Sigue los apartados 4 a 8 de la guía según CAMINO:
    - Camino A: abre https://console.cloud.google.com/auth/overview/personal, crea un proyecto nuevo, tipo de aplicación "App de escritorio", deja sin marcar "Usar este cliente para un agente potenciado por IA", pídeme que acepte las condiciones, pulsa Continuar y luego Descargar JSON antes de cerrar el cuadro (el secreto se muestra una vez).
    - Camino B: crea un proyecto; Google Auth Platform > Descripción general > Comenzar (público Externo); Público > Usuarios de prueba > Add users con TESTERS; Acceso a los datos solo con los tres permisos; Clientes > Crear cliente > App de escritorio llamado "AutoUpload Desktop"; Crear; Descargar JSON en ese momento.

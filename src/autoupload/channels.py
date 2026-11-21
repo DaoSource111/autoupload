@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import os
 import re
-from datetime import date, datetime, time, timedelta, timezone
+import sys
+from datetime import date, datetime, time, timedelta, timezone, tzinfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from pathlib import Path
 from typing import Iterable, Iterator, Optional
 
@@ -15,7 +17,7 @@ TEMPLATE = """\
 # Configuration for channel '{name}'. See README.md, section "channel.yaml".
 profile: {name}                  # OAuth token name; created with: autoupload auth {name} login
 client_secret: ../../config/client_secret.json   # Google Cloud desktop OAuth credential (can be the same for every channel)
-timezone: "+00:00"               # UTC offset of the hours below, e.g. +00:00 for UTC, +01:00, -03:30
+timezone: "+00:00"               # zone of the hours below: a name such as Europe/Madrid or America/Lima (follows daylight saving), or a fixed offset such as +01:00
 hours: ["08:00"]                 # publishing hours for each day (one or several)
 days_between: 1                  # 1 = every day · 2 = every other day · 7 = once a week
 min_lead_hours: 3                # never schedule less than this many hours from now
@@ -59,8 +61,12 @@ class Channel(BaseModel):
     @field_validator("timezone")
     @classmethod
     def _timezone(cls, v: str) -> str:
-        if not re.match(r"^[+-]\d{2}:\d{2}$", v):
-            raise ValueError("timezone must be an offset like +01:00 or -03:30")
+        if re.match(r"^[+-]\d{2}:\d{2}$", v):
+            return v
+        try:
+            ZoneInfo(v)
+        except (ZoneInfoNotFoundError, ValueError) as e:
+            raise ValueError(f"timezone {v!r} is neither a zone name like Europe/Madrid nor an offset like +01:00") from e
         return v
 
     @field_validator("hours")
@@ -74,8 +80,10 @@ class Channel(BaseModel):
         return sorted(v)
 
     @property
-    def tz(self) -> timezone:
-        # `timezone` above is the field (the offset string); this call is the datetime class.
+    def tz(self) -> tzinfo:
+        # `timezone` above is the field (a zone name or an offset string); the call below is the datetime class.
+        if self.timezone[0] not in "+-":
+            return ZoneInfo(self.timezone)
         sign = -1 if self.timezone[0] == "-" else 1
         hh, mm = self.timezone[1:].split(":")
         return timezone(sign * timedelta(hours=int(hh), minutes=int(mm)))
@@ -101,10 +109,41 @@ class Channel(BaseModel):
         return f.read_text(encoding="utf-8").strip() if f.exists() else None
 
 
+def _package_parent() -> Path:
+    """Two levels above the package: the repository root in a source checkout, `.venv/Lib` when pip-installed."""
+    return Path(__file__).resolve().parents[2]
+
+
+def _is_checkout(folder: Path) -> bool:
+    return (folder / "pyproject.toml").exists() and (folder / "src" / "autoupload").is_dir()
+
+
+def default_home() -> Path:
+    """Data folder of an installed copy: Documents\\AutoUpload on Windows, ~/AutoUpload elsewhere."""
+    if sys.platform == "win32":
+        return Path.home() / "Documents" / "AutoUpload"
+    return Path.home() / "AutoUpload"
+
+
 def root() -> Path:
-    """Folder that holds channels/ and config/: AUTOUPLOAD_HOME, or the project folder."""
+    """Folder that holds channels/ and config/.
+
+    AUTOUPLOAD_HOME if set; else the repository when running from a source checkout (`pip install -e .`);
+    else default_home(). Never the folder of the installed package, which a new venv would wipe.
+    """
     env = os.environ.get("AUTOUPLOAD_HOME")
-    return Path(env) if env else Path(__file__).resolve().parents[2]
+    if env:
+        return Path(env)
+    parent = _package_parent()
+    return parent if _is_checkout(parent) else default_home()
+
+
+def legacy_root() -> Optional[Path]:
+    """Where versions up to 1.1.0 kept channels/ and config/ when pip-installed (inside the venv), if data is there."""
+    parent = _package_parent()
+    if _is_checkout(parent) or parent == root():
+        return None
+    return parent if (parent / "channels").is_dir() or (parent / "config").is_dir() else None
 
 
 def channels_dir(base: Optional[Path] = None) -> Path:
@@ -150,7 +189,7 @@ def create_channel(name: str, base: Optional[Path] = None) -> Path:
 
 # --- dates ------------------------------------------------------------------------------------------
 
-def booked_from_youtube(videos: Iterable[dict], tz: timezone) -> list[datetime]:
+def booked_from_youtube(videos: Iterable[dict], tz: tzinfo) -> list[datetime]:
     """Dates already used on the channel: scheduled (publishAt) and published (publishedAt), in the channel's time zone."""
     res = []
     for v in videos:

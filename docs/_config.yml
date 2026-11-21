@@ -1,0 +1,5 @@
+# GitHub Pages (Jekyll): developer notes stay in the repo but are not published on the site.
+exclude:
+  - progress.md
+  - decisions.md
+  - known-issues.md

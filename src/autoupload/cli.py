@@ -32,6 +32,7 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("action", choices=["new"])
     c.add_argument("name")
     sub.add_parser("channels", help="list the configured channels and their queue")
+    sub.add_parser("doctor", help="check the installation offline and say how to fix each problem")
 
     a = sub.add_parser("auth", help="connect a channel: autoupload auth <channel> login | whoami | logout")
     a.add_argument("channel")
@@ -102,6 +103,12 @@ def _run(args) -> int:
             return INVALID
         print(f"Channel created in {folder}\n1) Review {folder / 'channel.yaml'}\n2) Connect it: autoupload auth {args.name} login")
         return OK
+
+    if args.cmd == "doctor":
+        from . import doctor
+        checks = doctor.run()
+        print(doctor.render(checks))
+        return INVALID if any(c.level == doctor.ERROR for c in checks) else OK
 
     if args.cmd == "channels":
         names = channels.list_channels()

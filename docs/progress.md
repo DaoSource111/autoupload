@@ -3,7 +3,7 @@ _Updated: 2026-11-21 · Latest release: v2.0.0 (Rust) · previous: v1.2.0 (Pytho
 
 ## Current state
 2.0.0 is a Rust rewrite: `crates/core` engine, `autoupload` CLI and `autoupload-gui` desktop app (Slint), released
-for Windows x64, Linux x64 and macOS arm64/x64 from one tag. 47 Rust tests; clippy clean with `-D warnings`.
+for Windows x64, Linux x64 and macOS arm64/x64 from one tag (v2.0.0 published 2026-11-21, all four packages + SHA256SUMS). 47 Rust tests; clippy clean with `-D warnings`.
 Verified read-only against the real channels (doctor, whoami, calendar, token refresh shared with 1.x).
 The Python 1.x code stays in `src/autoupload/` (130 tests, still in CI) until 2.0 has done real uploads.
 

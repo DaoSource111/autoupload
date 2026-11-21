@@ -15,6 +15,11 @@ token refresh) and with a fake API in tests, but no video has been uploaded with
 **Symptom:** Windows SmartScreen and macOS Gatekeeper warn on first start (the README explains how to open them).
 **Cause:** Authenticode and Apple notarization need paid certificates. **File:** .github/workflows/release.yml · **Found:** 2026-11-21
 
+## Legacy Python test flaky on Windows + Python 3.10 in CI — LOW
+**Symptom:** on 2026-11-21 (commit 1edc578) `tests (windows-latest, Python 3.10)` failed while the other 8 Python
+jobs and all Rust jobs passed; no Python code had changed and the 130 tests pass locally. The log needs a sign-in to read.
+**File:** tests/ · **Found:** 2026-11-21
+
 ---
 ## Resolved
 - 2026-11-21 · 4 tests expired because of fixed dates → test dates are relative to the real clock.

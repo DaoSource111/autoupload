@@ -6,7 +6,8 @@
 
 <p align="center">
 <a href="https://github.com/DaoSource111/autoupload/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/DaoSource111/autoupload"></a>
-<img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-1f3bff">
+<img alt="Windows, macOS, Linux" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-native-1f3bff">
+<img alt="Written in Rust" src="https://img.shields.io/badge/rust-1.80%2B-orange">
 <img alt="YouTube Data API v3" src="https://img.shields.io/badge/YouTube%20Data%20API-v3-5dfbd3">
 <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-lightgrey"></a>
 </p>
@@ -40,23 +41,47 @@ conectado pertenece a otro canal.
 AutoUpload pide exactamente tres permisos OAuth de Google: `youtube.upload`, `youtube.force-ssl` y
 `youtube.readonly`. Para qué sirve cada uno se explica en el sitio web.
 
-## Inicio rápido (Windows, Python 3.10+)
+## Descarga
+
+Descarga el archivo de tu sistema desde la [última versión](https://github.com/DaoSource111/autoupload/releases/latest).
+Cada uno incluye la aplicación de escritorio (`autoupload-gui`) y la línea de comandos (`autoupload`), ambas nativas, sin nada más que instalar:
+
+| Sistema | Archivo | Primer inicio |
+|---|---|---|
+| Windows 10/11 (x64) | `AutoUpload-<version>-windows-x64.zip` | descomprime y abre `autoupload-gui.exe`; si SmartScreen avisa, elige *Más información → Ejecutar de todas formas* |
+| macOS 11+ (Apple silicon) | `AutoUpload-<version>-macos-arm64.zip` | mueve `AutoUpload.app` a Aplicaciones y, la primera vez, haz clic derecho → *Abrir* |
+| macOS 11+ (Intel) | `AutoUpload-<version>-macos-x64.zip` | igual que arriba |
+| Linux (x64, glibc 2.35+) | `AutoUpload-<version>-linux-x64.tar.gz` | descomprime y ejecuta `./install.sh` (lo añade al menú de aplicaciones) o `./autoupload-gui` |
+
+Las compilaciones aún no están firmadas digitalmente, de ahí los avisos. Verifica una descarga con `SHA256SUMS` o con
+`gh attestation verify <archivo> --repo DaoSource111/autoupload`.
+
+## Antes de la primera subida
+
+Cada usuario crea su propio cliente OAuth de tipo **App de escritorio** en Google Cloud, habilita la YouTube Data API v3
+y guarda el archivo del cliente como `config/client_secret.json` dentro de la carpeta de datos. La guía paso a paso está en
+https://daosource111.github.io/autoupload/es/install.html. La aplicación de escritorio muestra la carpeta de datos en su barra lateral y
+su panel **Diagnostics** indica exactamente qué falta; `autoupload doctor` hace lo mismo en una terminal.
+
+## Aplicación de escritorio
+
+Abre **AutoUpload**, crea un canal, pulsa **Connect** para iniciar sesión con Google, coloca los videos con su archivo YAML en la
+carpeta de cola del canal y pulsa **Preview dates** para ver el plan. **Upload** pide confirmación antes de que nada salga de tu
+computadora. La pestaña **Calendar** muestra lo que ya está programado en YouTube.
+
+## Línea de comandos
 
 ```powershell
-py -m venv .venv
-.\.venv\Scripts\pip install -e .
-.\.venv\Scripts\autoupload.exe doctor                    # revisa la instalación y muestra la carpeta de datos
-.\.venv\Scripts\autoupload.exe channel new mychannel
-.\.venv\Scripts\autoupload.exe auth mychannel login
-.\.venv\Scripts\autoupload.exe schedule mychannel           # vista previa: no sube nada
-.\.venv\Scripts\autoupload.exe schedule mychannel --yes     # sube
+autoupload doctor                         # revisa la instalación y muestra la carpeta de datos
+autoupload channel new mychannel
+autoupload auth mychannel login
+autoupload schedule mychannel             # vista previa: no sube nada
+autoupload schedule mychannel --yes       # sube
+autoupload calendar mychannel             # lo que está programado
+autoupload data-folder D:\Videos\AutoUpload   # guarda canales y configuración en otro lugar
 ```
 
-Antes de `auth … login`, crea tu propio cliente OAuth de tipo **App de escritorio** en Google Cloud, habilita
-la YouTube Data API v3 y guarda el archivo del cliente como `config\client_secret.json` dentro de la carpeta de datos
-(`Documentos\AutoUpload` en una copia instalada; la carpeta del repositorio si lo ejecutas desde el código con
-`pip install -e .`; `autoupload doctor` la muestra). La guía paso a paso,
-para hacerlo a mano o con un agente de IA, está en https://daosource111.github.io/autoupload/es/install.html
+Códigos de salida: `0` correcto, `2` entrada o configuración no válida, `3` autenticación, `4` error de YouTube.
 
 ## Configuración del canal (`channels/<canal>/channel.yaml`)
 
@@ -89,22 +114,37 @@ desfase, p. ej. `2026-11-21T08:00:00+00:00`), `playlist_id`, `privacy`, `categor
 ## Pasada diaria (opcional)
 
 `install-task.ps1 -Time 10:00` registra una tarea programada de Windows llamada `AutoUpload` que ejecuta
-`upload-all.ps1` (`autoupload schedule --all --yes`) cada día y guarda un registro en `logs\`.
+`upload-all.ps1` (`autoupload schedule --all --yes`) cada día y guarda un registro en `logs\`. En macOS y Linux,
+añade el mismo comando a `crontab -e`, p. ej. `0 10 * * * ~/.local/bin/autoupload schedule --all --yes >> ~/autoupload.log 2>&1`.
 
 ## Seguridad
 
 - `config/client_secret.json`, los tokens OAuth y los datos de los canales nunca deben subirse a un repositorio. `.gitignore` los excluye.
-- Los tokens OAuth se guardan en `%APPDATA%\AutoUpload` en tu propia computadora (se cambia con `AUTOUPLOAD_CONFIG_DIR`).
-  `channels/` y `config/` están en la carpeta de datos: `AUTOUPLOAD_HOME` si está definida; si no, el repositorio
-  cuando se ejecuta desde el código; si no, `Documentos\AutoUpload` (`~/AutoUpload` en macOS/Linux). La versión 1.1.0
-  los guardaba dentro del venv (`.venv\Lib\`) al instalar con `pip install .`; `autoupload doctor` lo detecta y `autoupload migrate --yes` los mueve.
+- Los tokens OAuth se guardan en `%APPDATA%\AutoUpload` en Windows y en `~/.config/autoupload` en macOS y Linux
+  (se cambia con `AUTOUPLOAD_CONFIG_DIR`); en macOS y Linux, solo tu usuario puede leer esos archivos.
+- `channels/` y `config/` están en la carpeta de datos, elegida en este orden: `AUTOUPLOAD_HOME`; la carpeta que fijes con
+  `autoupload data-folder` o con el botón **Change…** de la app; una carpeta `channels/` o `config/` junto al programa
+  (copia portátil); si no, `Documentos\AutoUpload` (`~/AutoUpload` en macOS y Linux).
+- La versión 2 lee sin cambios los tokens, los archivos de canales y el historial de subidas de la versión 1.x.
+
+## Compilar desde el código
+
+Requiere Rust 1.80 o posterior (y en Linux `libfontconfig1-dev libxkbcommon-dev`):
+
+```powershell
+cargo test --workspace
+cargo build --release          # target/release/autoupload y autoupload-gui
+```
 
 ## Estructura del repositorio
 
 | Ruta | Contenido |
 |---|---|
-| `src/autoupload/` | la aplicación |
-| `tests/` | pruebas (`pip install .[test]` y luego `pytest`) |
+| `crates/core/` | el motor: canales, cola, OAuth, cliente de YouTube, subida reanudable, estado (`cargo test`) |
+| `crates/cli/` | la línea de comandos `autoupload` |
+| `crates/gui/` | la aplicación de escritorio (Slint) |
+| `packaging/` | entrada de menú e instalador de Linux, metadatos del paquete de macOS |
+| `src/autoupload/`, `tests/` | la versión 1.x en Python, que se mantiene hasta que la 2.0 esté probada con subidas reales |
 | `docs/` | el sitio web público, servido por GitHub Pages; edita `docs/_src/` y ejecuta `python tools/build_site.py` |
 | `install-task.ps1`, `upload-all.ps1` | pasada diaria opcional como tarea programada de Windows |
 

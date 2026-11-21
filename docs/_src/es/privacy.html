@@ -27,7 +27,7 @@ rail: yes
 <div class="table-wrap"><table>
 <thead><tr><th>Elemento</th><th>Dónde está</th><th>Contenido</th></tr></thead>
 <tbody>
-<tr><td>Token de acceso</td><td><code>%APPDATA%\AutoUpload</code></td><td>El token de OAuth que Google emite cuando permites el acceso. Deja que la aplicación actúe en tu canal sin pedirte iniciar sesión cada vez.</td></tr>
+<tr><td>Token de acceso</td><td><code>%APPDATA%\AutoUpload</code> (<code>~/.config/autoupload</code> en macOS y Linux)</td><td>El token de OAuth que Google emite cuando permites el acceso. Deja que la aplicación actúe en tu canal sin pedirte iniciar sesión cada vez.</td></tr>
 <tr><td>Registro de subidas</td><td><code>state.sqlite</code> en la carpeta de tu canal</td><td>Nombre de archivo, ID del video en YouTube y hora programada de cada subida, para no subir dos veces el mismo archivo.</td></tr>
 <tr><td>Videos y datos</td><td>Carpetas que tú eliges</td><td>Tus propios archivos. AutoUpload los lee y los envía a YouTube; no los copia a ningún otro sitio.</td></tr>
 </tbody>
@@ -56,7 +56,7 @@ rail: yes
 <h2 id="revoke"><span class="no">§8</span>Revocar el acceso y borrar los datos</h2>
 <ol>
 <li>Abre <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, elige AutoUpload y quita su acceso. O ejecuta <code>autoupload auth &lt;canal&gt; logout</code>, que revoca el token ante Google y lo borra.</li>
-<li>Borra la carpeta <code>%APPDATA%\AutoUpload</code> y el archivo <code>state.sqlite</code> de la carpeta de tu canal.</li>
+<li>Borra la carpeta <code>%APPDATA%\AutoUpload</code> (<code>~/.config/autoupload</code> en macOS y Linux) y el archivo <code>state.sqlite</code> de la carpeta de tu canal.</li>
 </ol>
 <p>Tras estos dos pasos no queda nada de lo que guardó AutoUpload.</p>
 

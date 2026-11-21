@@ -12,7 +12,7 @@ body:
     attributes:
       label: AutoUpload version
       description: Output of `autoupload --version`
-      placeholder: "1.2.0"
+      placeholder: "2.0.0"
     validations:
       required: true
   - type: input

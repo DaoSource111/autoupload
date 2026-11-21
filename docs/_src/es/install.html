@@ -1,12 +1,12 @@
 <!--
 title: Guía de instalación
 callno: AU · 02 · INSTALACIÓN
-desc: Cómo descargar AutoUpload desde GitHub, instalarlo en Windows, crear tu cliente OAuth de Google y conectar tu canal de YouTube, paso a paso.
+desc: Cómo descargar AutoUpload para Windows, macOS o Linux, crear tu cliente OAuth de Google y conectar tu canal de YouTube, paso a paso.
 lede: AutoUpload funciona en tu propia computadora: lo instalas una vez y conectas tu canal desde ahí. Esta guía cubre cada paso, desde la descarga hasta tu primera subida programada. Calcula unos quince minutos.
 rail: yes
 -->
 <div class="next" style="margin-top:22px">
-<a class="btn mint" href="{ZIP}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M4 20h16"/></svg>Descargar AutoUpload (ZIP)</a>
+<a class="btn mint" href="{ZIP}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M4 20h16"/></svg>Descargar AutoUpload</a>
 <a class="btn" href="{REPO}" rel="noopener">Repositorio en GitHub</a>
 </div>
 
@@ -14,27 +14,34 @@ rail: yes
 
 <h2 id="requirements"><span class="no">§1</span>Requisitos</h2>
 <ul>
-<li>Windows 10 o Windows 11.</li>
-<li>Python 3.10 o posterior, desde <a href="https://www.python.org/downloads/">python.org</a>. Durante la instalación, marca <em>Add python.exe to PATH</em>.</li>
+<li>Windows 10 o 11 (64 bits), macOS 11 o posterior (Apple silicon o Intel), o Linux de 64 bits con glibc 2.35 o posterior (Ubuntu 22.04, Debian 12, Fedora 36 o más reciente). No hay nada más que instalar.</li>
 <li>Una cuenta de Google que sea propietaria o administradora del canal de YouTube al que quieres subir.</li>
 <li>Acceso a <a href="https://console.cloud.google.com/">Google Cloud Console</a> con esa cuenta (gratuito; la YouTube Data API no requiere facturación).</li>
 <li>La verificación en dos pasos activada en esa cuenta: Google Cloud la exige para abrir la consola.</li>
 </ul>
 
 <h2 id="download"><span class="no">§2</span>Descarga</h2>
-<p>Descarga el ZIP de arriba y descomprímelo en la carpeta que prefieras, por ejemplo <code>C:\AutoUpload</code>. Si usas Git, también puedes clonar el repositorio:</p>
-<pre><code>git clone {REPO}.git C:\AutoUpload</code></pre>
-<p>El repositorio contiene solo el código fuente. Nunca contiene credenciales, tokens ni datos de ningún canal.</p>
+<p>El botón de arriba abre la última versión en GitHub. Descarga el archivo de tu sistema:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Sistema</th><th>Archivo</th></tr></thead>
+<tbody>
+<tr><td>Windows 10/11</td><td><code>AutoUpload-&lt;version&gt;-windows-x64.zip</code></td></tr>
+<tr><td>macOS, Apple silicon (M1 y posteriores)</td><td><code>AutoUpload-&lt;version&gt;-macos-arm64.zip</code></td></tr>
+<tr><td>macOS, Intel</td><td><code>AutoUpload-&lt;version&gt;-macos-x64.zip</code></td></tr>
+<tr><td>Linux</td><td><code>AutoUpload-&lt;version&gt;-linux-x64.tar.gz</code></td></tr>
+</tbody>
+</table></div>
+<p>Cada archivo incluye la aplicación de escritorio y la herramienta de línea de comandos <code>autoupload</code>. Nunca contiene credenciales, tokens ni datos de ningún canal. Para verificar una descarga, compárala con <code>SHA256SUMS</code> de la misma página.</p>
 
-<h2 id="install"><span class="no">§3</span>Instalación</h2>
-<p>Abre PowerShell en esa carpeta (en el Explorador, clic derecho → <em>Abrir en Terminal</em>) y ejecuta:</p>
-<pre><code><span class="c"># crea un entorno de Python propio para AutoUpload</span>
-py -m venv .venv
-<span class="c"># instala AutoUpload y sus dependencias en él</span>
-.\.venv\Scripts\pip install -e .
-<span class="c"># comprueba que el comando funciona</span>
-.\.venv\Scripts\autoupload.exe --help</code></pre>
-<p>La herramienta de línea de comandos se llama <code>autoupload</code>. Sus órdenes, carpetas y opciones están en inglés.</p>
+<h2 id="install"><span class="no">§3</span>Instalación y apertura</h2>
+<ul>
+<li><strong>Windows.</strong> Descomprime el ZIP en la carpeta que prefieras, por ejemplo <code>C:\AutoUpload</code>, y abre <code>autoupload-gui.exe</code>. La primera vez, Windows SmartScreen puede decir que ha protegido tu PC: elige <em>Más información → Ejecutar de todas formas</em>.</li>
+<li><strong>macOS.</strong> Abre el ZIP y arrastra <code>AutoUpload.app</code> a <em>Aplicaciones</em>. La primera vez, haz clic derecho sobre él y elige <em>Abrir</em>, y luego <em>Abrir</em> de nuevo.</li>
+<li><strong>Linux.</strong> Descomprime el archivo y ejecuta <code>./install.sh</code> en esa carpeta: copia los programas a <code>~/.local/bin</code> y añade AutoUpload a tu menú de aplicaciones. También puedes ejecutar <code>./autoupload-gui</code> directamente.</li>
+</ul>
+<p>Las compilaciones aún no están firmadas digitalmente, por eso Windows y macOS avisan la primera vez.</p>
+<p><mark class="hl">La barra lateral de la app muestra tu carpeta de datos</mark>: donde viven tus canales y tu archivo de cliente. Es <code>Documentos\AutoUpload</code> en Windows y <code>~/AutoUpload</code> en macOS y Linux, y <em>Change…</em> la mueve a donde quieras. <em>Diagnostics</em> revisa tu configuración y te dice cómo arreglar cada problema.</p>
+<div class="note"><p><strong>¿Prefieres la terminal?</strong> Cada paso tiene su comando. En Windows, ejecuta <code>.\autoupload.exe</code> dentro de la carpeta descomprimida; en macOS la herramienta está dentro de la app, en <code>/Applications/AutoUpload.app/Contents/MacOS/autoupload</code>; en Linux, <code>autoupload</code> después de <code>install.sh</code>. <code>autoupload doctor</code> muestra la carpeta de datos y revisa la configuración. Los comandos de esta guía se escriben como <code>autoupload</code>.</p></div>
 
 <h2 id="audience"><span class="no">§4</span>Elige tu camino en Google Cloud</h2>
 <p>AutoUpload no tiene servidor central ni un inicio de sesión compartido. <mark class="hl">Cada instalación se conecta con su propio cliente OAuth, en un proyecto de Google Cloud que te pertenece.</mark> Para Google, ese proyecto es la app: su configuración decide quién puede iniciar sesión y cuánto dura el acceso, según <a href="https://support.google.com/cloud/answer/15549945?hl=es-419">Administra el público de la app</a>. Elige uno de dos caminos:</p>
@@ -84,13 +91,14 @@ py -m venv .venv
 <h2 id="project"><span class="no">§8</span>Habilita la YouTube Data API y guarda el archivo del cliente</h2>
 <ol class="steps">
 <li>En el mismo proyecto, abre <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com">APIs y servicios → Biblioteca → YouTube Data API v3</a> y pulsa <strong>Habilitar</strong>. La página mostrará <em>API habilitada</em>. <mark class="hl">Sin este paso todas las subidas fallan</mark>, con un error que dice que la YouTube Data API no se ha usado en el proyecto o está inhabilitada.</li>
-<li>Mueve el JSON descargado a la carpeta de AutoUpload como <code>config\client_secret.json</code>. No lo compartas ni lo subas a ningún repositorio.</li>
+<li>Mueve el JSON descargado a tu carpeta de datos como <code>config/client_secret.json</code> (en Windows, por defecto, <code>Documentos\AutoUpload\config\client_secret.json</code>). <em>Open</em>, bajo la carpeta de datos en la barra lateral de la app, abre esa carpeta; crea <code>config</code> si no existe. No compartas el archivo ni lo subas a ningún repositorio.</li>
 </ol>
 <p>Cada proyecto tiene su propia cuota diaria de YouTube, que se reinicia a medianoche, hora del Pacífico: por defecto 100 subidas de video, más 10 000 unidades para todo lo demás. Una miniatura cuesta 50 unidades, añadir un video a una lista 50 y subir un archivo de subtítulos 400 (<a href="https://developers.google.com/youtube/v3/determine_quota_cost">tabla de cuotas de Google</a>).</p>
 
 <h2 id="channel"><span class="no">§9</span>Crea una carpeta para tu canal</h2>
-<pre><code>.\.venv\Scripts\autoupload.exe channel new mychannel</code></pre>
-<p>Esto crea <code>channels\mychannel\</code> con tres elementos:</p>
+<p>En la app, selecciona <strong>New channel</strong> y dale un nombre corto (minúsculas, números, <code>-</code> o <code>_</code>). En una terminal:</p>
+<pre><code>autoupload channel new mychannel</code></pre>
+<p>Esto crea <code>channels/mychannel/</code> en la carpeta de datos, con tres elementos:</p>
 <div class="table-wrap"><table>
 <thead><tr><th>Elemento</th><th>Para qué sirve</th></tr></thead>
 <tbody>
@@ -101,19 +109,20 @@ py -m venv .venv
 </table></div>
 
 <h2 id="connect"><span class="no">§10</span>Conecta tu canal</h2>
-<pre><code>.\.venv\Scripts\autoupload.exe auth mychannel login</code></pre>
+<p>Selecciona tu canal en la app y pulsa <strong>Connect</strong>. En una terminal:</p>
+<pre><code>autoupload auth mychannel login</code></pre>
 <ol class="steps">
 <li>Se abre tu navegador en la página de inicio de sesión de Google. Elige tu cuenta y, si administra varios canales, el canal correcto.</li>
 <li>Google enumera los tres permisos que pide AutoUpload. Se explican uno a uno en la <a href="index.html#permissions">página de inicio</a>. Pulsa <em>Permitir</em>.</li>
-<li>AutoUpload guarda el token de acceso en <code>%APPDATA%\AutoUpload</code> y anota el ID de tu canal. Desde entonces se niega a subir si el token pertenece a otro canal.</li>
+<li>AutoUpload guarda el token de acceso en <code>%APPDATA%\AutoUpload</code> (<code>~/.config/autoupload</code> en macOS y Linux) y anota el ID de tu canal. Desde entonces se niega a subir si el token pertenece a otro canal.</li>
 </ol>
-<div class="note"><p><strong>Qué puedes ver.</strong> Con la app en <em>Externo · Prueba</em>, Google avisa primero de que la app está en pruebas; con la app en producción y sin verificar, muestra «Google no verificó esta app». En ambos casos, si la app es tuya, elige <em>Continuar</em> (o <em>Configuración avanzada → Ir a …</em>). Una app <em>Personal</em> no muestra ninguna de las dos pantallas.</p><p><strong>Inicio de sesión semanal en Prueba.</strong> Mientras la app está en Prueba, el acceso caduca siete días después de permitirlo y las subidas se detienen con un error de autenticación. Vuelve a ejecutar <code>auth mychannel login</code>, o publica la app (§6) para que deje de caducar.</p></div>
-<p>Para comprobar qué canal está conectado:</p>
-<pre><code>.\.venv\Scripts\autoupload.exe auth mychannel whoami</code></pre>
+<div class="note"><p><strong>Qué puedes ver.</strong> Con la app en <em>Externo · Prueba</em>, Google avisa primero de que la app está en pruebas; con la app en producción y sin verificar, muestra «Google no verificó esta app». En ambos casos, si la app es tuya, elige <em>Continuar</em> (o <em>Configuración avanzada → Ir a …</em>). Una app <em>Personal</em> no muestra ninguna de las dos pantallas.</p><p><strong>Inicio de sesión semanal en Prueba.</strong> Mientras la app está en Prueba, el acceso caduca siete días después de permitirlo y las subidas se detienen con un error de autenticación. Pulsa <em>Reconnect</em> (o vuelve a ejecutar <code>auth mychannel login</code>), o publica la app (§6) para que deje de caducar.</p></div>
+<p>La app muestra el ID del canal conectado bajo su nombre. Para comprobarlo en una terminal:</p>
+<pre><code>autoupload auth mychannel whoami</code></pre>
 
 <h2 id="queue"><span class="no">§11</span>Pon un video en la cola</h2>
 <p>Cada video de <code>queue\</code> necesita una ficha con el mismo nombre. La miniatura con el mismo nombre es opcional.</p>
-<pre><code>channels\mychannel\queue\
+<pre><code>channels/mychannel/queue/
   episode-004.mp4     <span class="c"># el video</span>
   episode-004.yaml    <span class="c"># su ficha (obligatoria)</span>
   episode-004.jpg     <span class="c"># miniatura (opcional, .jpg o .png)</span></code></pre>
@@ -128,15 +137,18 @@ captions:
   - {language: en, name: English, path: episode-004.en.srt}</code></pre>
 
 <h2 id="upload"><span class="no">§12</span>Revisa el plan y sube</h2>
+<p>En la app, la pestaña <em>Queue</em> lista los videos en espera. <strong>Preview dates</strong> muestra la fecha que recibirá cada uno y no sube nada. <strong>Upload</strong> te pide confirmación y luego los sube con el progreso en vivo. En una terminal:</p>
 <pre><code><span class="c"># muestra la fecha que recibirá cada video de la cola; no sube nada</span>
-.\.venv\Scripts\autoupload.exe schedule mychannel
+autoupload schedule mychannel
 <span class="c"># sube de verdad</span>
-.\.venv\Scripts\autoupload.exe schedule mychannel --yes</code></pre>
-<p>Los videos se suben en privado y se hacen públicos a su hora programada. Revísalos en YouTube Studio después de la primera vez.</p>
+autoupload schedule mychannel --yes</code></pre>
+<p>Los videos se suben en privado y se hacen públicos a su hora programada. La pestaña <em>Calendar</em> muestra lo programado en YouTube; revisa los videos en YouTube Studio después de la primera vez.</p>
+<p><strong>Todos los días, sin supervisión (opcional).</strong> En Windows, ejecuta <code>install-task.ps1</code> desde la carpeta descomprimida en PowerShell (<code>-Time 21:30</code> elige la hora): registra una tarea programada que sube cada día las colas de todos tus canales y guarda un registro en <code>logs\</code>. En macOS y Linux, añade <code>autoupload schedule --all --yes</code> a <code>crontab -e</code>.</p>
 
 <h2 id="disconnect"><span class="no">§13</span>Desconectar y desinstalar</h2>
-<pre><code>.\.venv\Scripts\autoupload.exe auth mychannel logout</code></pre>
-<p>Esto revoca el token ante Google y lo borra. También puedes quitar el acceso en <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. Para desinstalar, borra la carpeta de AutoUpload y <code>%APPDATA%\AutoUpload</code>.</p>
+<p>Pulsa <strong>Disconnect</strong> en la app, o ejecuta:</p>
+<pre><code>autoupload auth mychannel logout</code></pre>
+<p>Esto revoca el token ante Google y lo borra. También puedes quitar el acceso en <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. Para desinstalar, borra el programa, tu carpeta de datos y <code>%APPDATA%\AutoUpload</code> (<code>~/.config/autoupload</code> en macOS y Linux).</p>
 <h2 id="ai"><span class="no">§14</span>Instálalo con un agente de IA</h2>
 <p>Un agente de IA que pueda ejecutar comandos en tu computadora (Claude Code, Codex u otro parecido) puede hacer la instalación por ti siguiendo esta guía. Algunos pasos siguen siendo tuyos: <mark class="hl">iniciar sesión en Google, la verificación en dos pasos, aceptar condiciones y aprobar la primera subida</mark>. Si el agente además puede manejar un navegador, hará los pasos de Google Cloud Console; si no, te guiará clic a clic.</p>
 <ol class="steps">
@@ -145,43 +157,43 @@ captions:
 <li>Quédate frente a la computadora: el agente se detiene y te devuelve el control en cada inicio de sesión y cada aprobación.</li>
 </ol>
 <div class="prompt-wrap"><button class="copy" type="button" data-done="Copiado">Copiar prompt</button>
-<pre class="prompt" tabindex="0"><code>Vas a instalar AutoUpload en esta computadora con Windows. AutoUpload es una herramienta de línea de comandos de código abierto que sube videos a mi propio canal de YouTube en privado y programa su publicación. Sigue la guía oficial paso a paso e infórmame al terminar cada paso.
+<pre class="prompt" tabindex="0"><code>Vas a instalar AutoUpload en esta computadora (Windows, macOS o Linux). AutoUpload es una aplicación de escritorio y herramienta de línea de comandos de código abierto que sube videos a mi propio canal de YouTube en privado y programa su publicación. Sigue la guía oficial paso a paso e infórmame al terminar cada paso.
 
 Lee primero, completos:
 - Guía: https://daosource111.github.io/autoupload/es/install.html
 - Repositorio: https://github.com/DaoSource111/autoupload
 
 Mis valores (edítalos antes de empezar):
-- CARPETA = C:\AutoUpload
-- CANAL = mychannel                (minúsculas, números, - o _)
-- CAMINO = A                     (A = modo personal, solo yo; B = Externo, Prueba)
+- CARPETA = C:\AutoUpload     (donde va el programa; en macOS usa /Applications)
+- CANAL = mychannel            (minúsculas, números, - o _)
+- CAMINO = A                   (A = modo personal, solo yo; B = Externo, Prueba)
 - TESTERS = (solo camino B) los correos de Google que se añaden como usuarios de prueba
-- ZONA = +00:00                  (desfase de HORAS respecto a UTC, p. ej. +00:00 para UTC, -05:00, +01:00)
-- HORAS = 08:00                  (una o varias horas de publicación al día, HH:MM)
+- ZONA = Europe/Madrid         (zona de HORAS: un nombre como America/Lima, o un desfase como -05:00)
+- HORAS = 08:00                (una o varias horas de publicación al día, HH:MM)
 
 Reglas, que mandan sobre todo lo demás:
 1. Nunca escribas, pidas ni leas mi contraseña de Google ni mis códigos de verificación en dos pasos. Cuando aparezca un inicio de sesión, el selector de cuentas o una pantalla de consentimiento de Google, detente y pídeme que lo termine yo.
 2. Pregúntame antes de aceptar cualquier condición del servicio, de pulsar "Publicar app" o de ejecutar cualquier comando con --yes.
-3. Nunca muestres, pegues, subas ni guardes en un repositorio el contenido de config\client_secret.json ni de ningún token. Nómbralos solo por su ruta.
+3. Nunca muestres, pegues, subas ni guardes en un repositorio el contenido de config/client_secret.json ni de ningún token. Nómbralos solo por su ruta.
 4. En Google Cloud, pide solo los permisos youtube.upload, youtube.force-ssl y youtube.readonly, y habilita solo YouTube Data API v3. No cambies nada más.
 5. No edites el código de AutoUpload. Si un comando falla, muéstrame el error exacto, propón el arreglo de la página de Soporte de la guía y espera.
 6. Si lo que ves en Google Cloud Console no coincide con la guía, describe la diferencia y pregúntame antes de improvisar.
 
 Pasos (cada uno termina con su comprobación):
-1. Requisitos. Ejecuta `py --version` (hace falta 3.10 o posterior) y `git --version`. Si falta Python, dime que lo instale desde python.org marcando "Add python.exe to PATH", y espera. Comprobación: ambos comandos muestran una versión.
-2. Descarga. Ejecuta `git clone https://github.com/DaoSource111/autoupload.git CARPETA` (o descarga y descomprime el ZIP de la guía). Comprobación: existe CARPETA\pyproject.toml.
-3. Instalación. En CARPETA ejecuta `py -m venv .venv` y luego `.\.venv\Scripts\pip install -e .`. Comprobación: `.\.venv\Scripts\autoupload.exe --help` muestra la lista de comandos.
+1. Sistema. Averigua el sistema operativo y el procesador (Windows x64, macOS Apple silicon o Intel, Linux x64). Comprobación: me dices qué archivo de descarga del apartado 2 de la guía corresponde.
+2. Descarga. Desde https://github.com/DaoSource111/autoupload/releases/latest descarga ese archivo y SHA256SUMS, y verifica la suma de comprobación. Comprobación: la suma coincide.
+3. Instalación. Sigue el apartado 3 de la guía: en Windows, descomprime en CARPETA; en macOS, descomprime y mueve AutoUpload.app a /Applications (pídeme que haga clic derecho y elija Abrir la primera vez); en Linux, descomprime y ejecuta ./install.sh. A partir de ahora AUTOUPLOAD significa la herramienta de línea de comandos: CARPETA\autoupload.exe, /Applications/AutoUpload.app/Contents/MacOS/autoupload, o autoupload. Comprobación: `AUTOUPLOAD --version` muestra una versión, y `AUTOUPLOAD doctor` muestra la carpeta de datos (llámala DATOS).
 4. Google Cloud. Sigue los apartados 4 a 8 de la guía según CAMINO:
    - Camino A: abre https://console.cloud.google.com/auth/overview/personal, crea un proyecto nuevo, tipo de aplicación "App de escritorio", deja sin marcar "Usar este cliente para un agente potenciado por IA", pídeme que acepte las condiciones, pulsa Continuar y luego Descargar JSON antes de cerrar el cuadro (el secreto se muestra una vez).
    - Camino B: crea un proyecto; Google Auth Platform > Descripción general > Comenzar (público Externo); Público > Usuarios de prueba > Add users con TESTERS; Acceso a los datos solo con los tres permisos; Clientes > Crear cliente > App de escritorio llamado "AutoUpload Desktop"; Crear; Descargar JSON en ese momento.
    - Ambos: APIs y servicios > Biblioteca > YouTube Data API v3 > Habilitar.
    Si no puedes manejar un navegador, dame una instrucción cada vez y espera a que diga "listo".
    Comprobación: la página de la API dice "API habilitada" y el JSON está en mi carpeta Descargas.
-5. Archivo del cliente. Mueve el JSON descargado a CARPETA\config\client_secret.json. Comprobación: `Test-Path CARPETA\config\client_secret.json` devuelve True.
-6. Canal. Ejecuta `.\.venv\Scripts\autoupload.exe channel new CANAL` y pon timezone: "ZONA" y hours: ["HORAS"] en channels\CANAL\channel.yaml. Enséñame el archivo antes de guardarlo. Comprobación: `autoupload.exe channels` muestra CANAL.
-7. Conexión. Ejecuta `.\.venv\Scripts\autoupload.exe auth CANAL login`. Se abre el navegador: pásame el control para el inicio de sesión y el consentimiento. Luego ejecuta `auth CANAL whoami`. Comprobación: muestra el nombre de mi canal y yo confirmo que es el correcto.
-8. Prueba en seco. Pídeme que ponga un video y su ficha .yaml en channels\CANAL\queue\ y ejecuta `autoupload.exe schedule CANAL` sin --yes. Comprobación: muestra un plan con fecha y no sube nada. Sube solo cuando yo responda "sube".
-9. Informe. Di qué instalaste y dónde, qué camino de Google se usó y qué implica (camino B: volver a iniciar sesión cada 7 días hasta publicar la app), y qué me queda por hacer.</code></pre></div>
+5. Archivo del cliente. Mueve el JSON descargado a DATOS/config/client_secret.json (crea la carpeta config si hace falta). Comprobación: `AUTOUPLOAD doctor` ya no informa de que falta el archivo del cliente.
+6. Canal. Ejecuta `AUTOUPLOAD channel new CANAL` y pon timezone: "ZONA" y hours: ["HORAS"] en DATOS/channels/CANAL/channel.yaml. Enséñame el archivo antes de guardarlo. Comprobación: `AUTOUPLOAD channels` muestra CANAL.
+7. Conexión. Ejecuta `AUTOUPLOAD auth CANAL login`. Se abre el navegador: pásame el control para el inicio de sesión y el consentimiento. Luego ejecuta `AUTOUPLOAD auth CANAL whoami`. Comprobación: muestra el nombre de mi canal y yo confirmo que es el correcto.
+8. Prueba en seco. Pídeme que ponga un video y su ficha .yaml en DATOS/channels/CANAL/queue/ y ejecuta `AUTOUPLOAD schedule CANAL` sin --yes. Comprobación: muestra un plan con fecha y no sube nada. Sube solo cuando yo responda "sube".
+9. Informe. Di qué instalaste y dónde, qué camino de Google se usó y qué implica (camino B: volver a iniciar sesión cada 7 días hasta publicar la app), cómo abrir la aplicación de escritorio, y qué me queda por hacer.</code></pre></div>
 <p>El prompt es texto plano: léelo antes de usarlo. No da al agente ningún acceso aparte del que tú le concedas en el propio agente.</p>
 
 <p>Si algo no funciona, consulta <a href="support.html">Soporte</a>.</p>

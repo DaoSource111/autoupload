@@ -1,0 +1,20 @@
+[package]
+name = "autoupload"
+description = "AutoUpload command line: upload and schedule videos on your YouTube channels (official API)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "autoupload"
+path = "src/main.rs"
+
+[dependencies]
+autoupload-core.workspace = true
+chrono.workspace = true
+clap.workspace = true
+open.workspace = true
+serde_json.workspace = true

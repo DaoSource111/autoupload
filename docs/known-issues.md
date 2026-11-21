@@ -1,14 +1,19 @@
 # Known issues
 Template: `## Title` · **Symptom** · **Cause** · **File** · **Found** · **Severity**
 
-## Real resume not yet tested against YouTube — MEDIUM (to verify)
-**Possible symptom:** resuming an upload uses googleapiclient's internal path (`resumable_uri` + `_in_error_state`);
-it is covered with test doubles but has not been tried by cutting a real upload.
-**File:** src/autoupload/upload.py · **Found:** 2026-11-21
+## 2.0 not yet used for a real upload — MEDIUM (to verify)
+**Symptom:** the Rust engine has been checked read-only against real channels (`doctor`, `auth whoami`, `calendar`,
+token refresh) and with a fake API in tests, but no video has been uploaded with it yet, and resuming a cut upload
+(308 + `Range`, status query `bytes */size`) has not been tried against YouTube.
+**File:** crates/core/src/youtube.rs, publisher.rs · **Found:** 2026-11-21
 
-## Non-existent hour at the daylight-saving jump — LOW
-**Symptom:** with an IANA zone, a slot inside the spring jump (e.g. 02:30 in Europe/Madrid) is computed with the
-offset from before the change. **File:** src/autoupload/channels.py (`_slots`) · **Found:** 2026-11-21
+## Desktop app not yet opened on macOS or Linux — LOW (to verify)
+**Symptom:** the Slint app was run on Windows only; CI builds and tests it on all three systems but cannot look at it.
+**File:** crates/gui/ · **Found:** 2026-11-21
+
+## Release builds are not code-signed — LOW
+**Symptom:** Windows SmartScreen and macOS Gatekeeper warn on first start (the README explains how to open them).
+**Cause:** Authenticode and Apple notarization need paid certificates. **File:** .github/workflows/release.yml · **Found:** 2026-11-21
 
 ---
 ## Resolved
@@ -21,3 +26,4 @@ offset from before the change. **File:** src/autoupload/channels.py (`_slots`) �
 - 2026-11-21 · Quota errors detected by message text → classified by `error.reason`; `rateLimitExceeded` no longer stops the run.
 - 2026-11-21 · A thumbnail rejected for an unverified channel failed the video → a warning with the fix; the video goes on.
 - 2026-11-21 · PRODUCT.md out of date → fixed (local file, not in git).
+- 2026-11-21 · Non-existent hour at the spring daylight-saving jump → in 2.0 the slot moves forward past the gap (`Zone::resolve`); still present in the 1.x Python version.

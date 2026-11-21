@@ -4,8 +4,9 @@
 
 | Version | Supported |
 |---|---|
-| 1.2.x | Yes |
-| 1.1.x and older | No, please upgrade to 1.2.x |
+| 2.0.x | Yes |
+| 1.2.x | Security fixes until 2.0 has replaced it |
+| 1.1.x and older | No, please upgrade to 2.0.x |
 
 ## Reporting a vulnerability
 

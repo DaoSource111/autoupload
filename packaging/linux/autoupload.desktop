@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=AutoUpload
+Comment=Upload and schedule videos on your YouTube channels
+Exec=autoupload-gui
+Icon=autoupload
+Terminal=false
+Categories=AudioVideo;Video;Utility;

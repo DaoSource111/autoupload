@@ -1,10 +1,11 @@
 # Progress — AutoUpload
-_Updated: 2026-11-21 · Latest release: v1.2.0 · Audit score: 6.5/10 at v1.1.0, about 8.5/10 now_
+_Updated: 2026-11-21 · Latest release: v2.0.0 (Rust) · previous: v1.2.0 (Python)_
 
 ## Current state
-v1.2.0 released on 2026-11-21 (GitHub release with wheel, sdist, SHA256SUMS and build provenance attestation).
-Phases 1 and 2 are done. 130 tests; CI green on 2026-11-21 (11 jobs: lint, 9 OS × Python combinations, installed wheel).
-What stands between this and 10/10 is mostly real-world use (maturity) and ease of use for non-technical creators.
+2.0.0 is a Rust rewrite: `crates/core` engine, `autoupload` CLI and `autoupload-gui` desktop app (Slint), released
+for Windows x64, Linux x64 and macOS arm64/x64 from one tag. 47 Rust tests; clippy clean with `-D warnings`.
+Verified read-only against the real channels (doctor, whoami, calendar, token refresh shared with 1.x).
+The Python 1.x code stays in `src/autoupload/` (130 tests, still in CI) until 2.0 has done real uploads.
 
 ## Done
 - v1.1.0: queue folders, publishing slots per channel, private scheduled upload, thumbnail, captions, playlist,
@@ -20,19 +21,21 @@ What stands between this and 10/10 is mostly real-world use (maturity) and ease 
   CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, issue and PR templates.
 - 2026-11-21 · Release workflow: a `v*` tag builds, tests, attests and publishes the GitHub release from CHANGELOG.md.
 - 2026-11-21 · Rule: English is the primary language; all documentation is written in English.
+- 2026-11-21 · 2.0.0: Rust workspace (core, CLI, Slint GUI) compatible with 1.x tokens, channels and state;
+  daylight-saving gap fixed; `data-folder`; Rust CI on 3 systems; per-OS release builds (zip, tar.gz, .app);
+  Linux installer and menu entry; `upload-all.ps1` runs the bundled CLI.
 
 ## Pending (by system · [P1]–[P4] = phase)
 
 ### Quality (tests, CI, packaging)
 - [P1] Set a coverage threshold from the real CI figure.
-- [P2] mypy --strict, pre-commit (full ruff, gitleaks), lockfile.
-- [P2] Hypothesis for `next_slots`.
+- [P2] proptest for `next_slots`; cargo-deny/audit in CI; gitleaks.
 - [P2] Optional integration test against a test channel (including cutting a real upload and resuming it).
-- [P3] Publish to PyPI from the release workflow (needs the PyPI project and its trusted publisher) and to winget.
-- [P3] Windows installer `.exe` (PyInstaller or Nuitka).
+- [P1] First real upload with 2.0, including cutting one and resuming it; then remove the Python 1.x code.
+- [P3] Code signing (Authenticode, Apple notarization); winget, Homebrew cask and Flatpak/AppImage.
+- [P3] Windows installer (MSI) with a Start menu entry.
 
 ### Channels and calendar
-- [P2] Non-existent hours at the spring daylight-saving jump (see known-issues).
 - [P4] Export the calendar to `.ics`; reschedule or cancel already scheduled videos.
 - [P4] Separate rules for Shorts.
 
@@ -48,14 +51,14 @@ What stands between this and 10/10 is mostly real-world use (maturity) and ease 
 - [P4] Watch mode for the `queue/` folder.
 
 ### OAuth authentication
-- [P3] Token in the system credential store (`keyring`); check whether the 3 scopes are minimal.
+- [P3] Token in the system credential store (`keyring` crate); check whether the 3 scopes are minimal.
 
 ### CLI and scheduled run
 - [P2] `doctor --online`: check that the API is enabled and really refresh the token.
 - [P2] JSON logs; `--quiet` (rotation is done).
-- [P3] `autoupload init` (wizard) and a cross-platform `install-schedule` replacing the `.ps1` scripts.
+- [P3] A cross-platform `autoupload install-schedule` (Task Scheduler, launchd, systemd timer) replacing the `.ps1` scripts.
 - [P3] Notifications (Windows toast and webhook); CLI in English and Spanish with gettext.
-- [P4] Minimal GUI (tray or local app).
+- [P3] Desktop app: edit `channel.yaml` and video sheets in forms; drag and drop videos into the queue; tray icon.
 - [P4] Optional AI metadata (user's own key, off by default).
 
 ### Public website and brand

@@ -16,7 +16,7 @@ from pathlib import Path
 GITHUB_OWNER = "DaoSource111"
 GITHUB_REPO = "autoupload"
 REPO = f"https://github.com/{GITHUB_OWNER}/{GITHUB_REPO}"
-ZIP = f"{REPO}/archive/refs/heads/main.zip"
+ZIP = f"{REPO}/releases/latest"  # the download button: every system's package
 EMAIL = "ellipsio.studio@gmail.com"
 
 ROOT = Path(__file__).resolve().parent.parent

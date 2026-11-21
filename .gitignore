@@ -13,3 +13,6 @@ config/client_secret*.json
 channels/
 .impeccable/
 PRODUCT.md
+
+# Rust build output
+/target/

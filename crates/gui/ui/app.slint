@@ -1,0 +1,902 @@
+// AutoUpload desktop app. Fluent style, light and dark.
+import { Button, LineEdit, ProgressIndicator, ListView, ScrollView, CheckBox, Palette, AboutSlint } from "std-widgets.slint";
+
+export struct ChannelRow {
+    name: string,
+    subtitle: string,
+    connected: bool,
+}
+
+// tone: 0 neutral, 1 ok, 2 warning, 3 error, 4 in progress
+export struct QueueRow {
+    file: string,
+    title: string,
+    when: string,
+    status: string,
+    tone: int,
+}
+
+export struct CalendarRow {
+    when: string,
+    status: string,
+    title: string,
+}
+
+// level: 0 ok, 1 warning, 2 error
+export struct CheckRow {
+    level: int,
+    message: string,
+    fix: string,
+}
+
+global Theme {
+    out property <color> accent: #2f4bff;
+    out property <color> ok: #16a34a;
+    out property <color> warn: #d97706;
+    out property <color> error: #dc2626;
+    out property <color> muted: #808080;
+    out property <color> hover: #8080801f;
+    out property <color> line: #80808033;
+    out property <length> radius: 8px;
+
+    public pure function tone(t: int) -> color {
+        return t == 1 ? ok : t == 2 ? warn : t == 3 ? error : t == 4 ? accent : muted;
+    }
+}
+
+component Pill inherits Rectangle {
+    in property <string> text;
+    in property <color> tone: Theme.muted;
+    height: 22px;
+    width: label.preferred-width + 18px;
+    border-radius: 11px;
+    background: root.tone.transparentize(0.86);
+    label := Text {
+        text: root.text;
+        color: root.tone;
+        font-size: 11px;
+        font-weight: 600;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+}
+
+component Muted inherits Text {
+    color: Palette.foreground;
+    opacity: 0.62;
+    font-size: 12px;
+    overflow: elide;
+}
+
+component ChannelItem inherits Rectangle {
+    in property <ChannelRow> data;
+    in property <bool> selected;
+    callback clicked;
+    height: 56px;
+    border-radius: Theme.radius;
+    background: root.selected ? Theme.accent.transparentize(0.84) : touch.has-hover ? Theme.hover : transparent;
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 10px;
+        VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 9px;
+                height: 9px;
+                border-radius: 4.5px;
+                background: root.data.connected ? Theme.ok : Theme.warn;
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            spacing: 2px;
+            Text {
+                text: root.data.name;
+                font-size: 14px;
+                font-weight: 600;
+                color: Palette.foreground;
+                overflow: elide;
+            }
+            Muted {
+                text: root.data.subtitle;
+            }
+        }
+    }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+component TabButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> active;
+    callback clicked;
+    height: 34px;
+    width: label.preferred-width + 28px;
+    border-radius: 6px;
+    background: root.active ? Palette.control-background : touch.has-hover ? Theme.hover : transparent;
+    label := Text {
+        text: root.text;
+        font-size: 13px;
+        font-weight: root.active ? 700 : 500;
+        color: Palette.foreground;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    Rectangle {
+        y: parent.height - 3px;
+        height: 3px;
+        width: root.active ? parent.width - 20px : 0px;
+        x: (parent.width - self.width) / 2;
+        border-radius: 1.5px;
+        background: Theme.accent;
+        animate width { duration: 140ms; easing: ease-out; }
+    }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+component Card inherits Rectangle {
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: Palette.alternate-background;
+    clip: true;
+}
+
+component EmptyState inherits VerticalLayout {
+    in property <string> title;
+    in property <string> body;
+    alignment: center;
+    spacing: 6px;
+    padding: 32px;
+    Text {
+        text: root.title;
+        font-size: 16px;
+        font-weight: 600;
+        color: Palette.foreground;
+        horizontal-alignment: center;
+    }
+    Muted {
+        text: root.body;
+        font-size: 13px;
+        horizontal-alignment: center;
+        wrap: word-wrap;
+        overflow: clip;
+    }
+    @children
+}
+
+component Modal inherits Rectangle {
+    in property <string> title;
+    in property <length> card-width: 460px;
+    background: #00000088;
+    TouchArea { }
+    card := Rectangle {
+        width: min(root.card-width, root.width - 48px);
+        height: min(content.preferred-height, root.height - 48px);
+        x: (root.width - self.width) / 2;
+        y: (root.height - self.height) / 2;
+        background: Palette.background;
+        border-radius: 12px;
+        drop-shadow-blur: 28px;
+        drop-shadow-color: #00000066;
+        content := VerticalLayout {
+            padding: 24px;
+            spacing: 14px;
+            Text {
+                text: root.title;
+                font-size: 18px;
+                font-weight: 700;
+                color: Palette.foreground;
+            }
+            @children
+        }
+    }
+}
+
+export component AppWindow inherits Window {
+    title: "AutoUpload";
+    icon: @image-url("../../../assets/brand/autoupload-logo-rounded-120.png");
+    preferred-width: 1120px;
+    preferred-height: 720px;
+    min-width: 860px;
+    min-height: 540px;
+    background: Palette.background;
+
+    // data
+    in property <string> version;
+    in property <[ChannelRow]> channels;
+    in-out property <int> current: -1;
+    in property <string> ch-name;
+    in property <string> ch-schedule;
+    in property <string> ch-linked;
+    in property <bool> ch-connected;
+    in property <[QueueRow]> queue;
+    in property <int> ready-count;
+    in property <[CalendarRow]> calendar;
+    in property <string> calendar-note;
+    in property <[string]> log;
+    in property <[CheckRow]> checks;
+    in property <string> data-folder;
+    in property <string> data-source;
+    // activity
+    in property <bool> busy;
+    in property <float> progress: -1;
+    in property <string> status;
+    in property <string> banner;
+    in property <int> banner-tone;
+    // ui state
+    in-out property <int> tab: 0;
+    in-out property <bool> show-new: false;
+    in-out property <bool> show-confirm: false;
+    in-out property <bool> show-folder: false;
+    in-out property <bool> show-doctor: false;
+    in-out property <bool> show-about: false;
+    in-out property <bool> allow-public: false;
+    in-out property <string> new-name;
+    in-out property <string> folder-input;
+
+    callback select-channel(int);
+    callback create-channel(string);
+    callback connect();
+    callback disconnect();
+    callback preview();
+    callback upload(bool);
+    callback load-calendar();
+    callback open-queue();
+    callback open-uploaded();
+    callback edit-settings();
+    callback open-data-folder();
+    callback set-data-folder(string);
+    callback run-doctor();
+    callback open-url(string);
+    callback dismiss-banner();
+
+    HorizontalLayout {
+        // ---- sidebar -------------------------------------------------------------------------------
+        Rectangle {
+            width: 270px;
+            background: Palette.alternate-background;
+            VerticalLayout {
+                padding: 16px;
+                spacing: 10px;
+                HorizontalLayout {
+                    spacing: 10px;
+                    padding-bottom: 6px;
+                    Image {
+                        source: @image-url("../../../assets/brand/autoupload-logo-rounded-120.png");
+                        width: 34px;
+                        height: 34px;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Text {
+                            text: "AutoUpload";
+                            font-size: 17px;
+                            font-weight: 700;
+                            color: Palette.foreground;
+                        }
+                        Muted {
+                            text: "Upload and schedule on YouTube";
+                            font-size: 11px;
+                        }
+                    }
+                }
+                Muted {
+                    text: "CHANNELS";
+                    font-size: 11px;
+                    font-weight: 700;
+                    letter-spacing: 0.6px;
+                }
+                if root.channels.length == 0: Muted {
+                    text: "No channels yet.";
+                    font-size: 13px;
+                }
+                ListView {
+                    vertical-stretch: 1;
+                    for row[i] in root.channels: ChannelItem {
+                        data: row;
+                        selected: i == root.current;
+                        clicked => { root.select-channel(i); }
+                    }
+                }
+                Button {
+                    text: "New channel";
+                    enabled: !root.busy;
+                    clicked => {
+                        root.new-name = "";
+                        root.show-new = true;
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Button {
+                        text: "Diagnostics";
+                        horizontal-stretch: 1;
+                        clicked => { root.run-doctor(); }
+                    }
+                    Button {
+                        text: "About";
+                        horizontal-stretch: 1;
+                        clicked => { root.show-about = true; }
+                    }
+                }
+                Rectangle {
+                    height: 1px;
+                    background: Theme.line;
+                }
+                Muted {
+                    text: "DATA FOLDER";
+                    font-size: 11px;
+                    font-weight: 700;
+                    letter-spacing: 0.6px;
+                }
+                Text {
+                    text: root.data-folder;
+                    font-size: 12px;
+                    color: Palette.foreground;
+                    wrap: word-wrap;
+                }
+                Muted {
+                    text: root.data-source;
+                    font-size: 11px;
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Button {
+                        text: "Open";
+                        horizontal-stretch: 1;
+                        clicked => { root.open-data-folder(); }
+                    }
+                    Button {
+                        text: "Change…";
+                        horizontal-stretch: 1;
+                        enabled: !root.busy;
+                        clicked => {
+                            root.folder-input = root.data-folder;
+                            root.show-folder = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            width: 1px;
+            background: Theme.line;
+        }
+
+        // ---- main -----------------------------------------------------------------------------------
+        VerticalLayout {
+            horizontal-stretch: 1;
+            padding: 24px;
+            spacing: 16px;
+
+            if root.banner != "": Rectangle {
+                height: banner-row.preferred-height;
+                border-radius: Theme.radius;
+                background: Theme.tone(root.banner-tone).transparentize(0.88);
+                banner-row := HorizontalLayout {
+                    padding: 12px;
+                    spacing: 12px;
+                    Text {
+                        text: root.banner;
+                        color: Palette.foreground;
+                        wrap: word-wrap;
+                        horizontal-stretch: 1;
+                        vertical-alignment: center;
+                    }
+                    Button {
+                        text: "Dismiss";
+                        clicked => { root.dismiss-banner(); }
+                    }
+                }
+            }
+
+            if root.current < 0: EmptyState {
+                vertical-stretch: 1;
+                title: root.channels.length == 0 ? "Create your first channel" : "Choose a channel";
+                body: root.channels.length == 0
+                    ? "A channel is a folder with its own queue, publishing hours and Google sign-in. You need your own OAuth client file (Desktop app) from Google Cloud, as the installation guide explains."
+                    : "Pick a channel on the left to see its queue and calendar.";
+                HorizontalLayout {
+                    alignment: center;
+                    spacing: 10px;
+                    padding-top: 10px;
+                    if root.channels.length == 0: Button {
+                        text: "New channel";
+                        primary: true;
+                        clicked => {
+                            root.new-name = "";
+                            root.show-new = true;
+                        }
+                    }
+                    Button {
+                        text: "Installation guide";
+                        clicked => { root.open-url("https://daosource111.github.io/autoupload/install.html"); }
+                    }
+                }
+            }
+
+            if root.current >= 0: VerticalLayout {
+                spacing: 16px;
+                vertical-stretch: 1;
+                // header
+                HorizontalLayout {
+                    spacing: 12px;
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        alignment: center;
+                        spacing: 4px;
+                        HorizontalLayout {
+                            spacing: 10px;
+                            Text {
+                                text: root.ch-name;
+                                font-size: 24px;
+                                font-weight: 700;
+                                color: Palette.foreground;
+                                overflow: elide;
+                            }
+                            VerticalLayout {
+                                alignment: center;
+                                Pill {
+                                    text: root.ch-connected ? "Connected" : "Not connected";
+                                    tone: root.ch-connected ? Theme.ok : Theme.warn;
+                                }
+                            }
+                        }
+                        Muted {
+                            text: root.ch-schedule + (root.ch-linked != "" ? "  ·  " + root.ch-linked : "");
+                            font-size: 13px;
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        HorizontalLayout {
+                            spacing: 8px;
+                            Button {
+                                text: root.ch-connected ? "Reconnect" : "Connect";
+                                primary: !root.ch-connected;
+                                enabled: !root.busy;
+                                clicked => { root.connect(); }
+                            }
+                            if root.ch-connected: Button {
+                                text: "Disconnect";
+                                enabled: !root.busy;
+                                clicked => { root.disconnect(); }
+                            }
+                            Button {
+                                text: "Settings";
+                                clicked => { root.edit-settings(); }
+                            }
+                        }
+                    }
+                }
+
+                // tabs
+                HorizontalLayout {
+                    spacing: 4px;
+                    alignment: start;
+                    TabButton {
+                        text: "Queue (" + root.queue.length + ")";
+                        active: root.tab == 0;
+                        clicked => { root.tab = 0; }
+                    }
+                    TabButton {
+                        text: "Calendar";
+                        active: root.tab == 1;
+                        clicked => {
+                            root.tab = 1;
+                            root.load-calendar();
+                        }
+                    }
+                    TabButton {
+                        text: "Activity";
+                        active: root.tab == 2;
+                        clicked => { root.tab = 2; }
+                    }
+                }
+
+                // queue
+                if root.tab == 0: VerticalLayout {
+                    spacing: 12px;
+                    vertical-stretch: 1;
+                    Card {
+                        vertical-stretch: 1;
+                        if root.queue.length == 0: EmptyState {
+                            title: "The queue is empty";
+                            body: "Put each video in the queue folder with a .yaml file of the same name holding at least its title. A .jpg or .png with the same name becomes the thumbnail.";
+                            HorizontalLayout {
+                                alignment: center;
+                                padding-top: 10px;
+                                Button {
+                                    text: "Open queue folder";
+                                    clicked => { root.open-queue(); }
+                                }
+                            }
+                        }
+                        if root.queue.length > 0: ListView {
+                            for row in root.queue: Rectangle {
+                                height: 58px;
+                                HorizontalLayout {
+                                    padding-left: 16px;
+                                    padding-right: 16px;
+                                    spacing: 14px;
+                                    VerticalLayout {
+                                        alignment: center;
+                                        horizontal-stretch: 1;
+                                        spacing: 2px;
+                                        Text {
+                                            text: row.title;
+                                            font-size: 14px;
+                                            font-weight: 600;
+                                            color: Palette.foreground;
+                                            overflow: elide;
+                                        }
+                                        Muted {
+                                            text: row.file;
+                                        }
+                                    }
+                                    VerticalLayout {
+                                        alignment: center;
+                                        Text {
+                                            text: row.when;
+                                            font-size: 13px;
+                                            color: Palette.foreground;
+                                            horizontal-alignment: right;
+                                        }
+                                    }
+                                    VerticalLayout {
+                                        alignment: center;
+                                        Pill {
+                                            text: row.status;
+                                            tone: Theme.tone(row.tone);
+                                        }
+                                    }
+                                }
+                                Rectangle {
+                                    y: parent.height - 1px;
+                                    height: 1px;
+                                    background: Theme.line;
+                                }
+                            }
+                        }
+                    }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        Button {
+                            text: "Open queue folder";
+                            clicked => { root.open-queue(); }
+                        }
+                        Button {
+                            text: "Uploaded";
+                            clicked => { root.open-uploaded(); }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                        }
+                        Button {
+                            text: "Preview dates";
+                            enabled: !root.busy && root.ch-connected && root.queue.length > 0;
+                            clicked => { root.preview(); }
+                        }
+                        Button {
+                            text: root.ready-count == 1 ? "Upload 1 video" : "Upload " + root.ready-count + " videos";
+                            primary: true;
+                            enabled: !root.busy && root.ch-connected && root.ready-count > 0;
+                            clicked => {
+                                root.allow-public = false;
+                                root.show-confirm = true;
+                            }
+                        }
+                    }
+                }
+
+                // calendar
+                if root.tab == 1: VerticalLayout {
+                    spacing: 12px;
+                    vertical-stretch: 1;
+                    Card {
+                        vertical-stretch: 1;
+                        if root.calendar.length == 0: EmptyState {
+                            title: root.busy ? "Loading…" : "Nothing scheduled";
+                            body: root.calendar-note;
+                        }
+                        if root.calendar.length > 0: ListView {
+                            for row in root.calendar: Rectangle {
+                                height: 46px;
+                                HorizontalLayout {
+                                    padding-left: 16px;
+                                    padding-right: 16px;
+                                    spacing: 14px;
+                                    VerticalLayout {
+                                        alignment: center;
+                                        Text {
+                                            text: row.when;
+                                            width: 130px;
+                                            font-size: 13px;
+                                            font-weight: 600;
+                                            color: Palette.foreground;
+                                        }
+                                    }
+                                    VerticalLayout {
+                                        alignment: center;
+                                        Pill {
+                                            text: row.status;
+                                            tone: row.status == "scheduled" ? Theme.accent : row.status == "public" ? Theme.ok : Theme.muted;
+                                        }
+                                    }
+                                    VerticalLayout {
+                                        alignment: center;
+                                        horizontal-stretch: 1;
+                                        Text {
+                                            text: row.title;
+                                            font-size: 13px;
+                                            color: Palette.foreground;
+                                            overflow: elide;
+                                        }
+                                    }
+                                }
+                                Rectangle {
+                                    y: parent.height - 1px;
+                                    height: 1px;
+                                    background: Theme.line;
+                                }
+                            }
+                        }
+                    }
+                    HorizontalLayout {
+                        Muted {
+                            text: root.calendar-note;
+                            horizontal-stretch: 1;
+                            vertical-alignment: center;
+                        }
+                        Button {
+                            text: "Refresh";
+                            enabled: !root.busy && root.ch-connected;
+                            clicked => { root.load-calendar(); }
+                        }
+                    }
+                }
+
+                // activity
+                if root.tab == 2: Card {
+                    vertical-stretch: 1;
+                    if root.log.length == 0: EmptyState {
+                        title: "No activity yet";
+                        body: "Previews, uploads and sign-ins are logged here.";
+                    }
+                    if root.log.length > 0: ListView {
+                        for line in root.log: Text {
+                            text: line;
+                            x: 14px;
+                            width: parent.width - 28px;
+                            font-size: 12px;
+                            font-family: "Consolas";
+                            color: Palette.foreground;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+            }
+
+            // status bar
+            if root.busy || root.status != "": HorizontalLayout {
+                spacing: 12px;
+                height: 28px;
+                VerticalLayout {
+                    alignment: center;
+                    width: 220px;
+                    if root.busy: ProgressIndicator {
+                        progress: root.progress < 0 ? 0 : root.progress;
+                        indeterminate: root.progress < 0;
+                    }
+                }
+                Muted {
+                    text: root.status;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                }
+            }
+        }
+    }
+
+    // ---- dialogs ------------------------------------------------------------------------------------
+    if root.show-new: Modal {
+        width: root.width;
+        height: root.height;
+        title: "New channel";
+        Muted {
+            text: "Lowercase letters, digits, - and _. It creates channels/<name>/ with channel.yaml, queue/ and uploaded/.";
+            font-size: 13px;
+            wrap: word-wrap;
+            overflow: clip;
+        }
+        LineEdit {
+            placeholder-text: "mychannel";
+            text <=> root.new-name;
+            accepted => {
+                root.show-new = false;
+                root.create-channel(root.new-name);
+            }
+        }
+        HorizontalLayout {
+            alignment: end;
+            spacing: 8px;
+            Button {
+                text: "Cancel";
+                clicked => { root.show-new = false; }
+            }
+            Button {
+                text: "Create";
+                primary: true;
+                enabled: root.new-name != "";
+                clicked => {
+                    root.show-new = false;
+                    root.create-channel(root.new-name);
+                }
+            }
+        }
+    }
+
+    if root.show-confirm: Modal {
+        width: root.width;
+        height: root.height;
+        title: root.ready-count == 1 ? "Upload 1 video?" : "Upload " + root.ready-count + " videos?";
+        Text {
+            text: "They go to " + root.ch-name + " as private videos and become public at their scheduled time. The same file is never uploaded twice.";
+            color: Palette.foreground;
+            wrap: word-wrap;
+        }
+        CheckBox {
+            text: "Also upload videos whose sheet says privacy: public";
+            checked <=> root.allow-public;
+        }
+        HorizontalLayout {
+            alignment: end;
+            spacing: 8px;
+            Button {
+                text: "Cancel";
+                clicked => { root.show-confirm = false; }
+            }
+            Button {
+                text: "Upload";
+                primary: true;
+                clicked => {
+                    root.show-confirm = false;
+                    root.tab = 0;
+                    root.upload(root.allow-public);
+                }
+            }
+        }
+    }
+
+    if root.show-folder: Modal {
+        width: root.width;
+        height: root.height;
+        card-width: 560px;
+        title: "Data folder";
+        Muted {
+            text: "The folder that holds channels/ and config/ (with your client_secret.json). Paste its full path.";
+            font-size: 13px;
+            wrap: word-wrap;
+            overflow: clip;
+        }
+        LineEdit {
+            text <=> root.folder-input;
+            accepted => {
+                root.show-folder = false;
+                root.set-data-folder(root.folder-input);
+            }
+        }
+        HorizontalLayout {
+            alignment: end;
+            spacing: 8px;
+            Button {
+                text: "Cancel";
+                clicked => { root.show-folder = false; }
+            }
+            Button {
+                text: "Use this folder";
+                primary: true;
+                enabled: root.folder-input != "";
+                clicked => {
+                    root.show-folder = false;
+                    root.set-data-folder(root.folder-input);
+                }
+            }
+        }
+    }
+
+    if root.show-doctor: Modal {
+        width: root.width;
+        height: root.height;
+        card-width: 640px;
+        title: "Diagnostics";
+        ScrollView {
+            min-height: 120px;
+            preferred-height: min(420px, root.height - 220px);
+            VerticalLayout {
+                spacing: 8px;
+                for c in root.checks: HorizontalLayout {
+                    spacing: 10px;
+                    Text {
+                        text: c.level == 0 ? "✓" : c.level == 1 ? "!" : "✗";
+                        width: 14px;
+                        font-weight: 700;
+                        color: c.level == 0 ? Theme.ok : c.level == 1 ? Theme.warn : Theme.error;
+                    }
+                    VerticalLayout {
+                        spacing: 2px;
+                        Text {
+                            text: c.message;
+                            color: Palette.foreground;
+                            wrap: word-wrap;
+                        }
+                        if c.fix != "": Muted {
+                            text: "→ " + c.fix;
+                            wrap: word-wrap;
+                            overflow: clip;
+                        }
+                    }
+                }
+            }
+        }
+        HorizontalLayout {
+            alignment: end;
+            Button {
+                text: "Close";
+                primary: true;
+                clicked => { root.show-doctor = false; }
+            }
+        }
+    }
+
+    if root.show-about: Modal {
+        width: root.width;
+        height: root.height;
+        card-width: 520px;
+        title: "AutoUpload " + root.version;
+        Text {
+            text: "Uploads videos from a folder on your computer to your YouTube channel as private videos with a scheduled publish time, through the official YouTube Data API v3 and your own OAuth client. No AutoUpload server: your data goes only to Google.";
+            color: Palette.foreground;
+            wrap: word-wrap;
+        }
+        Muted {
+            text: "Free and open source under the MIT License. By Ellipsio Studio. Not affiliated with Google or YouTube.";
+            font-size: 12px;
+            wrap: word-wrap;
+            overflow: clip;
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            Button {
+                text: "Website";
+                clicked => { root.open-url("https://daosource111.github.io/autoupload/"); }
+            }
+            Button {
+                text: "Source code";
+                clicked => { root.open-url("https://github.com/DaoSource111/autoupload"); }
+            }
+            Button {
+                text: "Privacy";
+                clicked => { root.open-url("https://daosource111.github.io/autoupload/privacy.html"); }
+            }
+        }
+        AboutSlint {
+            height: 120px;
+        }
+        HorizontalLayout {
+            alignment: end;
+            Button {
+                text: "Close";
+                primary: true;
+                clicked => { root.show-about = false; }
+            }
+        }
+    }
+}

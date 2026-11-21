@@ -120,7 +120,7 @@ jobs:
           merge-multiple: true
       - name: checksums
         run: cd dist && sha256sum * > SHA256SUMS && cat SHA256SUMS
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v4
         with:
           subject-path: "dist/*.zip, dist/*.tar.gz"
       - name: release notes from CHANGELOG.md

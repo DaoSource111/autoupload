@@ -218,7 +218,24 @@ fn opened_from_explorer() -> bool {
     true
 }
 
+/// Exit quietly when the reader of stdout goes away (`autoupload … | head`, `| grep -q`), as Unix tools
+/// do, instead of panicking with "failed printing to stdout: Broken pipe".
+#[cfg(unix)]
+fn quiet_broken_pipe() {
+    extern "C" {
+        fn signal(signum: i32, handler: usize) -> usize;
+    }
+    const SIGPIPE: i32 = 13; // the same on Linux and macOS
+    const SIG_DFL: usize = 0;
+    // SAFETY: restores the default action for SIGPIPE before any thread is started.
+    unsafe {
+        signal(SIGPIPE, SIG_DFL);
+    }
+}
+
 fn main() {
+    #[cfg(unix)]
+    quiet_broken_pipe();
     #[cfg(windows)]
     if opened_from_explorer() {
         return;

@@ -5,6 +5,9 @@ and the project uses [semantic versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- macOS and Linux: `autoupload … | head` (or any reader that stops early) no longer ends with a "Broken pipe" panic.
+
 ### Changed
 - Dependencies updated: rusqlite 0.43, thiserror 2, dirs 7, base64 0.23, sha2 0.11; CI actions checkout v7,
   upload-artifact v7, download-artifact v8, attest-build-provenance v4.

@@ -5,7 +5,7 @@ tested, and safe by default.
 
 ## Set up
 
-Requires [Rust](https://rustup.rs) 1.80 or newer. On Linux, also install the desktop app's libraries:
+Requires [Rust](https://rustup.rs) 1.95 or newer. On Linux, also install the desktop app's libraries:
 `sudo apt-get install libfontconfig1-dev libxkbcommon-dev`.
 
 ```powershell

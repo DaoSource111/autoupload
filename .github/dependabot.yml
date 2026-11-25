@@ -1,13 +1,17 @@
 version: 2
+# One pull request per ecosystem and run, instead of one per dependency.
 updates:
   - package-ecosystem: cargo
     directory: "/"
     schedule:
-      interval: weekly
+      interval: monthly
     groups:
-      rust-minor:
-        update-types: [minor, patch]
+      rust:
+        patterns: ["*"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]

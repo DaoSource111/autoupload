@@ -194,7 +194,7 @@ Otras claves: `thumbnail` (o una imagen con el mismo nombre junto al video), `pl
 
 ## Compilar desde el código
 
-Requiere Rust 1.80 o posterior (en Linux también `libfontconfig1-dev libxkbcommon-dev`):
+Requiere Rust 1.95 o posterior (en Linux también `libfontconfig1-dev libxkbcommon-dev`):
 
 ```powershell
 cargo test --workspace

@@ -3,6 +3,14 @@
 All notable changes to AutoUpload. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [semantic versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- Dependencies updated: rusqlite 0.43, thiserror 2, dirs 7, base64 0.23, sha2 0.11; CI actions checkout v7,
+  upload-artifact v7, download-artifact v8, attest-build-provenance v4.
+- The minimum Rust version is stated correctly as 1.95 (the Slint desktop app already required it).
+- Dependabot opens one grouped pull request per month for Rust and one for GitHub Actions.
+
 ## [2.1.1] — 2026-11-25
 
 ### Fixed

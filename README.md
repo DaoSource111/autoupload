@@ -192,7 +192,7 @@ Other keys: `thumbnail` (or an image with the same name next to the video), `pla
 
 ## Build from source
 
-Requires Rust 1.80+ (on Linux also `libfontconfig1-dev libxkbcommon-dev`):
+Requires Rust 1.95+ (on Linux also `libfontconfig1-dev libxkbcommon-dev`):
 
 ```powershell
 cargo test --workspace

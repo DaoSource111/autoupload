@@ -18,6 +18,8 @@ Una aplicación nativa y línea de comandos escritas en Rust, que los agentes de
 
 <p align="center"><img src="assets/screenshots/queue-dark.png" alt="Aplicación de escritorio de AutoUpload: la cola de un canal con la fecha de publicación que recibirá cada video" width="900"></p>
 
+> **Sobre las capturas:** todas las capturas de este repositorio y de la web se tomaron en modo demo. Los canales, videos, títulos, fechas y la actividad que aparecen son datos de prueba; no pertenecen a ningún canal ni cuenta real de YouTube.
+
 Pon los videos terminados en la carpeta de cola de un canal, cada uno con un pequeño archivo YAML que contiene su título
 y sus datos. AutoUpload los sube como videos **privados** y asigna a cada uno el **siguiente horario libre** del canal,
 para que YouTube los publique a su hora. O dile a un agente de IA «pon en cola todo lo de mi carpeta de exportaciones

@@ -3,7 +3,7 @@
 All notable changes to AutoUpload. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [semantic versioning](https://semver.org/).
 
-## [2.1.0] — Unreleased
+## [2.1.0] — 2026-11-25
 
 AI agents can now drive AutoUpload, the desktop app wears the website's look, and the project is Rust from end to end.
 
@@ -24,7 +24,8 @@ AI agents can now drive AutoUpload, the desktop app wears the website's look, an
   (macOS) or a systemd user timer (Linux); `task run` uploads every queue, logs to `logs/` (kept 60 days) and records
   the result in the activity log. `task remove` and `task status` too.
 - Light and dark mode in the app, with a sun/moon switch that is remembered (`theme` in settings.json).
-- Screenshots in the README and on the website, and `AGENTS.md`, a guide for AI agents.
+- Screenshots in the README and on the website, and `AGENTS.md`, a guide for AI agents. All screenshots were taken
+  in demo mode: the channels, videos and activity they show are test data and belong to no real YouTube channel.
 
 ### Changed
 - The desktop app follows the website's design: ink masthead with mint tabs, cobalt halo, sheet cards, and the

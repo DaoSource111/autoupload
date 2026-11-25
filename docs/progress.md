@@ -1,8 +1,8 @@
 # Progress — AutoUpload
-_Updated: 2026-11-25 · Latest release: v2.0.0 · next: v2.1.0_
+_Updated: 2026-11-25 · Latest release: v2.1.0_
 
 ## Current state
-2.1.0 (not released yet): 100% Rust. Engine (`crates/core`), CLI with an MCP server for AI agents (`crates/cli`),
+2.1.0 (released 2026-11-25): 100% Rust. Engine (`crates/core`), CLI with an MCP server for AI agents (`crates/cli`),
 desktop app styled like the website with light and dark modes (`crates/gui`), website generator (`tools/site`).
 57 tests; clippy clean with `-D warnings`; CI runs the CLI and the MCP server end to end in demo mode.
 Screenshots in `assets/screenshots/` come from demo mode. No real upload has been made with 2.x yet.

@@ -18,6 +18,8 @@ A native app and command line written in Rust, that AI agents can drive. No serv
 
 <p align="center"><img src="assets/screenshots/queue-dark.png" alt="AutoUpload desktop app: a channel's queue with the publish date each video will get" width="900"></p>
 
+> **About the screenshots:** every screenshot in this repository and on the website was taken in demo mode. The channels, videos, titles, dates and activity shown are test data; they do not belong to any real YouTube channel or account.
+
 Drop finished videos in a channel's queue folder, each with a small YAML file holding its title and details.
 AutoUpload uploads them as **private** videos and gives each one the channel's **next free publishing slot**, so
 YouTube publishes them on schedule. Or tell an AI agent "queue everything in my exports folder with good titles and

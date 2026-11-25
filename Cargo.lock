@@ -490,18 +490,19 @@ checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
 
 [[package]]
 name = "autoupload"
-version = "2.1.0"
+version = "2.1.1"
 dependencies = [
  "autoupload-core",
  "chrono",
  "clap",
  "open",
  "serde_json",
+ "winresource",
 ]
 
 [[package]]
 name = "autoupload-core"
-version = "2.1.0"
+version = "2.1.1"
 dependencies = [
  "base64 0.22.1",
  "chrono",
@@ -523,7 +524,7 @@ dependencies = [
 
 [[package]]
 name = "autoupload-gui"
-version = "2.1.0"
+version = "2.1.1"
 dependencies = [
  "autoupload-core",
  "chrono",
@@ -535,7 +536,7 @@ dependencies = [
 
 [[package]]
 name = "autoupload-site"
-version = "2.1.0"
+version = "2.1.1"
 dependencies = [
  "regex",
  "sha2",

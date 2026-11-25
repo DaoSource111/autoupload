@@ -1,5 +1,5 @@
 # Progress — AutoUpload
-_Updated: 2026-11-25 · Latest release: v2.1.0_
+_Updated: 2026-11-25 · Latest release: v2.1.1_
 
 ## Current state
 2.1.0 (released 2026-11-25): 100% Rust. Engine (`crates/core`), CLI with an MCP server for AI agents (`crates/cli`),

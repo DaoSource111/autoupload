@@ -3,6 +3,16 @@
 All notable changes to AutoUpload. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [semantic versioning](https://semver.org/).
 
+## [2.1.1] — 2026-11-25
+
+### Fixed
+- On Windows, double-clicking `autoupload.exe` (the command line) opened a console window that closed at once. It now
+  opens the desktop app next to it, or explains what it is and waits for Enter.
+- `autoupload.exe` now carries the AutoUpload icon and version information, like the desktop app.
+
+### Changed
+- Release notes show the AutoUpload logo and a download table for Windows, macOS (Apple silicon and Intel) and Linux.
+
 ## [2.1.0] — 2026-11-25
 
 AI agents can now drive AutoUpload, the desktop app wears the website's look, and the project is Rust from end to end.

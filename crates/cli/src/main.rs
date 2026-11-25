@@ -184,7 +184,45 @@ enum TaskCmd {
     Run,
 }
 
+/// Double-clicked in Explorer (no arguments, a console of its own): open the desktop app instead of
+/// flashing a console window that closes at once. Returns true when it handled the start.
+#[cfg(windows)]
+fn opened_from_explorer() -> bool {
+    #[link(name = "kernel32")]
+    extern "system" {
+        fn GetConsoleProcessList(list: *mut u32, count: u32) -> u32;
+    }
+    if std::env::args_os().len() > 1 {
+        return false;
+    }
+    let mut ids = [0u32; 4];
+    // SAFETY: the buffer is valid for `ids.len()` entries; the call only writes into it.
+    let attached = unsafe { GetConsoleProcessList(ids.as_mut_ptr(), ids.len() as u32) };
+    if attached != 1 {
+        return false; // started from a terminal, or with no console at all
+    }
+    let app = std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|d| d.join("autoupload-gui.exe")));
+    if let Some(app) = app.filter(|p| p.is_file()) {
+        if std::process::Command::new(app).spawn().is_ok() {
+            return true;
+        }
+    }
+    println!(
+        "This is the AutoUpload command line, for terminals and AI agents.\n\
+         To use the desktop app, open autoupload-gui.exe. To see the commands, run `autoupload --help`\n\
+         in a terminal.\n\nPress Enter to close."
+    );
+    let _ = std::io::stdin().read_line(&mut String::new());
+    true
+}
+
 fn main() {
+    #[cfg(windows)]
+    if opened_from_explorer() {
+        return;
+    }
     let cli = Cli::parse();
     if cli.demo || demo::active() {
         match demo::enable() {

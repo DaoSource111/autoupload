@@ -126,13 +126,26 @@ jobs:
       - name: release notes from CHANGELOG.md
         run: |
           v="${GITHUB_REF_NAME#v}"
-          awk -v h="## [$v]" 'index($0, h) == 1 {on=1; next} on && index($0, "## [") == 1 {exit} on {print}' CHANGELOG.md > notes.md
-          test -s notes.md
+          logo="https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_REF_NAME/assets/brand/autoupload-logo-rounded-512.png"
+          printf '<p align="center"><img src="%s" alt="AutoUpload" width="112"></p>\n\n' "$logo" > notes.md
+          awk -v h="## [$v]" 'index($0, h) == 1 {on=1; next} on && index($0, "## [") == 1 {exit} on {print}' CHANGELOG.md > section.md
+          test -s section.md
+          cat section.md >> notes.md
           cat >> notes.md <<'NOTES'
 
           ---
-          **Downloads:** Windows `windows-x64.zip` · Linux `linux-x64.tar.gz` · macOS `macos-arm64.zip` (Apple silicon) or `macos-x64.zip` (Intel).
-          The builds are not code-signed yet: on Windows choose *More info → Run anyway*; on macOS right-click AutoUpload.app → *Open* the first time.
+          ## Download
+
+          | System | File (under *Assets*) | Then |
+          |---|---|---|
+          | Windows 10/11 (x64) | `…-windows-x64.zip` | Extract it and open **`autoupload-gui.exe`**, the desktop app |
+          | macOS Apple silicon (M1–M4) | `…-macos-arm64.zip` | Extract it and drag **AutoUpload.app** to *Applications* |
+          | macOS Intel | `…-macos-x64.zip` | Extract it and drag **AutoUpload.app** to *Applications* |
+          | Linux (x64) | `…-linux-x64.tar.gz` | Extract it and run `./install.sh` (adds AutoUpload to your applications menu) |
+
+          Each download holds the desktop app and the `autoupload` command line (for terminals and AI agents).
+          The builds are not code-signed yet: the first time, Windows SmartScreen asks; choose *More info → Run anyway*.
+          On macOS, right-click AutoUpload.app → *Open*. Try it without a Google account by starting the app with `--demo`.
           NOTES
           printf '\nVerify a download: `sha256sum -c SHA256SUMS`, or `gh attestation verify <file> --repo %s`.\n' "$GITHUB_REPOSITORY" >> notes.md
           cat notes.md

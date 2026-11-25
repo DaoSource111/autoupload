@@ -86,3 +86,35 @@ glibc 2.35), macOS arm64 and x64 zips containing an ad-hoc signed `AutoUpload.ap
 attestation and CHANGELOG notes as before; the tag must match the workspace version in `Cargo.toml`.
 **Why:** one tag produces every download; code signing (Authenticode, Apple notarization) needs paid certificates
 and is left for later.
+
+## 2026-11-25 — Rust from end to end; Python 1.x removed
+**Decision:** remove `src/autoupload/`, its tests and all Python tooling. The website generator is a Rust program
+(`tools/site`, byte-identical output) and the daily task is `autoupload task` instead of PowerShell scripts.
+**Why:** the owner wants "100% Rust" to be one of AutoUpload's main advantages; two implementations also doubled
+the maintenance. **Accepted risk:** 2.x has not made a real upload yet; 1.2.0 stays installable from its release.
+
+## 2026-11-25 — AI agents through MCP, with a person-held upload switch
+**Decision:** `autoupload mcp` is an MCP server (JSON-RPC 2.0 over stdio, written by hand, no SDK) whose tools
+call `core::ops`. Agents may read, queue videos, write sheets and preview dates freely; `upload` works only while
+`agents_may_upload` is true in settings.json, which only a person can change (app switch or CLI without
+`AUTOUPLOAD_AGENT`). `allow_public` is never available to agents. Terminal agents use `--json` and
+`AUTOUPLOAD_AGENT=<name>` and get the same rules.
+**Why:** MCP is the standard way agents call tools, so one server serves Claude Code, Codex, Cursor and others;
+automation should not mean an agent can publish to someone's channel without them deciding it.
+
+## 2026-11-25 — One activity log shared by every actor
+**Decision:** append-only `activity.jsonl` in the data folder (time, actor app/cli/agent/task, agent name, channel,
+action, summary, ok), rotated at 4 MB. The app polls its modification time every 2 s.
+**Why:** the person must be able to see what an agent did, and the agent runs in another process; a plain file in
+the data folder needs no server and survives restarts.
+
+## 2026-11-25 — Demo mode with an offline API
+**Decision:** `--demo` points the data and config folders at `%TEMP%/AutoUpload-demo` and makes `client::api_for`
+return `DemoApi` (in-memory uploads, simulated progress). The app hides local paths in demo mode.
+**Why:** people can try every button without a Google account, CI can test the CLI and MCP server end to end, and
+screenshots never show real channels, accounts or user paths.
+
+## 2026-11-25 — The desktop app wears the website's design
+**Decision:** custom Slint components reproduce `docs/style.css` (tokens for paper and ink, masthead, tabs, sheet
+cards, buttons) with Barlow embedded; light/dark follows the system until the person picks one (saved as `theme`).
+**Why:** one brand across site and app; the Fluent default looked generic.

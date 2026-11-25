@@ -29,6 +29,7 @@ rail: yes
 <tbody>
 <tr><td>Access token</td><td><code>%APPDATA%\AutoUpload</code> (<code>~/.config/autoupload</code> on macOS and Linux)</td><td>The OAuth token Google issues after you allow access. It lets the app act on your channel without asking you to sign in each time.</td></tr>
 <tr><td>Upload log</td><td><code>state.sqlite</code> in your channel folder</td><td>File name, YouTube video ID and scheduled time of each upload, so no file is uploaded twice.</td></tr>
+<tr><td>Activity log</td><td><code>activity.jsonl</code> in your data folder</td><td>What was done and when (for example “queued 4 videos”, “uploaded 2”), and whether you, the daily task or an AI agent did it. Shown in the app's <em>Activity</em> tab.</td></tr>
 <tr><td>Videos and details</td><td>Folders you choose</td><td>Your own files. AutoUpload reads them and sends them to YouTube; it does not copy them elsewhere.</td></tr>
 </tbody>
 </table></div>
@@ -42,11 +43,13 @@ rail: yes
 <h2 id="transfer"><span class="no">§5</span>Sharing and international transfer</h2>
 <p>The only recipient of your data is <strong>Google LLC</strong>, in the <strong>United States</strong>, which runs the YouTube Data API. Sending your videos and their details there is the purpose of the app, so using it involves a cross-border transfer of that data from your country to the United States. Google handles it under the <a href="https://policies.google.com/privacy">Google Privacy Policy</a> and the <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a>.</p>
 <p>AutoUpload shares nothing with Ellipsio Studio or with any other third party.</p>
+<p><strong>If you connect an AI agent.</strong> An agent you connect yourself (see <a href="agents.html">AI agents</a>) can read what AutoUpload shows it: channel names, queued file names, the details you wrote, dates and the activity log. It never receives your token or client secret. What the agent does with that information depends on its provider (for example Anthropic or OpenAI) and their terms, not on AutoUpload. If you connect no agent, nothing goes to one.</p>
 
 <h2 id="retention"><span class="no">§6</span>How long it is kept</h2>
 <ul>
 <li><strong>Access token:</strong> until you revoke access or delete it. Google may also expire it; while an OAuth app is in Testing, Google expires it seven days after consent.</li>
 <li><strong>Upload log:</strong> until you delete the file.</li>
+<li><strong>Activity log:</strong> until you delete it. Past 4 MB it is renamed <code>activity.1.jsonl</code>, replacing the previous one, and a new log starts. Daily task logs are deleted after 60 days.</li>
 <li><strong>Your videos on YouTube:</strong> kept by YouTube under its own terms until you delete them there.</li>
 </ul>
 

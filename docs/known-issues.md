@@ -7,6 +7,20 @@ token refresh) and with a fake API in tests, but no video has been uploaded with
 (308 + `Range`, status query `bytes */size`) has not been tried against YouTube.
 **File:** crates/core/src/youtube.rs, publisher.rs · **Found:** 2026-11-21
 
+## Python 1.x removed before 2.x made a real upload — MEDIUM (decision, see decisions.md)
+**Symptom:** if a real upload with 2.x fails, there is no fallback in the repository; 1.2.0 is still installable
+from its release. **Found:** 2026-11-25
+
+## Daily task not yet registered on a real system — MEDIUM (to verify)
+**Symptom:** `autoupload task install` (schtasks, launchd, systemd) is covered by unit tests for its pieces only;
+it has not been run on Windows, macOS or Linux yet, and `task run` has only run on demo data.
+**File:** crates/core/src/task.rs · **Found:** 2026-11-25
+
+## MCP server tried with a scripted client only — LOW (to verify)
+**Symptom:** `autoupload mcp` passed a scripted JSON-RPC session (initialize, tools/list, tools/call) in tests and CI,
+but has not been registered in Claude Code, Codex or Cursor yet.
+**File:** crates/cli/src/mcp.rs · **Found:** 2026-11-25
+
 ## Desktop app not yet opened on macOS or Linux — LOW (to verify)
 **Symptom:** the Slint app was run on Windows only; CI builds and tests it on all three systems but cannot look at it.
 **File:** crates/gui/ · **Found:** 2026-11-21
@@ -14,11 +28,6 @@ token refresh) and with a fake API in tests, but no video has been uploaded with
 ## Release builds are not code-signed — LOW
 **Symptom:** Windows SmartScreen and macOS Gatekeeper warn on first start (the README explains how to open them).
 **Cause:** Authenticode and Apple notarization need paid certificates. **File:** .github/workflows/release.yml · **Found:** 2026-11-21
-
-## Legacy Python test flaky on Windows + Python 3.10 in CI — LOW
-**Symptom:** on 2026-11-21 (commit 1edc578) `tests (windows-latest, Python 3.10)` failed while the other 8 Python
-jobs and all Rust jobs passed; no Python code had changed and the 130 tests pass locally. The log needs a sign-in to read.
-**File:** tests/ · **Found:** 2026-11-21
 
 ---
 ## Resolved

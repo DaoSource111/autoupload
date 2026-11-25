@@ -143,7 +143,11 @@ autoupload schedule mychannel
 <span class="c"># upload for real</span>
 autoupload schedule mychannel --yes</code></pre>
 <p>Videos are uploaded as private and become public at their scheduled time. The <em>Calendar</em> tab shows what is scheduled on YouTube; check the videos in YouTube Studio after the first run.</p>
-<p><strong>Every day, unattended (optional).</strong> On Windows, run <code>install-task.ps1</code> from the extracted folder in PowerShell (<code>-Time 21:30</code> picks the hour): it registers a scheduled task that uploads the queues of all your channels daily and keeps a log in <code>logs\</code>. On macOS and Linux, add <code>autoupload schedule --all --yes</code> to <code>crontab -e</code>.</p>
+<p><strong>Every day, unattended (optional).</strong> One command registers a daily run with the system's own scheduler (Task Scheduler on Windows, launchd on macOS, a systemd user timer on Linux). It uploads the queues of all your channels, keeps a log in <code>logs/</code> for 60 days and records the result in the app's <em>Activity</em> tab:</p>
+<pre><code>autoupload task install --time 10:00
+autoupload task status        <span class="c"># is it registered, and when does it run</span>
+autoupload task remove        <span class="c"># stop the daily run</span></code></pre>
+<p><strong>Try it first without Google.</strong> Add <code>--demo</code> to the app or to any command (for example <code>autoupload --demo schedule lumen-lab</code>) to use sample channels and an offline YouTube. Nothing leaves your computer.</p>
 
 <h2 id="disconnect"><span class="no">§13</span>Disconnect and remove</h2>
 <p>Press <strong>Disconnect</strong> in the app, or run:</p>

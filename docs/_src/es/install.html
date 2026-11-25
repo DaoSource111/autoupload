@@ -143,7 +143,11 @@ autoupload schedule mychannel
 <span class="c"># sube de verdad</span>
 autoupload schedule mychannel --yes</code></pre>
 <p>Los videos se suben en privado y se hacen públicos a su hora programada. La pestaña <em>Calendar</em> muestra lo programado en YouTube; revisa los videos en YouTube Studio después de la primera vez.</p>
-<p><strong>Todos los días, sin supervisión (opcional).</strong> En Windows, ejecuta <code>install-task.ps1</code> desde la carpeta descomprimida en PowerShell (<code>-Time 21:30</code> elige la hora): registra una tarea programada que sube cada día las colas de todos tus canales y guarda un registro en <code>logs\</code>. En macOS y Linux, añade <code>autoupload schedule --all --yes</code> a <code>crontab -e</code>.</p>
+<p><strong>Todos los días, sin supervisión (opcional).</strong> Un solo comando registra una ejecución diaria con el programador del propio sistema (Programador de tareas en Windows, launchd en macOS, un temporizador de systemd de usuario en Linux). Sube las colas de todos tus canales, guarda un registro en <code>logs/</code> durante 60 días y anota el resultado en la pestaña <em>Activity</em> de la app:</p>
+<pre><code>autoupload task install --time 10:00
+autoupload task status        <span class="c"># está registrada y cuándo se ejecuta</span>
+autoupload task remove        <span class="c"># detiene la ejecución diaria</span></code></pre>
+<p><strong>Pruébalo antes sin Google.</strong> Añade <code>--demo</code> a la app o a cualquier comando (por ejemplo <code>autoupload --demo schedule lumen-lab</code>) para usar canales de ejemplo y un YouTube sin conexión. Nada sale de tu computadora.</p>
 
 <h2 id="disconnect"><span class="no">§13</span>Desconectar y desinstalar</h2>
 <p>Pulsa <strong>Disconnect</strong> en la app, o ejecuta:</p>

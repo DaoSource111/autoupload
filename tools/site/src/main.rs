@@ -28,7 +28,7 @@ const GITHUB_REPO: &str = "autoupload";
 const EMAIL: &str = "ellipsio.studio@gmail.com";
 
 /// Pages built for each language, by file name without `.html`. The nav labels come from `Ui::nav`.
-const PAGES: [&str; 5] = ["index", "install", "privacy", "terms", "support"];
+const PAGES: [&str; 6] = ["index", "install", "agents", "privacy", "terms", "support"];
 
 /// Interface strings for one language.
 struct Ui {
@@ -37,7 +37,7 @@ struct Ui {
     /// "Last updated" line shown under the page heading.
     updated: &'static str,
     /// Labels for PAGES, in the same order.
-    nav: [&'static str; 5],
+    nav: [&'static str; 6],
     skip: &'static str,
     contents: &'static str,
     /// Text and link label of the language switch (points to the other language).
@@ -52,8 +52,8 @@ struct Ui {
 
 const UI_EN: Ui = Ui {
     code: "en",
-    updated: "Last updated: November 20, 2026",
-    nav: ["Home", "Install", "Privacy", "Terms", "Support"],
+    updated: "Last updated: November 25, 2026",
+    nav: ["Home", "Install", "AI agents", "Privacy", "Terms", "Support"],
     skip: "Skip to content",
     contents: "Contents",
     other: "ES",
@@ -68,8 +68,8 @@ const UI_EN: Ui = Ui {
 
 const UI_ES: Ui = Ui {
     code: "es",
-    updated: "Última actualización: 20 de noviembre de 2026",
-    nav: ["Inicio", "Instalación", "Privacidad", "Términos", "Soporte"],
+    updated: "Última actualización: 25 de noviembre de 2026",
+    nav: ["Inicio", "Instalación", "Agentes IA", "Privacidad", "Términos", "Soporte"],
     skip: "Ir al contenido",
     contents: "Contenido",
     other: "EN",

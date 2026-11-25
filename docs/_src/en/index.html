@@ -2,8 +2,8 @@
 title: Home
 h1: AutoUpload uploads and schedules your videos on YouTube, from your own computer.
 callno: AU · 01 · HOME
-desc: AutoUpload is a free desktop tool by Ellipsio Studio that uploads and schedules videos on the YouTube channels you connect. No server, no database: your data goes only to Google.
-lede: A free desktop tool by Ellipsio Studio. It sends your videos straight to the YouTube channel you connect, as private uploads with a publish date, and communicates with no one but Google.
+desc: AutoUpload is a free, native app by Ellipsio Studio, written in Rust for Windows, macOS and Linux, that uploads and schedules videos on the YouTube channels you connect, and that AI agents can drive. No server: your data goes only to Google.
+lede: A free, native app by Ellipsio Studio for Windows, macOS and Linux. It sends your videos straight to the YouTube channel you connect, as private uploads with a publish date, communicates with no one but Google, and lets an AI agent do the busy work if you want.
 rail: no
 -->
 <div class="shot" role="img" aria-label="Illustration: a video file is uploaded from your computer and lands in your channel as a private video scheduled for its publish date.">
@@ -21,6 +21,30 @@ rail: no
 <a class="btn mint" href="install.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M4 20h16"/></svg>Download and install</a>
 <a class="btn" href="{REPO}" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>View the source on GitHub</a>
 </div>
+
+<h2 id="app">The app</h2>
+<figure class="screen">
+<img class="paper" src="img/queue-light.png" width="1475" height="950" loading="lazy" alt="The AutoUpload app: a channel's queue of four videos, each with the date it will be published.">
+<img class="ink" src="img/queue-dark.png" width="1475" height="950" loading="lazy" alt="The AutoUpload app in night view: a channel's queue of four videos, each with the date it will be published.">
+<figcaption>A channel's queue after <em>Preview dates</em>. Screenshot taken in demo mode, with sample channels.</figcaption>
+</figure>
+<p>Put each finished video in its channel's queue folder with a short details file. <strong>Preview dates</strong> shows the publishing slot each one will get; <strong>Upload</strong> asks you to confirm, then sends them. You can try every button without a Google account: start the app with <code>--demo</code>.</p>
+
+<h2 id="why">Why it is different</h2>
+<ul>
+<li><strong>Native, written in Rust.</strong> One small program per system, with nothing else to install: no Python, no Node, no browser engine inside.</li>
+<li><strong>Local-first.</strong> No AutoUpload server or account. Your files, sign-in and history stay on your computer, and it uses your own Google project and quota.</li>
+<li><strong>Built for AI agents.</strong> Claude Code, Codex and other agents can queue your videos with titles, descriptions and tags, and preview the dates. They upload only if you allow it, and the app shows everything they did.</li>
+<li><strong>Safe by default.</strong> Nothing is uploaded without your confirmation, nothing goes public at once, and the same file is never uploaded twice.</li>
+</ul>
+
+<h2 id="agents">Let an AI agent do the busy work</h2>
+<figure class="screen">
+<img class="paper" src="img/activity-light.png" width="1475" height="950" loading="lazy" alt="The Activity tab, listing what an AI agent did: queued four videos, previewed the dates, and was refused an upload until the person allows it.">
+<img class="ink" src="img/activity-dark.png" width="1475" height="950" loading="lazy" alt="The Activity tab in night view, listing what an AI agent did.">
+<figcaption>The Activity tab: actions by AI agents carry their name. Demo data.</figcaption>
+</figure>
+<p>AutoUpload works as an MCP server, the standard way AI agents use tools. Tell your agent “queue every video in my exports folder with a good title and tags, then preview the dates”, and watch it happen in the Activity tab. <a href="agents.html">How to connect an agent</a>.</p>
 
 <h2 id="what">What AutoUpload does</h2>
 <ul>

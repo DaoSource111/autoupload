@@ -16,19 +16,24 @@ cargo run -p autoupload-gui          # the desktop app
 cargo run -p autoupload -- doctor    # the command line
 ```
 
-The 1.x Python version in `src/autoupload/` is kept until 2.0 has proven itself; its tests run with
-`py -3 -m pytest -q` after `pip install -e .[test]`. New work goes into the Rust crates.
+Everything is Rust. `cargo run -p autoupload-gui -- --demo` and `cargo run -p autoupload -- --demo <command>` work on
+sample data with an offline YouTube, so you can try any change without a Google account.
 
 ## Rules
 
-- **Tests never touch the network.** Use `FakeApi` (`crates/core/src/publisher.rs`) instead of the real YouTube API.
-- **Every remote call goes through the `Api` trait** (`crates/core/src/youtube.rs`). Do not call Google from anywhere else.
+- **Tests never touch the network.** Use `FakeApi` (`crates/core/src/publisher.rs`) or `DemoApi` (`crates/core/src/demo.rs`)
+  instead of the real YouTube API.
+- **Every remote call goes through the `Api` trait** (`crates/core/src/youtube.rs`, chosen by `client::api_for`).
+  Do not call Google from anywhere else.
+- **Record user-visible actions** in the activity log (`activity::Actor::record`), and keep agents' limits in
+  `crates/core/src/ops.rs`: they may prepare and preview, upload only with permission, never publish as public.
+- **Screenshots use demo mode only**: no real channel, account or local user path may appear in them.
 - **Stay compatible with 1.x data:** the token JSON, `channel.yaml` keys and the `state.sqlite` schema change only
   with a migration.
 - **Edit the website in `docs/_src/{en,es}/`, not the generated HTML.** Then regenerate it:
 
   ```powershell
-  py -3 tools/build_site.py
+  cargo run -p autoupload-site
   ```
 
 - **Code, commit messages and identifiers are in English.** The README and the website are in English and Spanish;

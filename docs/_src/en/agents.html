@@ -1,0 +1,81 @@
+<!--
+title: AI agents
+h1: Let an AI agent prepare your uploads. You stay in charge.
+callno: AU · 06 · AGENTS
+desc: Connect Claude Code, Codex, Cursor or any MCP client to AutoUpload. Agents queue your videos with titles, descriptions and tags and preview the dates; they upload only if you allow it, and the app shows everything they did.
+lede: AutoUpload is built to be driven by AI agents. An agent can do the slow part (titles, descriptions, tags, checking every file) while you keep the final say and see each of its steps in the app.
+rail: yes
+-->
+<figure class="screen">
+<img class="paper" src="img/activity-light.png" width="1475" height="950" loading="lazy" alt="The Activity tab, listing what an AI agent did: queued four videos, previewed the dates, and was refused an upload until the person allows it.">
+<img class="ink" src="img/activity-dark.png" width="1475" height="950" loading="lazy" alt="The Activity tab in night view, listing what an AI agent did.">
+<figcaption>The <em>Activity</em> tab. Actions by AI agents are marked with the agent's name. Demo data.</figcaption>
+</figure>
+
+<h2 id="how">How it works</h2>
+<p>AutoUpload includes an <strong>MCP server</strong>: <code>autoupload mcp</code>. MCP (Model Context Protocol) is the standard way AI agents use tools. The agent starts the server on your computer and talks to it directly; nothing goes through Ellipsio Studio, and the agent never sees your Google password, your token or your <code>client_secret.json</code>.</p>
+<ul>
+<li><strong>Free for agents:</strong> reading your channels and queues, adding videos to a queue, writing their details, previewing the dates, reading the calendar and the diagnostics.</li>
+<li><strong>Only if you allow it:</strong> uploading. It is off until you turn on <em>Agents may upload</em>.</li>
+<li><strong>Never:</strong> publishing a video as public at once, signing in to Google, or changing that permission.</li>
+</ul>
+
+<h2 id="connect">Connect your agent</h2>
+<p>Install AutoUpload first (see the <a href="install.html">installation guide</a>), then register the server once. In the app, <strong>AI agents → Connect an agent…</strong> shows these lines with the exact path of the program on your computer; <code>autoupload agents setup</code> prints them too.</p>
+<p><strong>Claude Code</strong></p>
+<pre><code>claude mcp add autoupload -- autoupload mcp</code></pre>
+<p><strong>Codex CLI</strong>, in <code>~/.codex/config.toml</code></p>
+<pre><code>[mcp_servers.autoupload]
+command = "autoupload"
+args = ["mcp"]</code></pre>
+<p><strong>Cursor, Claude Desktop and other MCP clients</strong>: add a <em>stdio</em> server with command <code>autoupload</code> and argument <code>mcp</code>.</p>
+<div class="note"><p><strong>Practise first.</strong> Register <code>autoupload --demo mcp</code> instead to give the agent two sample channels and an offline YouTube. Nothing reaches your real channels, and the app started with <code>--demo</code> shows what the agent did.</p></div>
+
+<h2 id="tools">What the agent can do</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Tool</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>status</code></td><td>Your channels, whether each one is signed in, how many videos wait, and whether agents may upload.</td></tr>
+<tr><td><code>list_queue</code></td><td>The videos waiting in a channel's queue, each with its problem if it cannot be uploaded yet.</td></tr>
+<tr><td><code>add_video</code></td><td>Copies (or moves) a video into a queue with its title, description, tags and other details.</td></tr>
+<tr><td><code>write_sheet</code></td><td>Rewrites the details of a video already in the queue.</td></tr>
+<tr><td><code>plan</code></td><td>The publishing date each queued video would get. Uploads nothing.</td></tr>
+<tr><td><code>upload</code></td><td>Uploads the queue as private, scheduled videos. Refused unless you allowed it.</td></tr>
+<tr><td><code>calendar</code></td><td>What is already scheduled and published on the channel.</td></tr>
+<tr><td><code>doctor</code></td><td>Setup problems, each with its fix.</td></tr>
+<tr><td><code>activity</code></td><td>What you, the daily task and agents did recently.</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="ask">What to ask it</h2>
+<p>Talk to the agent as you would to an assistant. For example:</p>
+<ul>
+<li>“Queue every video in my <em>exports</em> folder for the channel <em>mychannel</em>. Write a specific title, a two-paragraph description and five tags from each file name and the notes in <em>notes.txt</em>. Then preview the dates.”</li>
+<li>“Check the queue of <em>mychannel</em> and fix anything that would stop the upload.”</li>
+<li>“What is scheduled for next week on both channels?”</li>
+<li>“The new videos use an AI voice: mark them as synthetic media.”</li>
+</ul>
+<p>A careful agent reads AutoUpload's <a href="{REPO}/blob/main/AGENTS.md" rel="noopener">guide for AI agents</a> first: it asks you about facts it cannot see instead of inventing them, and shows you the dates before anything is uploaded.</p>
+
+<h2 id="permission">Allowing uploads</h2>
+<p>By default the agent prepares and you press <strong>Upload</strong> in the app. To let it upload as well, turn on <strong>Agents may upload</strong> in the app's <em>AI agents</em> panel, or run in your own terminal:</p>
+<pre><code>autoupload agents allow-upload on      <span class="c"># off to take it back</span>
+autoupload agents status</code></pre>
+<p>Even then, uploads are private with a scheduled date, the same file is never uploaded twice, and the token must belong to the expected channel. An agent that tries to change this setting is refused.</p>
+
+<h2 id="activity">See what it did</h2>
+<p>Everything done in AutoUpload, by you in the app, by you in a terminal, by the daily task or by an agent, is written to <code>activity.jsonl</code> in your data folder. The app's <strong>Activity</strong> tab shows it live, newest first, with a badge such as <em>AI · claude-code</em> on each action of an agent. In a terminal:</p>
+<pre><code>autoupload activity</code></pre>
+
+<h2 id="terminal">Without MCP: terminal mode</h2>
+<p>Any agent that can run commands can use the command line instead. Every command takes <code>--json</code> for output a program can read, and setting <code>AUTOUPLOAD_AGENT</code> to the agent's name marks its actions in the activity log and applies the same permission:</p>
+<pre><code>AUTOUPLOAD_AGENT=my-agent autoupload queue mychannel --json
+AUTOUPLOAD_AGENT=my-agent autoupload add mychannel clip.mp4 --title "Episode 5" --json
+AUTOUPLOAD_AGENT=my-agent autoupload schedule mychannel --json</code></pre>
+<p>On Windows PowerShell, set it first with <code>$env:AUTOUPLOAD_AGENT = "my-agent"</code>.</p>
+
+<div class="next">
+<a class="btn mint" href="install.html">Install AutoUpload</a>
+<a class="btn ghost" href="privacy.html">Privacy Policy</a>
+<a class="btn ghost" href="support.html">Support</a>
+</div>

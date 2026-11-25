@@ -1,0 +1,81 @@
+<!--
+title: Agentes IA
+h1: Deja que un agente de IA prepare tus subidas. Tú tienes la última palabra.
+callno: AU · 06 · AGENTES
+desc: Conecta Claude Code, Codex, Cursor o cualquier cliente MCP a AutoUpload. Los agentes ponen tus videos en cola con títulos, descripciones y etiquetas, y muestran las fechas; solo suben si tú lo permites, y la app muestra todo lo que hicieron.
+lede: AutoUpload está hecho para que lo manejen agentes de IA. Un agente puede hacer la parte lenta (títulos, descripciones, etiquetas, revisar cada archivo) mientras tú conservas la última palabra y ves cada uno de sus pasos en la app.
+rail: yes
+-->
+<figure class="screen">
+<img class="paper" src="../img/activity-light.png" width="1475" height="950" loading="lazy" alt="La pestaña Activity, con lo que hizo un agente de IA: puso cuatro videos en cola, mostró las fechas y se le negó una subida hasta que la persona lo permita.">
+<img class="ink" src="../img/activity-dark.png" width="1475" height="950" loading="lazy" alt="La pestaña Activity en vista noche, con lo que hizo un agente de IA.">
+<figcaption>La pestaña <em>Activity</em>. Las acciones de los agentes de IA llevan el nombre del agente. Datos de demostración.</figcaption>
+</figure>
+
+<h2 id="how">Cómo funciona</h2>
+<p>AutoUpload incluye un <strong>servidor MCP</strong>: <code>autoupload mcp</code>. MCP (Model Context Protocol) es la forma estándar en que los agentes de IA usan herramientas. El agente inicia el servidor en tu computadora y se comunica con él directamente; nada pasa por Ellipsio Studio, y el agente nunca ve tu contraseña de Google, tu token ni tu <code>client_secret.json</code>.</p>
+<ul>
+<li><strong>Libre para los agentes:</strong> leer tus canales y colas, agregar videos a una cola, escribir sus datos, previsualizar las fechas, leer el calendario y el diagnóstico.</li>
+<li><strong>Solo si tú lo permites:</strong> subir. Está desactivado hasta que actives <em>Agents may upload</em>.</li>
+<li><strong>Nunca:</strong> publicar un video como público de inmediato, iniciar sesión en Google ni cambiar ese permiso.</li>
+</ul>
+
+<h2 id="connect">Conecta tu agente</h2>
+<p>Primero instala AutoUpload (consulta la <a href="install.html">guía de instalación</a>) y luego registra el servidor una vez. En la app, <strong>AI agents → Connect an agent…</strong> muestra estas líneas con la ruta exacta del programa en tu computadora; <code>autoupload agents setup</code> también las imprime.</p>
+<p><strong>Claude Code</strong></p>
+<pre><code>claude mcp add autoupload -- autoupload mcp</code></pre>
+<p><strong>Codex CLI</strong>, en <code>~/.codex/config.toml</code></p>
+<pre><code>[mcp_servers.autoupload]
+command = "autoupload"
+args = ["mcp"]</code></pre>
+<p><strong>Cursor, Claude Desktop y otros clientes MCP</strong>: agrega un servidor <em>stdio</em> con el comando <code>autoupload</code> y el argumento <code>mcp</code>.</p>
+<div class="note"><p><strong>Practica primero.</strong> Registra en cambio <code>autoupload --demo mcp</code> para darle al agente dos canales de ejemplo y un YouTube sin conexión. Nada llega a tus canales reales, y la app iniciada con <code>--demo</code> muestra lo que hizo el agente.</p></div>
+
+<h2 id="tools">Qué puede hacer el agente</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Herramienta</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td><code>status</code></td><td>Tus canales, si cada uno tiene sesión iniciada, cuántos videos esperan y si los agentes pueden subir.</td></tr>
+<tr><td><code>list_queue</code></td><td>Los videos en espera en la cola de un canal, cada uno con su problema si todavía no se puede subir.</td></tr>
+<tr><td><code>add_video</code></td><td>Copia (o mueve) un video a una cola con su título, descripción, etiquetas y otros datos.</td></tr>
+<tr><td><code>write_sheet</code></td><td>Reescribe los datos de un video que ya está en la cola.</td></tr>
+<tr><td><code>plan</code></td><td>La fecha de publicación que recibiría cada video en cola. No sube nada.</td></tr>
+<tr><td><code>upload</code></td><td>Sube la cola como videos privados programados. Se rechaza si no lo permitiste.</td></tr>
+<tr><td><code>calendar</code></td><td>Lo que ya está programado y publicado en el canal.</td></tr>
+<tr><td><code>doctor</code></td><td>Problemas de configuración, cada uno con su solución.</td></tr>
+<tr><td><code>activity</code></td><td>Lo que tú, la tarea diaria y los agentes hicieron recientemente.</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="ask">Qué pedirle</h2>
+<p>Habla con el agente como lo harías con un asistente. Por ejemplo:</p>
+<ul>
+<li>«Pon en cola todos los videos de mi carpeta <em>exports</em> para el canal <em>mychannel</em>. Escribe un título específico, una descripción de dos párrafos y cinco etiquetas para cada archivo, a partir de su nombre y de las notas en <em>notes.txt</em>. Luego muestra las fechas.»</li>
+<li>«Revisa la cola de <em>mychannel</em> y corrige lo que impediría la subida.»</li>
+<li>«¿Qué está programado para la próxima semana en los dos canales?»</li>
+<li>«Los videos nuevos usan una voz de IA: márcalos como contenido sintético.»</li>
+</ul>
+<p>Un agente cuidadoso lee primero la <a href="{REPO}/blob/main/AGENTS.md" rel="noopener">guía para agentes de IA</a> de AutoUpload: te pregunta por los datos que no puede ver en lugar de inventarlos, y te muestra las fechas antes de subir nada.</p>
+
+<h2 id="permission">Permitir subidas</h2>
+<p>Por defecto, el agente prepara y tú pulsas <strong>Upload</strong> en la app. Para que también pueda subir, activa <strong>Agents may upload</strong> en el panel <em>AI agents</em> de la app, o ejecuta en tu propia terminal:</p>
+<pre><code>autoupload agents allow-upload on      <span class="c"># apágalo para quitárselo</span>
+autoupload agents status</code></pre>
+<p>Incluso así, las subidas son privadas con fecha programada, nunca se sube dos veces el mismo archivo y el token debe pertenecer al canal esperado. Un agente que intente cambiar esta configuración es rechazado.</p>
+
+<h2 id="activity">Ver lo que hizo</h2>
+<p>Todo lo que se hace en AutoUpload, ya sea por ti en la app, por ti en una terminal, por la tarea diaria o por un agente, se escribe en <code>activity.jsonl</code> dentro de tu carpeta de datos. La pestaña <strong>Activity</strong> lo muestra en vivo, del más reciente al más antiguo, con una etiqueta como <em>AI · claude-code</em> en cada acción de un agente. En una terminal:</p>
+<pre><code>autoupload activity</code></pre>
+
+<h2 id="terminal">Sin MCP: modo terminal</h2>
+<p>Cualquier agente que pueda ejecutar comandos puede usar la línea de comandos en su lugar. Todos los comandos aceptan <code>--json</code> para una salida que un programa pueda leer. Si defines <code>AUTOUPLOAD_AGENT</code> con el nombre del agente, sus acciones quedan marcadas en el registro de actividad y se aplica el mismo permiso:</p>
+<pre><code>AUTOUPLOAD_AGENT=my-agent autoupload queue mychannel --json
+AUTOUPLOAD_AGENT=my-agent autoupload add mychannel clip.mp4 --title "Episode 5" --json
+AUTOUPLOAD_AGENT=my-agent autoupload schedule mychannel --json</code></pre>
+<p>En PowerShell de Windows, defínela antes con <code>$env:AUTOUPLOAD_AGENT = "my-agent"</code>.</p>
+
+<div class="next">
+<a class="btn mint" href="install.html">Instalar AutoUpload</a>
+<a class="btn ghost" href="privacy.html">Política de privacidad</a>
+<a class="btn ghost" href="support.html">Soporte</a>
+</div>

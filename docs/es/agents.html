@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentes IA · AutoUpload</title>
+<meta name="description" content="Conecta Claude Code, Codex, Cursor o cualquier cliente MCP a AutoUpload. Los agentes ponen tus videos en cola con títulos, descripciones y etiquetas, y muestran las fechas; solo suben si tú lo permites, y la app muestra todo lo que hicieron.">
+<meta name="theme-color" content="#06080c">
+<link rel="alternate" hreflang="en" href="../agents.html">
+<link rel="alternate" hreflang="es" href="agents.html">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../fonts/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/barlow-condensed-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>try{var t=localStorage.getItem("au-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="../style.css?v=c68bf290">
+<script src="../site.js?v=0f5650fa" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Ir al contenido</a>
+<header class="masthead">
+<div class="masthead-in">
+<a class="seal" href="index.html"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="3" y="3" width="94" height="94" rx="24" fill="#1f3bff"/><rect x="3" y="3" width="94" height="94" rx="24" fill="none" stroke="#06080c" stroke-opacity=".25" stroke-width="2"/><path d="M27 76 L50 25 L73 76" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 59 H68" fill="none" stroke="#5dfbd3" stroke-width="9" stroke-linecap="round"/><circle cx="80" cy="59" r="4.5" fill="#5dfbd3"/></svg><span class="seal-text"><b>AutoUpload</b><span>de <em>Ellipsio Studio</em></span></span></a>
+<div class="bar">
+<nav class="tabs" aria-label="AutoUpload"><a href="index.html">Inicio</a><a href="install.html">Instalación</a><a href="agents.html" aria-current="page">Agentes IA</a><a href="privacy.html">Privacidad</a><a href="terms.html">Términos</a><a href="support.html">Soporte</a></nav>
+<div class="tools"><a href="https://github.com/DaoSource111/autoupload" rel="noopener" aria-label="Código fuente en GitHub" title="Código fuente en GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a><a href="../agents.html" hreflang="en" lang="en" data-lang="en" aria-label="Read in English" title="Read in English">EN</a><button class="theme" type="button" data-to-dark="Cambiar a vista noche" data-to-light="Cambiar a vista clara" aria-label="Cambiar a vista noche"><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg></button></div>
+</div>
+</div>
+</header>
+<div class="drawer has-rail">
+<nav class="rail" aria-label="Contenido"><h2>Contenido</h2><ol><li><a href="#how"><span></span>Cómo funciona</a></li><li><a href="#connect"><span></span>Conecta tu agente</a></li><li><a href="#tools"><span></span>Qué puede hacer el agente</a></li><li><a href="#ask"><span></span>Qué pedirle</a></li><li><a href="#permission"><span></span>Permitir subidas</a></li><li><a href="#activity"><span></span>Ver lo que hizo</a></li><li><a href="#terminal"><span></span>Sin MCP: modo terminal</a></li></ol></nav>
+<main id="main" class="card">
+<div class="card-head">
+<p class="callno"><span class="stamp">AU · 06 · AGENTES</span><span>Última actualización: 25 de noviembre de 2026</span></p>
+<h1>Deja que un agente de IA prepare tus subidas. Tú tienes la última palabra.</h1>
+<p class="lede">AutoUpload está hecho para que lo manejen agentes de IA. Un agente puede hacer la parte lenta (títulos, descripciones, etiquetas, revisar cada archivo) mientras tú conservas la última palabra y ves cada uno de sus pasos en la app.</p>
+</div>
+<div class="card-body">
+<nav class="toc" aria-label="Contenido"><h2>Contenido</h2><ol><li><a href="#how">Cómo funciona</a></li><li><a href="#connect">Conecta tu agente</a></li><li><a href="#tools">Qué puede hacer el agente</a></li><li><a href="#ask">Qué pedirle</a></li><li><a href="#permission">Permitir subidas</a></li><li><a href="#activity">Ver lo que hizo</a></li><li><a href="#terminal">Sin MCP: modo terminal</a></li></ol></nav>
+<figure class="screen">
+<img class="paper" src="../img/activity-light.png" width="1475" height="950" loading="lazy" alt="La pestaña Activity, con lo que hizo un agente de IA: puso cuatro videos en cola, mostró las fechas y se le negó una subida hasta que la persona lo permita.">
+<img class="ink" src="../img/activity-dark.png" width="1475" height="950" loading="lazy" alt="La pestaña Activity en vista noche, con lo que hizo un agente de IA.">
+<figcaption>La pestaña <em>Activity</em>. Las acciones de los agentes de IA llevan el nombre del agente. Datos de demostración.</figcaption>
+</figure>
+
+<h2 id="how">Cómo funciona</h2>
+<p>AutoUpload incluye un <strong>servidor MCP</strong>: <code>autoupload mcp</code>. MCP (Model Context Protocol) es la forma estándar en que los agentes de IA usan herramientas. El agente inicia el servidor en tu computadora y se comunica con él directamente; nada pasa por Ellipsio Studio, y el agente nunca ve tu contraseña de Google, tu token ni tu <code>client_secret.json</code>.</p>
+<ul>
+<li><strong>Libre para los agentes:</strong> leer tus canales y colas, agregar videos a una cola, escribir sus datos, previsualizar las fechas, leer el calendario y el diagnóstico.</li>
+<li><strong>Solo si tú lo permites:</strong> subir. Está desactivado hasta que actives <em>Agents may upload</em>.</li>
+<li><strong>Nunca:</strong> publicar un video como público de inmediato, iniciar sesión en Google ni cambiar ese permiso.</li>
+</ul>
+
+<h2 id="connect">Conecta tu agente</h2>
+<p>Primero instala AutoUpload (consulta la <a href="install.html">guía de instalación</a>) y luego registra el servidor una vez. En la app, <strong>AI agents → Connect an agent…</strong> muestra estas líneas con la ruta exacta del programa en tu computadora; <code>autoupload agents setup</code> también las imprime.</p>
+<p><strong>Claude Code</strong></p>
+<pre><code>claude mcp add autoupload -- autoupload mcp</code></pre>
+<p><strong>Codex CLI</strong>, en <code>~/.codex/config.toml</code></p>
+<pre><code>[mcp_servers.autoupload]
+command = "autoupload"
+args = ["mcp"]</code></pre>
+<p><strong>Cursor, Claude Desktop y otros clientes MCP</strong>: agrega un servidor <em>stdio</em> con el comando <code>autoupload</code> y el argumento <code>mcp</code>.</p>
+<div class="note"><p><strong>Practica primero.</strong> Registra en cambio <code>autoupload --demo mcp</code> para darle al agente dos canales de ejemplo y un YouTube sin conexión. Nada llega a tus canales reales, y la app iniciada con <code>--demo</code> muestra lo que hizo el agente.</p></div>
+
+<h2 id="tools">Qué puede hacer el agente</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Herramienta</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td><code>status</code></td><td>Tus canales, si cada uno tiene sesión iniciada, cuántos videos esperan y si los agentes pueden subir.</td></tr>
+<tr><td><code>list_queue</code></td><td>Los videos en espera en la cola de un canal, cada uno con su problema si todavía no se puede subir.</td></tr>
+<tr><td><code>add_video</code></td><td>Copia (o mueve) un video a una cola con su título, descripción, etiquetas y otros datos.</td></tr>
+<tr><td><code>write_sheet</code></td><td>Reescribe los datos de un video que ya está en la cola.</td></tr>
+<tr><td><code>plan</code></td><td>La fecha de publicación que recibiría cada video en cola. No sube nada.</td></tr>
+<tr><td><code>upload</code></td><td>Sube la cola como videos privados programados. Se rechaza si no lo permitiste.</td></tr>
+<tr><td><code>calendar</code></td><td>Lo que ya está programado y publicado en el canal.</td></tr>
+<tr><td><code>doctor</code></td><td>Problemas de configuración, cada uno con su solución.</td></tr>
+<tr><td><code>activity</code></td><td>Lo que tú, la tarea diaria y los agentes hicieron recientemente.</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="ask">Qué pedirle</h2>
+<p>Habla con el agente como lo harías con un asistente. Por ejemplo:</p>
+<ul>
+<li>«Pon en cola todos los videos de mi carpeta <em>exports</em> para el canal <em>mychannel</em>. Escribe un título específico, una descripción de dos párrafos y cinco etiquetas para cada archivo, a partir de su nombre y de las notas en <em>notes.txt</em>. Luego muestra las fechas.»</li>
+<li>«Revisa la cola de <em>mychannel</em> y corrige lo que impediría la subida.»</li>
+<li>«¿Qué está programado para la próxima semana en los dos canales?»</li>
+<li>«Los videos nuevos usan una voz de IA: márcalos como contenido sintético.»</li>
+</ul>
+<p>Un agente cuidadoso lee primero la <a href="https://github.com/DaoSource111/autoupload/blob/main/AGENTS.md" rel="noopener">guía para agentes de IA</a> de AutoUpload: te pregunta por los datos que no puede ver en lugar de inventarlos, y te muestra las fechas antes de subir nada.</p>
+
+<h2 id="permission">Permitir subidas</h2>
+<p>Por defecto, el agente prepara y tú pulsas <strong>Upload</strong> en la app. Para que también pueda subir, activa <strong>Agents may upload</strong> en el panel <em>AI agents</em> de la app, o ejecuta en tu propia terminal:</p>
+<pre><code>autoupload agents allow-upload on      <span class="c"># apágalo para quitárselo</span>
+autoupload agents status</code></pre>
+<p>Incluso así, las subidas son privadas con fecha programada, nunca se sube dos veces el mismo archivo y el token debe pertenecer al canal esperado. Un agente que intente cambiar esta configuración es rechazado.</p>
+
+<h2 id="activity">Ver lo que hizo</h2>
+<p>Todo lo que se hace en AutoUpload, ya sea por ti en la app, por ti en una terminal, por la tarea diaria o por un agente, se escribe en <code>activity.jsonl</code> dentro de tu carpeta de datos. La pestaña <strong>Activity</strong> lo muestra en vivo, del más reciente al más antiguo, con una etiqueta como <em>AI · claude-code</em> en cada acción de un agente. En una terminal:</p>
+<pre><code>autoupload activity</code></pre>
+
+<h2 id="terminal">Sin MCP: modo terminal</h2>
+<p>Cualquier agente que pueda ejecutar comandos puede usar la línea de comandos en su lugar. Todos los comandos aceptan <code>--json</code> para una salida que un programa pueda leer. Si defines <code>AUTOUPLOAD_AGENT</code> con el nombre del agente, sus acciones quedan marcadas en el registro de actividad y se aplica el mismo permiso:</p>
+<pre><code>AUTOUPLOAD_AGENT=my-agent autoupload queue mychannel --json
+AUTOUPLOAD_AGENT=my-agent autoupload add mychannel clip.mp4 --title "Episode 5" --json
+AUTOUPLOAD_AGENT=my-agent autoupload schedule mychannel --json</code></pre>
+<p>En PowerShell de Windows, defínela antes con <code>$env:AUTOUPLOAD_AGENT = "my-agent"</code>.</p>
+
+<div class="next">
+<a class="btn mint" href="install.html">Instalar AutoUpload</a>
+<a class="btn ghost" href="privacy.html">Política de privacidad</a>
+<a class="btn ghost" href="support.html">Soporte</a>
+</div>
+</div>
+</main>
+</div>
+<footer class="foot">
+<div class="foot-in">
+<nav aria-label="Footer"><a href="index.html">Inicio</a><a href="install.html">Instalación</a><a href="agents.html">Agentes IA</a><a href="privacy.html">Privacidad</a><a href="terms.html">Términos</a><a href="support.html">Soporte</a><a href="https://github.com/DaoSource111/autoupload" rel="noopener">GitHub</a><a href="mailto:ellipsio.studio@gmail.com">ellipsio.studio@gmail.com</a></nav>
+<p>AutoUpload es una herramienta gratuita de Ellipsio Studio, Perú. No está afiliada, respaldada ni patrocinada por Google LLC ni YouTube. Este sitio no usa cookies ni carga nada de terceros.<br>© 2026 Ellipsio Studio · MIT License.</p>
+</div>
+</footer>
+</body>
+</html>

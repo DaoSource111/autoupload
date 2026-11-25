@@ -432,3 +432,15 @@ td:first-child { white-space: nowrap; }
   .table-wrap td { display: block; border: 0; padding: 2px 0; }
   .table-wrap td:first-child { white-space: normal; font-weight: 700; }
 }
+
+/* App screenshots (taken in demo mode): the paper or ink version follows the page theme */
+.screen { margin: 22px 0 8px; }
+.screen img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--sheet-line); box-shadow: 0 2px 4px rgba(0, 0, 0, .06), 0 22px 44px -26px rgba(6, 8, 12, .6); }
+.screen figcaption { margin-top: 10px; font-size: 14.5px; color: var(--ink-soft); }
+.screen .ink { display: none; }
+:root[data-theme="dark"] .screen .paper { display: none; }
+:root[data-theme="dark"] .screen .ink { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .screen .paper { display: none; }
+  :root:not([data-theme="light"]) .screen .ink { display: block; }
+}

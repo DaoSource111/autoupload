@@ -43,6 +43,9 @@ pub fn default_home() -> PathBuf {
 pub struct Settings {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub data_folder: Option<PathBuf>,
+    /// Desktop app colours: "light" or "dark"; unset follows the system.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub theme: Option<String>,
 }
 
 impl Settings {

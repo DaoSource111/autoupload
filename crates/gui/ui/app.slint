@@ -1,5 +1,10 @@
-// AutoUpload desktop app. Fluent style, light and dark.
-import { Button, LineEdit, ProgressIndicator, ListView, ScrollView, CheckBox, Palette, AboutSlint } from "std-widgets.slint";
+// AutoUpload desktop app, dressed like the website (docs/style.css): ink masthead, paper or ink ground with a
+// cobalt halo, sheet cards with a call-number line, mint as the "verified" signal. Light and dark.
+import { LineEdit, ScrollView, ListView, CheckBox, Palette, AboutSlint } from "std-widgets.slint";
+import "fonts/barlow-latin-400-normal.ttf";
+import "fonts/barlow-latin-600-normal.ttf";
+import "fonts/barlow-latin-700-normal.ttf";
+import "fonts/barlow-condensed-latin-700-normal.ttf";
 
 export struct ChannelRow {
     name: string,
@@ -29,139 +34,334 @@ export struct CheckRow {
     fix: string,
 }
 
+// The website's tokens (style.css :root, paper and ink).
 global Theme {
-    out property <color> accent: #2f4bff;
-    out property <color> ok: #16a34a;
-    out property <color> warn: #d97706;
-    out property <color> error: #dc2626;
-    out property <color> muted: #808080;
-    out property <color> hover: #8080801f;
-    out property <color> line: #80808033;
-    out property <length> radius: 8px;
+    out property <bool> dark: Palette.color-scheme == ColorScheme.dark;
+    // fixed in both modes: the ink frame of the masthead
+    out property <color> frame: #06080c;
+    out property <color> frame-line: #1a2130;
+    out property <color> on-frame: #f7f4ec;
+    out property <color> on-frame-soft: #a6aebc;
+    out property <color> mint: #5dfbd3;
+    out property <color> cobalt: #1f3bff;
+    out property <color> hl: #ffe94d;
+    // paper (light) / ink (dark)
+    out property <color> ground: dark ? #06080c : #f1ece1;
+    out property <color> halo-a: dark ? #1f3bff4d : #1f3bff1a;
+    out property <color> halo-b: dark ? #5dfbd314 : #5dfbd324;
+    out property <color> sheet: dark ? #0e131b : #fffdf8;
+    out property <color> sheet-line: dark ? #1f2836 : #e4ddcd;
+    out property <color> ink: dark ? #f7f4ec : #0b0d12;
+    out property <color> ink-soft: dark ? #a9b1be : #4b5260;
+    out property <color> accent: dark ? #5dfbd3 : #1f3bff;
+    out property <color> link: dark ? #9db1ff : #1a33d6;
+    out property <color> code-bg: dark ? #182030 : #efe9dc;
+    out property <color> btn-line: dark ? #2a3446 : #06080c;
+    // states
+    out property <color> ok: dark ? #5dfbd3 : #0b7a5e;
+    out property <color> warn: dark ? #ffe94d : #8a5d00;
+    out property <color> error: dark ? #ff7a7a : #c0262d;
+    out property <color> busy: dark ? #9db1ff : #1f3bff;
+    out property <string> sans: "Barlow";
+    out property <string> cond: "Barlow Condensed";
+    out property <string> mono: "Consolas";
 
     public pure function tone(t: int) -> color {
-        return t == 1 ? ok : t == 2 ? warn : t == 3 ? error : t == 4 ? accent : muted;
+        return t == 1 ? ok : t == 2 ? warn : t == 3 ? error : t == 4 ? busy : ink-soft;
     }
 }
 
-component Pill inherits Rectangle {
+// .btn, .btn.mint, .btn.ghost
+component Btn inherits Rectangle {
     in property <string> text;
-    in property <color> tone: Theme.muted;
-    height: 22px;
-    width: label.preferred-width + 18px;
-    border-radius: 11px;
-    background: root.tone.transparentize(0.86);
+    in property <int> kind: 0; // 0 ink, 1 mint, 2 ghost
+    in property <bool> enabled: true;
+    in property <bool> compact: false;
+    callback clicked;
+    height: root.compact ? 32px : 40px;
+    min-width: label.preferred-width + (root.compact ? 24px : 36px);
+    preferred-width: self.min-width;
+    horizontal-stretch: 0;
+    vertical-stretch: 0;
+    face := Rectangle {
+        y: touch.has-hover && root.enabled ? -2px : 0px;
+        width: parent.width;
+        height: parent.height;
+        border-radius: 6px;
+        border-width: 1px;
+        border-color: root.kind == 1 ? Theme.mint : root.kind == 2 ? (touch.has-hover && root.enabled ? Theme.ink-soft : Theme.sheet-line) : Theme.btn-line;
+        background: root.kind == 1 ? Theme.mint : root.kind == 2 ? transparent : Theme.frame;
+        opacity: root.enabled ? 1 : 0.42;
+        drop-shadow-blur: touch.has-hover && root.enabled && root.kind != 2 ? 22px : 0px;
+        drop-shadow-offset-y: 10px;
+        drop-shadow-color: touch.has-hover && root.enabled && root.kind != 2 ? #06080c99 : transparent;
+        animate y, drop-shadow-blur { duration: 250ms; easing: cubic-bezier(0.16, 1, 0.3, 1); }
+        label := Text {
+            text: root.text;
+            font-family: Theme.sans;
+            font-size: root.compact ? 13px : 15px;
+            font-weight: 600;
+            color: root.kind == 1 ? Theme.frame : root.kind == 2 ? Theme.ink : Theme.on-frame;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: root.enabled ? pointer : default;
+        clicked => { root.clicked(); }
+    }
+}
+
+// .tools a: round pills on the ink frame
+component ToolPill inherits Rectangle {
+    in property <string> text;
+    callback clicked;
+    height: 32px;
+    width: label.preferred-width + 22px;
+    border-radius: 16px;
+    border-width: 1px;
+    border-color: touch.has-hover ? Theme.mint : Theme.frame-line;
+    background: touch.has-hover ? #0f1620 : transparent;
     label := Text {
         text: root.text;
+        font-family: Theme.sans;
+        font-size: 13px;
+        font-weight: 600;
+        color: Theme.on-frame;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+// The site's theme button: a sun in paper, a moon in ink.
+component ThemeToggle inherits Rectangle {
+    callback clicked;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    border-width: 1px;
+    border-color: touch.has-hover ? Theme.mint : Theme.frame-line;
+    background: touch.has-hover ? #0f1620 : transparent;
+    if !Theme.dark: Path {
+        width: 16px;
+        height: 16px;
+        viewbox-width: 24;
+        viewbox-height: 24;
+        stroke: Theme.on-frame;
+        stroke-width: 2px;
+        commands: "M12 7a5 5 0 1 0 0.01 0z M12 1v2 M12 21v2 M4.2 4.2l1.4 1.4 M18.4 18.4l1.4 1.4 M1 12h2 M21 12h2 M4.2 19.8l1.4-1.4 M18.4 5.6l1.4-1.4";
+    }
+    if Theme.dark: Path {
+        width: 16px;
+        height: 16px;
+        viewbox-width: 24;
+        viewbox-height: 24;
+        stroke: Theme.on-frame;
+        stroke-width: 2px;
+        commands: "M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z";
+    }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+// .tabs a: the active tab is a mint label that sits on the frame's bottom edge
+component Tab inherits Rectangle {
+    in property <string> text;
+    in property <bool> active;
+    callback clicked;
+    height: 36px;
+    width: label.preferred-width + 28px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background: root.active ? Theme.mint : touch.has-hover ? #121925 : transparent;
+    label := Text {
+        text: root.text;
+        font-family: Theme.sans;
+        font-size: 15px;
+        font-weight: 600;
+        color: root.active ? Theme.frame : touch.has-hover ? Theme.on-frame : Theme.on-frame-soft;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+// .shot .state: a rounded state label
+component Pill inherits Rectangle {
+    in property <string> text;
+    in property <color> tone: Theme.ink-soft;
+    height: 24px;
+    width: label.preferred-width + 20px;
+    border-radius: 12px;
+    background: root.tone.transparentize(0.84);
+    label := Text {
+        text: root.text;
+        font-family: Theme.sans;
         color: root.tone;
-        font-size: 11px;
+        font-size: 12.5px;
         font-weight: 600;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
 }
 
-component Muted inherits Text {
-    color: Palette.foreground;
-    opacity: 0.62;
-    font-size: 12px;
+component Soft inherits Text {
+    font-family: Theme.sans;
+    color: Theme.ink-soft;
+    font-size: 14px;
     overflow: elide;
 }
 
+// .rail h2, th: condensed small heading
+component Label inherits Text {
+    font-family: Theme.cond;
+    font-weight: 700;
+    font-size: 15px;
+    color: Theme.ink-soft;
+}
+
+component Rule inherits Rectangle {
+    in property <length> thickness: 1px;
+    height: root.thickness;
+    vertical-stretch: 0;
+    background: Theme.sheet-line;
+}
+
+// .rail a: a left line, the current item marked with the accent
 component ChannelItem inherits Rectangle {
     in property <ChannelRow> data;
     in property <bool> selected;
     callback clicked;
-    height: 56px;
-    border-radius: Theme.radius;
-    background: root.selected ? Theme.accent.transparentize(0.84) : touch.has-hover ? Theme.hover : transparent;
+    height: 54px;
+    background: touch.has-hover && !root.selected ? Theme.sheet-line.transparentize(0.6) : transparent;
+    Rectangle {
+        x: 0;
+        width: 2px;
+        background: root.selected ? Theme.accent : transparent;
+    }
     HorizontalLayout {
-        padding-left: 12px;
-        padding-right: 12px;
+        padding-left: 14px;
+        padding-right: 8px;
         spacing: 10px;
         VerticalLayout {
             alignment: center;
-            Rectangle {
-                width: 9px;
-                height: 9px;
-                border-radius: 4.5px;
-                background: root.data.connected ? Theme.ok : Theme.warn;
+            horizontal-stretch: 1;
+            spacing: 1px;
+            Text {
+                text: root.data.name;
+                font-family: Theme.sans;
+                font-size: 15px;
+                font-weight: root.selected ? 700 : 600;
+                color: root.selected || touch.has-hover ? Theme.ink : Theme.ink-soft;
+                overflow: elide;
+            }
+            Soft {
+                text: root.data.subtitle;
+                font-size: 12.5px;
             }
         }
         VerticalLayout {
             alignment: center;
-            spacing: 2px;
-            Text {
-                text: root.data.name;
-                font-size: 14px;
-                font-weight: 600;
-                color: Palette.foreground;
-                overflow: elide;
-            }
-            Muted {
-                text: root.data.subtitle;
+            Rectangle {
+                width: 8px;
+                height: 8px;
+                border-radius: 4px;
+                background: root.data.connected ? Theme.ok : Theme.warn;
             }
         }
     }
     touch := TouchArea {
+        mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
 }
 
-component TabButton inherits Rectangle {
-    in property <string> text;
-    in property <bool> active;
-    callback clicked;
-    height: 34px;
-    width: label.preferred-width + 28px;
+// .card: a sheet with a thin line, a deep shadow and the punched hole at the bottom
+component Sheet inherits Rectangle {
+    in property <bool> hole: true;
+    background: Theme.sheet;
     border-radius: 6px;
-    background: root.active ? Palette.control-background : touch.has-hover ? Theme.hover : transparent;
-    label := Text {
-        text: root.text;
-        font-size: 13px;
-        font-weight: root.active ? 700 : 500;
-        color: Palette.foreground;
-        horizontal-alignment: center;
-        vertical-alignment: center;
-    }
-    Rectangle {
-        y: parent.height - 3px;
-        height: 3px;
-        width: root.active ? parent.width - 20px : 0px;
+    border-width: 1px;
+    border-color: Theme.sheet-line;
+    drop-shadow-blur: 40px;
+    drop-shadow-offset-y: 18px;
+    drop-shadow-color: Theme.dark ? #00000099 : #06080c40;
+    @children
+    if root.hole: Rectangle {
+        width: 14px;
+        height: 14px;
+        border-radius: 7px;
         x: (parent.width - self.width) / 2;
-        border-radius: 1.5px;
-        background: Theme.accent;
-        animate width { duration: 140ms; easing: ease-out; }
-    }
-    touch := TouchArea {
-        clicked => { root.clicked(); }
+        y: parent.height - 22px;
+        background: Theme.ground;
+        border-width: 1px;
+        border-color: Theme.sheet-line;
     }
 }
 
-component Card inherits Rectangle {
-    border-radius: 10px;
-    border-width: 1px;
-    border-color: Theme.line;
-    background: Palette.alternate-background;
-    clip: true;
+// .table-wrap: thick ink rules above and below, condensed header
+component Table inherits VerticalLayout {
+    in property <string> c1;
+    in property <string> c2;
+    in property <string> c3;
+    in property <length> w2: 170px;
+    in property <length> w3: 150px;
+    Rule {
+        thickness: 2px;
+        background: Theme.ink;
+    }
+    HorizontalLayout {
+        padding-top: 10px;
+        padding-bottom: 8px;
+        spacing: 14px;
+        Label {
+            text: root.c1;
+            horizontal-stretch: 1;
+        }
+        Label {
+            text: root.c2;
+            width: root.w2;
+        }
+        Label {
+            text: root.c3;
+            width: root.w3;
+        }
+    }
+    Rule { }
+    @children
+    Rule {
+        thickness: 2px;
+        background: Theme.ink;
+    }
 }
 
 component EmptyState inherits VerticalLayout {
     in property <string> title;
     in property <string> body;
     alignment: center;
-    spacing: 6px;
-    padding: 32px;
+    spacing: 8px;
+    padding: 28px;
     Text {
         text: root.title;
-        font-size: 16px;
-        font-weight: 600;
-        color: Palette.foreground;
+        font-family: Theme.cond;
+        font-weight: 700;
+        font-size: 30px;
+        color: Theme.ink;
         horizontal-alignment: center;
     }
-    Muted {
+    Soft {
         text: root.body;
-        font-size: 13px;
+        font-size: 15px;
         horizontal-alignment: center;
         wrap: word-wrap;
         overflow: clip;
@@ -171,26 +371,28 @@ component EmptyState inherits VerticalLayout {
 
 component Modal inherits Rectangle {
     in property <string> title;
-    in property <length> card-width: 460px;
-    background: #00000088;
+    in property <length> card-width: 480px;
+    background: #06080cb3;
     TouchArea { }
-    card := Rectangle {
+    card := Sheet {
+        hole: false;
         width: min(root.card-width, root.width - 48px);
         height: min(content.preferred-height, root.height - 48px);
         x: (root.width - self.width) / 2;
         y: (root.height - self.height) / 2;
-        background: Palette.background;
-        border-radius: 12px;
-        drop-shadow-blur: 28px;
-        drop-shadow-color: #00000066;
         content := VerticalLayout {
-            padding: 24px;
+            padding: 28px;
             spacing: 14px;
             Text {
                 text: root.title;
-                font-size: 18px;
+                font-family: Theme.cond;
                 font-weight: 700;
-                color: Palette.foreground;
+                font-size: 30px;
+                color: Theme.ink;
+            }
+            Rule {
+                thickness: 2px;
+                background: Theme.accent;
             }
             @children
         }
@@ -200,11 +402,12 @@ component Modal inherits Rectangle {
 export component AppWindow inherits Window {
     title: "AutoUpload";
     icon: @image-url("../../../assets/brand/autoupload-logo-rounded-120.png");
-    preferred-width: 1120px;
-    preferred-height: 720px;
-    min-width: 860px;
-    min-height: 540px;
-    background: Palette.background;
+    preferred-width: 1180px;
+    preferred-height: 760px;
+    min-width: 900px;
+    min-height: 580px;
+    background: Theme.ground;
+    default-font-family: "Barlow";
 
     // data
     in property <string> version;
@@ -222,6 +425,8 @@ export component AppWindow inherits Window {
     in property <[CheckRow]> checks;
     in property <string> data-folder;
     in property <string> data-source;
+    // "dark", "light" or "" (follow the system), from settings.json
+    in property <string> saved-theme;
     // activity
     in property <bool> busy;
     in property <float> progress: -1;
@@ -254,452 +459,625 @@ export component AppWindow inherits Window {
     callback run-doctor();
     callback open-url(string);
     callback dismiss-banner();
+    callback theme-changed(bool);
 
-    HorizontalLayout {
-        // ---- sidebar -------------------------------------------------------------------------------
+    changed saved-theme => {
+        if root.saved-theme == "dark" {
+            Palette.color-scheme = ColorScheme.dark;
+        } else if root.saved-theme == "light" {
+            Palette.color-scheme = ColorScheme.light;
+        }
+    }
+
+    VerticalLayout {
+        // ---- masthead: the ink frame ---------------------------------------------------------------
         Rectangle {
-            width: 270px;
-            background: Palette.alternate-background;
-            VerticalLayout {
-                padding: 16px;
-                spacing: 10px;
+            height: 76px;
+            background: Theme.frame;
+            Rectangle {
+                y: parent.height - 1px;
+                height: 1px;
+                background: Theme.frame-line;
+            }
+            HorizontalLayout {
+                padding-left: 24px;
+                padding-right: 20px;
+                spacing: 24px;
+                // .seal
                 HorizontalLayout {
-                    spacing: 10px;
-                    padding-bottom: 6px;
-                    Image {
-                        source: @image-url("../../../assets/brand/autoupload-logo-rounded-120.png");
-                        width: 34px;
-                        height: 34px;
+                    spacing: 12px;
+                    alignment: start;
+                    VerticalLayout {
+                        alignment: center;
+                        Image {
+                            source: @image-url("../../../assets/brand/autoupload-logo-rounded-120.png");
+                            width: 42px;
+                            height: 42px;
+                        }
                     }
                     VerticalLayout {
                         alignment: center;
+                        spacing: 2px;
                         Text {
                             text: "AutoUpload";
-                            font-size: 17px;
+                            font-family: Theme.cond;
                             font-weight: 700;
-                            color: Palette.foreground;
+                            font-size: 25px;
+                            color: Theme.on-frame;
                         }
-                        Muted {
-                            text: "Upload and schedule on YouTube";
-                            font-size: 11px;
+                        HorizontalLayout {
+                            spacing: 4px;
+                            Text {
+                                text: "by";
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: Theme.on-frame-soft;
+                            }
+                            Text {
+                                text: "Ellipsio Studio";
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: Theme.mint;
+                            }
                         }
-                    }
-                }
-                Muted {
-                    text: "CHANNELS";
-                    font-size: 11px;
-                    font-weight: 700;
-                    letter-spacing: 0.6px;
-                }
-                if root.channels.length == 0: Muted {
-                    text: "No channels yet.";
-                    font-size: 13px;
-                }
-                ListView {
-                    vertical-stretch: 1;
-                    for row[i] in root.channels: ChannelItem {
-                        data: row;
-                        selected: i == root.current;
-                        clicked => { root.select-channel(i); }
-                    }
-                }
-                Button {
-                    text: "New channel";
-                    enabled: !root.busy;
-                    clicked => {
-                        root.new-name = "";
-                        root.show-new = true;
-                    }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Button {
-                        text: "Diagnostics";
-                        horizontal-stretch: 1;
-                        clicked => { root.run-doctor(); }
-                    }
-                    Button {
-                        text: "About";
-                        horizontal-stretch: 1;
-                        clicked => { root.show-about = true; }
                     }
                 }
                 Rectangle {
-                    height: 1px;
-                    background: Theme.line;
+                    horizontal-stretch: 1;
                 }
-                Muted {
-                    text: "DATA FOLDER";
-                    font-size: 11px;
-                    font-weight: 700;
-                    letter-spacing: 0.6px;
-                }
-                Text {
-                    text: root.data-folder;
-                    font-size: 12px;
-                    color: Palette.foreground;
-                    wrap: word-wrap;
-                }
-                Muted {
-                    text: root.data-source;
-                    font-size: 11px;
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Button {
-                        text: "Open";
-                        horizontal-stretch: 1;
-                        clicked => { root.open-data-folder(); }
+                // .tabs
+                if root.current >= 0: VerticalLayout {
+                    alignment: end;
+                    HorizontalLayout {
+                        spacing: 3px;
+                        Tab {
+                            text: "Queue · " + root.queue.length;
+                            active: root.tab == 0;
+                            clicked => { root.tab = 0; }
+                        }
+                        Tab {
+                            text: "Calendar";
+                            active: root.tab == 1;
+                            clicked => {
+                                root.tab = 1;
+                                root.load-calendar();
+                            }
+                        }
+                        Tab {
+                            text: "Activity";
+                            active: root.tab == 2;
+                            clicked => { root.tab = 2; }
+                        }
                     }
-                    Button {
-                        text: "Change…";
-                        horizontal-stretch: 1;
-                        enabled: !root.busy;
-                        clicked => {
-                            root.folder-input = root.data-folder;
-                            root.show-folder = true;
+                }
+                // .tools
+                VerticalLayout {
+                    alignment: center;
+                    HorizontalLayout {
+                        spacing: 6px;
+                        ToolPill {
+                            text: "Diagnostics";
+                            clicked => { root.run-doctor(); }
+                        }
+                        ToolPill {
+                            text: "Guide";
+                            clicked => { root.open-url("https://daosource111.github.io/autoupload/install.html"); }
+                        }
+                        ToolPill {
+                            text: "About";
+                            clicked => { root.show-about = true; }
+                        }
+                        ThemeToggle {
+                            clicked => {
+                                if Theme.dark {
+                                    Palette.color-scheme = ColorScheme.light;
+                                    root.theme-changed(false);
+                                } else {
+                                    Palette.color-scheme = ColorScheme.dark;
+                                    root.theme-changed(true);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
+        // ---- the drawer: rail + sheet on the haloed ground -----------------------------------------
         Rectangle {
-            width: 1px;
-            background: Theme.line;
-        }
-
-        // ---- main -----------------------------------------------------------------------------------
-        VerticalLayout {
-            horizontal-stretch: 1;
-            padding: 24px;
-            spacing: 16px;
-
-            if root.banner != "": Rectangle {
-                height: banner-row.preferred-height;
-                border-radius: Theme.radius;
-                background: Theme.tone(root.banner-tone).transparentize(0.88);
-                banner-row := HorizontalLayout {
-                    padding: 12px;
-                    spacing: 12px;
-                    Text {
-                        text: root.banner;
-                        color: Palette.foreground;
-                        wrap: word-wrap;
-                        horizontal-stretch: 1;
-                        vertical-alignment: center;
-                    }
-                    Button {
-                        text: "Dismiss";
-                        clicked => { root.dismiss-banner(); }
-                    }
-                }
+            vertical-stretch: 1;
+            clip: true;
+            // cobalt halo top right, mint halo bottom left
+            Rectangle {
+                width: 1240px;
+                height: 1240px;
+                x: parent.width * 0.78 - self.width / 2;
+                y: -0.08 * parent.height - self.height / 2;
+                background: @radial-gradient(circle, Theme.halo-a 0%, transparent 62%);
+            }
+            Rectangle {
+                width: 1100px;
+                height: 1100px;
+                x: -0.1 * parent.width - self.width / 2;
+                y: 1.05 * parent.height - self.height / 2;
+                background: @radial-gradient(circle, Theme.halo-b 0%, transparent 60%);
             }
 
-            if root.current < 0: EmptyState {
-                vertical-stretch: 1;
-                title: root.channels.length == 0 ? "Create your first channel" : "Choose a channel";
-                body: root.channels.length == 0
-                    ? "A channel is a folder with its own queue, publishing hours and Google sign-in. You need your own OAuth client file (Desktop app) from Google Cloud, as the installation guide explains."
-                    : "Pick a channel on the left to see its queue and calendar.";
-                HorizontalLayout {
-                    alignment: center;
+            HorizontalLayout {
+                padding: 28px;
+                padding-bottom: 20px;
+                spacing: 36px;
+
+                // .rail
+                VerticalLayout {
+                    width: 240px;
                     spacing: 10px;
-                    padding-top: 10px;
-                    if root.channels.length == 0: Button {
+                    Label {
+                        text: "Channels";
+                    }
+                    if root.channels.length == 0: Soft {
+                        text: "No channels yet.";
+                    }
+                    Rectangle {
+                        vertical-stretch: 1;
+                        Rectangle {
+                            x: 0;
+                            width: 1px;
+                            height: min(parent.height, root.channels.length * 54px);
+                            y: 0;
+                            background: Theme.sheet-line;
+                        }
+                        ListView {
+                            for row[i] in root.channels: ChannelItem {
+                                data: row;
+                                selected: i == root.current;
+                                clicked => { root.select-channel(i); }
+                            }
+                        }
+                    }
+                    Btn {
                         text: "New channel";
-                        primary: true;
+                        kind: 2;
+                        enabled: !root.busy;
                         clicked => {
                             root.new-name = "";
                             root.show-new = true;
                         }
                     }
-                    Button {
-                        text: "Installation guide";
-                        clicked => { root.open-url("https://daosource111.github.io/autoupload/install.html"); }
+                    Rule { }
+                    Label {
+                        text: "Data folder";
                     }
-                }
-            }
-
-            if root.current >= 0: VerticalLayout {
-                spacing: 16px;
-                vertical-stretch: 1;
-                // header
-                HorizontalLayout {
-                    spacing: 12px;
-                    VerticalLayout {
-                        horizontal-stretch: 1;
-                        alignment: center;
-                        spacing: 4px;
-                        HorizontalLayout {
-                            spacing: 10px;
-                            Text {
-                                text: root.ch-name;
-                                font-size: 24px;
-                                font-weight: 700;
-                                color: Palette.foreground;
-                                overflow: elide;
-                            }
-                            VerticalLayout {
-                                alignment: center;
-                                Pill {
-                                    text: root.ch-connected ? "Connected" : "Not connected";
-                                    tone: root.ch-connected ? Theme.ok : Theme.warn;
-                                }
-                            }
-                        }
-                        Muted {
-                            text: root.ch-schedule + (root.ch-linked != "" ? "  ·  " + root.ch-linked : "");
-                            font-size: 13px;
+                    Rectangle {
+                        height: folder-text.preferred-height + 12px;
+                        border-radius: 4px;
+                        background: Theme.code-bg;
+                        folder-text := Text {
+                            x: 8px;
+                            width: parent.width - 16px;
+                            text: root.data-folder;
+                            font-family: Theme.mono;
+                            font-size: 12.5px;
+                            color: Theme.ink;
+                            wrap: word-wrap;
+                            vertical-alignment: center;
                         }
                     }
-                    VerticalLayout {
-                        alignment: center;
-                        HorizontalLayout {
-                            spacing: 8px;
-                            Button {
-                                text: root.ch-connected ? "Reconnect" : "Connect";
-                                primary: !root.ch-connected;
-                                enabled: !root.busy;
-                                clicked => { root.connect(); }
-                            }
-                            if root.ch-connected: Button {
-                                text: "Disconnect";
-                                enabled: !root.busy;
-                                clicked => { root.disconnect(); }
-                            }
-                            Button {
-                                text: "Settings";
-                                clicked => { root.edit-settings(); }
-                            }
-                        }
-                    }
-                }
-
-                // tabs
-                HorizontalLayout {
-                    spacing: 4px;
-                    alignment: start;
-                    TabButton {
-                        text: "Queue (" + root.queue.length + ")";
-                        active: root.tab == 0;
-                        clicked => { root.tab = 0; }
-                    }
-                    TabButton {
-                        text: "Calendar";
-                        active: root.tab == 1;
-                        clicked => {
-                            root.tab = 1;
-                            root.load-calendar();
-                        }
-                    }
-                    TabButton {
-                        text: "Activity";
-                        active: root.tab == 2;
-                        clicked => { root.tab = 2; }
-                    }
-                }
-
-                // queue
-                if root.tab == 0: VerticalLayout {
-                    spacing: 12px;
-                    vertical-stretch: 1;
-                    Card {
-                        vertical-stretch: 1;
-                        if root.queue.length == 0: EmptyState {
-                            title: "The queue is empty";
-                            body: "Put each video in the queue folder with a .yaml file of the same name holding at least its title. A .jpg or .png with the same name becomes the thumbnail.";
-                            HorizontalLayout {
-                                alignment: center;
-                                padding-top: 10px;
-                                Button {
-                                    text: "Open queue folder";
-                                    clicked => { root.open-queue(); }
-                                }
-                            }
-                        }
-                        if root.queue.length > 0: ListView {
-                            for row in root.queue: Rectangle {
-                                height: 58px;
-                                HorizontalLayout {
-                                    padding-left: 16px;
-                                    padding-right: 16px;
-                                    spacing: 14px;
-                                    VerticalLayout {
-                                        alignment: center;
-                                        horizontal-stretch: 1;
-                                        spacing: 2px;
-                                        Text {
-                                            text: row.title;
-                                            font-size: 14px;
-                                            font-weight: 600;
-                                            color: Palette.foreground;
-                                            overflow: elide;
-                                        }
-                                        Muted {
-                                            text: row.file;
-                                        }
-                                    }
-                                    VerticalLayout {
-                                        alignment: center;
-                                        Text {
-                                            text: row.when;
-                                            font-size: 13px;
-                                            color: Palette.foreground;
-                                            horizontal-alignment: right;
-                                        }
-                                    }
-                                    VerticalLayout {
-                                        alignment: center;
-                                        Pill {
-                                            text: row.status;
-                                            tone: Theme.tone(row.tone);
-                                        }
-                                    }
-                                }
-                                Rectangle {
-                                    y: parent.height - 1px;
-                                    height: 1px;
-                                    background: Theme.line;
-                                }
-                            }
-                        }
+                    Soft {
+                        text: root.data-source;
+                        font-size: 12.5px;
                     }
                     HorizontalLayout {
                         spacing: 8px;
-                        Button {
-                            text: "Open queue folder";
-                            clicked => { root.open-queue(); }
-                        }
-                        Button {
-                            text: "Uploaded";
-                            clicked => { root.open-uploaded(); }
-                        }
-                        Rectangle {
+                        Btn {
+                            text: "Open";
+                            kind: 2;
+                            compact: true;
                             horizontal-stretch: 1;
+                            clicked => { root.open-data-folder(); }
                         }
-                        Button {
-                            text: "Preview dates";
-                            enabled: !root.busy && root.ch-connected && root.queue.length > 0;
-                            clicked => { root.preview(); }
-                        }
-                        Button {
-                            text: root.ready-count == 1 ? "Upload 1 video" : "Upload " + root.ready-count + " videos";
-                            primary: true;
-                            enabled: !root.busy && root.ch-connected && root.ready-count > 0;
+                        Btn {
+                            text: "Change…";
+                            kind: 2;
+                            compact: true;
+                            horizontal-stretch: 1;
+                            enabled: !root.busy;
                             clicked => {
-                                root.allow-public = false;
-                                root.show-confirm = true;
+                                root.folder-input = root.data-folder;
+                                root.show-folder = true;
                             }
                         }
                     }
                 }
 
-                // calendar
-                if root.tab == 1: VerticalLayout {
-                    spacing: 12px;
-                    vertical-stretch: 1;
-                    Card {
-                        vertical-stretch: 1;
-                        if root.calendar.length == 0: EmptyState {
-                            title: root.busy ? "Loading…" : "Nothing scheduled";
-                            body: root.calendar-note;
+                // main column
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 14px;
+
+                    if root.banner != "": Rectangle {
+                        height: banner-row.preferred-height;
+                        border-radius: 6px;
+                        border-width: 1px;
+                        border-color: Theme.tone(root.banner-tone).transparentize(0.55);
+                        background: Theme.tone(root.banner-tone).transparentize(0.9);
+                        banner-row := HorizontalLayout {
+                            padding: 12px;
+                            padding-left: 16px;
+                            spacing: 12px;
+                            Text {
+                                text: root.banner;
+                                font-size: 15px;
+                                color: Theme.ink;
+                                wrap: word-wrap;
+                                horizontal-stretch: 1;
+                                vertical-alignment: center;
+                            }
+                            Btn {
+                                text: "Dismiss";
+                                kind: 2;
+                                compact: true;
+                                clicked => { root.dismiss-banner(); }
+                            }
                         }
-                        if root.calendar.length > 0: ListView {
-                            for row in root.calendar: Rectangle {
-                                height: 46px;
+                    }
+
+                    Sheet {
+                        vertical-stretch: 1;
+
+                        if root.current < 0: EmptyState {
+                            width: parent.width;
+                            height: parent.height;
+                            title: root.channels.length == 0 ? "Create your first channel" : "Choose a channel";
+                            body: root.channels.length == 0
+                                ? "A channel is a folder with its own queue, publishing hours and Google sign-in. Put your own OAuth client file (Desktop app) in config/client_secret.json inside the data folder, as the installation guide explains."
+                                : "Pick a channel on the left to see its queue and calendar.";
+                            HorizontalLayout {
+                                alignment: center;
+                                spacing: 10px;
+                                padding-top: 12px;
+                                if root.channels.length == 0: Btn {
+                                    text: "New channel";
+                                    kind: 1;
+                                    clicked => {
+                                        root.new-name = "";
+                                        root.show-new = true;
+                                    }
+                                }
+                                Btn {
+                                    text: "Installation guide";
+                                    clicked => { root.open-url("https://daosource111.github.io/autoupload/install.html"); }
+                                }
+                            }
+                        }
+
+                        if root.current >= 0: VerticalLayout {
+                            width: parent.width;
+                            height: parent.height;
+                            padding-bottom: 44px;
+
+                            // .card-head
+                            VerticalLayout {
+                                vertical-stretch: 0;
+                                padding-left: 36px;
+                                padding-right: 36px;
+                                padding-top: 22px;
+                                padding-bottom: 18px;
+                                spacing: 12px;
+                                // .callno
                                 HorizontalLayout {
-                                    padding-left: 16px;
-                                    padding-right: 16px;
-                                    spacing: 14px;
-                                    VerticalLayout {
-                                        alignment: center;
-                                        Text {
-                                            text: row.when;
-                                            width: 130px;
-                                            font-size: 13px;
-                                            font-weight: 600;
-                                            color: Palette.foreground;
-                                        }
-                                    }
-                                    VerticalLayout {
-                                        alignment: center;
-                                        Pill {
-                                            text: row.status;
-                                            tone: row.status == "scheduled" ? Theme.accent : row.status == "public" ? Theme.ok : Theme.muted;
-                                        }
-                                    }
-                                    VerticalLayout {
-                                        alignment: center;
+                                    spacing: 16px;
+                                    HorizontalLayout {
+                                        spacing: 8px;
                                         horizontal-stretch: 1;
+                                        VerticalLayout {
+                                            alignment: center;
+                                            Rectangle {
+                                                width: 8px;
+                                                height: 8px;
+                                                border-radius: 4px;
+                                                background: root.ch-connected ? Theme.mint : Theme.warn;
+                                            }
+                                        }
                                         Text {
-                                            text: row.title;
-                                            font-size: 13px;
-                                            color: Palette.foreground;
+                                            text: "AU · " + (root.tab == 0 ? "QUEUE" : root.tab == 1 ? "CALENDAR" : "ACTIVITY") + " · " + root.ch-name.to-uppercase();
+                                            font-size: 13.5px;
+                                            font-weight: 600;
+                                            color: Theme.ink-soft;
+                                        }
+                                    }
+                                    Text {
+                                        text: root.ch-connected ? "Connected" + (root.ch-linked != "" ? " · " + root.ch-linked : "") : "Not connected";
+                                        font-size: 13.5px;
+                                        font-weight: 600;
+                                        color: root.ch-connected ? Theme.ink-soft : Theme.warn;
+                                        overflow: elide;
+                                    }
+                                }
+                                Rule { }
+                                HorizontalLayout {
+                                    spacing: 16px;
+                                    VerticalLayout {
+                                        horizontal-stretch: 1;
+                                        alignment: center;
+                                        spacing: 4px;
+                                        Text {
+                                            text: root.ch-name;
+                                            font-family: Theme.cond;
+                                            font-weight: 700;
+                                            font-size: 44px;
+                                            color: Theme.ink;
+                                            overflow: elide;
+                                        }
+                                        Text {
+                                            text: root.ch-schedule;
+                                            font-size: 17px;
+                                            color: Theme.ink;
                                             overflow: elide;
                                         }
                                     }
+                                    VerticalLayout {
+                                        alignment: center;
+                                        HorizontalLayout {
+                                            spacing: 8px;
+                                            Btn {
+                                                text: root.ch-connected ? "Reconnect" : "Connect";
+                                                kind: root.ch-connected ? 2 : 1;
+                                                enabled: !root.busy;
+                                                clicked => { root.connect(); }
+                                            }
+                                            if root.ch-connected: Btn {
+                                                text: "Disconnect";
+                                                kind: 2;
+                                                enabled: !root.busy;
+                                                clicked => { root.disconnect(); }
+                                            }
+                                            Btn {
+                                                text: "Settings";
+                                                kind: 2;
+                                                clicked => { root.edit-settings(); }
+                                            }
+                                        }
+                                    }
                                 }
-                                Rectangle {
-                                    y: parent.height - 1px;
-                                    height: 1px;
-                                    background: Theme.line;
+                            }
+                            Rule {
+                                thickness: 2px;
+                                background: Theme.accent;
+                            }
+
+                            // .card-body
+                            VerticalLayout {
+                                vertical-stretch: 1;
+                                padding-left: 36px;
+                                padding-right: 36px;
+                                padding-top: 18px;
+                                spacing: 14px;
+
+                                // queue
+                                if root.tab == 0 && root.queue.length == 0: EmptyState {
+                                    vertical-stretch: 1;
+                                    title: "The queue is empty";
+                                    body: "Put each video in the queue folder with a .yaml file of the same name holding at least its title. A .jpg or .png with the same name becomes the thumbnail.";
+                                    HorizontalLayout {
+                                        alignment: center;
+                                        padding-top: 12px;
+                                        Btn {
+                                            text: "Open queue folder";
+                                            clicked => { root.open-queue(); }
+                                        }
+                                    }
+                                }
+                                if root.tab == 0 && root.queue.length > 0: Table {
+                                    vertical-stretch: 1;
+                                    c1: "Video";
+                                    c2: "Publish date";
+                                    c3: "Status";
+                                    ListView {
+                                        vertical-stretch: 1;
+                                        for row in root.queue: Rectangle {
+                                            height: 60px;
+                                            HorizontalLayout {
+                                                spacing: 14px;
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    horizontal-stretch: 1;
+                                                    spacing: 1px;
+                                                    Text {
+                                                        text: row.title;
+                                                        font-size: 16px;
+                                                        font-weight: 600;
+                                                        color: Theme.ink;
+                                                        overflow: elide;
+                                                    }
+                                                    Soft {
+                                                        text: row.file;
+                                                        font-size: 13px;
+                                                    }
+                                                }
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    width: 170px;
+                                                    Text {
+                                                        text: row.when;
+                                                        font-size: 14.5px;
+                                                        color: Theme.ink;
+                                                        overflow: elide;
+                                                    }
+                                                }
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    width: 150px;
+                                                    Pill {
+                                                        text: row.status;
+                                                        tone: Theme.tone(row.tone);
+                                                    }
+                                                }
+                                            }
+                                            Rectangle {
+                                                y: parent.height - 1px;
+                                                height: 1px;
+                                                background: Theme.sheet-line;
+                                            }
+                                        }
+                                    }
+                                }
+                                if root.tab == 0: HorizontalLayout {
+                                    spacing: 8px;
+                                    Btn {
+                                        text: "Open queue folder";
+                                        kind: 2;
+                                        clicked => { root.open-queue(); }
+                                    }
+                                    Btn {
+                                        text: "Uploaded";
+                                        kind: 2;
+                                        clicked => { root.open-uploaded(); }
+                                    }
+                                    Rectangle {
+                                        horizontal-stretch: 1;
+                                    }
+                                    Btn {
+                                        text: "Preview dates";
+                                        enabled: !root.busy && root.ch-connected && root.queue.length > 0;
+                                        clicked => { root.preview(); }
+                                    }
+                                    Btn {
+                                        text: root.ready-count == 1 ? "Upload 1 video" : "Upload " + root.ready-count + " videos";
+                                        kind: 1;
+                                        enabled: !root.busy && root.ch-connected && root.ready-count > 0;
+                                        clicked => {
+                                            root.allow-public = false;
+                                            root.show-confirm = true;
+                                        }
+                                    }
+                                }
+
+                                // calendar
+                                if root.tab == 1 && root.calendar.length == 0: EmptyState {
+                                    vertical-stretch: 1;
+                                    title: root.busy ? "Loading…" : "Nothing scheduled";
+                                    body: root.calendar-note;
+                                }
+                                if root.tab == 1 && root.calendar.length > 0: Table {
+                                    vertical-stretch: 1;
+                                    c1: "Title";
+                                    c2: "Date";
+                                    c3: "Status";
+                                    ListView {
+                                        vertical-stretch: 1;
+                                        for row in root.calendar: Rectangle {
+                                            height: 48px;
+                                            HorizontalLayout {
+                                                spacing: 14px;
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    horizontal-stretch: 1;
+                                                    Text {
+                                                        text: row.title;
+                                                        font-size: 15px;
+                                                        color: Theme.ink;
+                                                        overflow: elide;
+                                                    }
+                                                }
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    width: 170px;
+                                                    Text {
+                                                        text: row.when;
+                                                        font-size: 14.5px;
+                                                        font-weight: 600;
+                                                        color: Theme.ink;
+                                                    }
+                                                }
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    width: 150px;
+                                                    Pill {
+                                                        text: row.status;
+                                                        tone: row.status == "scheduled" ? Theme.busy : row.status == "public" ? Theme.ok : Theme.ink-soft;
+                                                    }
+                                                }
+                                            }
+                                            Rectangle {
+                                                y: parent.height - 1px;
+                                                height: 1px;
+                                                background: Theme.sheet-line;
+                                            }
+                                        }
+                                    }
+                                }
+                                if root.tab == 1: HorizontalLayout {
+                                    spacing: 12px;
+                                    Soft {
+                                        text: root.calendar-note;
+                                        horizontal-stretch: 1;
+                                        vertical-alignment: center;
+                                    }
+                                    Btn {
+                                        text: "Refresh";
+                                        kind: 2;
+                                        enabled: !root.busy && root.ch-connected;
+                                        clicked => { root.load-calendar(); }
+                                    }
+                                }
+
+                                // activity: the site's dark code block
+                                if root.tab == 2 && root.log.length == 0: EmptyState {
+                                    vertical-stretch: 1;
+                                    title: "No activity yet";
+                                    body: "Previews, uploads and sign-ins are logged here.";
+                                }
+                                if root.tab == 2 && root.log.length > 0: Rectangle {
+                                    vertical-stretch: 1;
+                                    border-radius: 6px;
+                                    border-width: 1px;
+                                    border-color: Theme.frame-line;
+                                    background: Theme.frame;
+                                    clip: true;
+                                    ListView {
+                                        for line in root.log: Text {
+                                            text: line;
+                                            x: 16px;
+                                            width: parent.width - 32px;
+                                            font-family: Theme.mono;
+                                            font-size: 13px;
+                                            color: Theme.on-frame;
+                                            wrap: word-wrap;
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                    HorizontalLayout {
-                        Muted {
-                            text: root.calendar-note;
-                            horizontal-stretch: 1;
+
+                    // status line with the site's mint meter
+                    if root.busy || root.status != "": HorizontalLayout {
+                        spacing: 14px;
+                        height: 24px;
+                        if root.busy: VerticalLayout {
+                            alignment: center;
+                            width: 220px;
+                            meter := Rectangle {
+                                height: 6px;
+                                border-radius: 3px;
+                                background: Theme.dark ? #1f2838 : Theme.sheet-line;
+                                clip: true;
+                                Rectangle {
+                                    border-radius: 3px;
+                                    background: Theme.dark ? Theme.mint : Theme.cobalt;
+                                    width: root.progress < 0 ? parent.width * 0.3 : parent.width * root.progress;
+                                    x: root.progress < 0 ? (parent.width * 1.3) * mod(animation-tick(), 1400ms) / 1400ms - parent.width * 0.3 : 0;
+                                }
+                            }
+                        }
+                        Soft {
+                            text: root.status;
+                            font-size: 13.5px;
                             vertical-alignment: center;
-                        }
-                        Button {
-                            text: "Refresh";
-                            enabled: !root.busy && root.ch-connected;
-                            clicked => { root.load-calendar(); }
+                            horizontal-stretch: 1;
                         }
                     }
-                }
-
-                // activity
-                if root.tab == 2: Card {
-                    vertical-stretch: 1;
-                    if root.log.length == 0: EmptyState {
-                        title: "No activity yet";
-                        body: "Previews, uploads and sign-ins are logged here.";
-                    }
-                    if root.log.length > 0: ListView {
-                        for line in root.log: Text {
-                            text: line;
-                            x: 14px;
-                            width: parent.width - 28px;
-                            font-size: 12px;
-                            font-family: "Consolas";
-                            color: Palette.foreground;
-                            wrap: word-wrap;
-                        }
-                    }
-                }
-            }
-
-            // status bar
-            if root.busy || root.status != "": HorizontalLayout {
-                spacing: 12px;
-                height: 28px;
-                VerticalLayout {
-                    alignment: center;
-                    width: 220px;
-                    if root.busy: ProgressIndicator {
-                        progress: root.progress < 0 ? 0 : root.progress;
-                        indeterminate: root.progress < 0;
-                    }
-                }
-                Muted {
-                    text: root.status;
-                    font-size: 12px;
-                    vertical-alignment: center;
-                    horizontal-stretch: 1;
                 }
             }
         }
@@ -710,9 +1088,8 @@ export component AppWindow inherits Window {
         width: root.width;
         height: root.height;
         title: "New channel";
-        Muted {
+        Soft {
             text: "Lowercase letters, digits, - and _. It creates channels/<name>/ with channel.yaml, queue/ and uploaded/.";
-            font-size: 13px;
             wrap: word-wrap;
             overflow: clip;
         }
@@ -727,13 +1104,14 @@ export component AppWindow inherits Window {
         HorizontalLayout {
             alignment: end;
             spacing: 8px;
-            Button {
+            Btn {
                 text: "Cancel";
+                kind: 2;
                 clicked => { root.show-new = false; }
             }
-            Button {
+            Btn {
                 text: "Create";
-                primary: true;
+                kind: 1;
                 enabled: root.new-name != "";
                 clicked => {
                     root.show-new = false;
@@ -749,7 +1127,8 @@ export component AppWindow inherits Window {
         title: root.ready-count == 1 ? "Upload 1 video?" : "Upload " + root.ready-count + " videos?";
         Text {
             text: "They go to " + root.ch-name + " as private videos and become public at their scheduled time. The same file is never uploaded twice.";
-            color: Palette.foreground;
+            font-size: 16px;
+            color: Theme.ink;
             wrap: word-wrap;
         }
         CheckBox {
@@ -759,13 +1138,14 @@ export component AppWindow inherits Window {
         HorizontalLayout {
             alignment: end;
             spacing: 8px;
-            Button {
+            Btn {
                 text: "Cancel";
+                kind: 2;
                 clicked => { root.show-confirm = false; }
             }
-            Button {
+            Btn {
                 text: "Upload";
-                primary: true;
+                kind: 1;
                 clicked => {
                     root.show-confirm = false;
                     root.tab = 0;
@@ -778,11 +1158,10 @@ export component AppWindow inherits Window {
     if root.show-folder: Modal {
         width: root.width;
         height: root.height;
-        card-width: 560px;
+        card-width: 580px;
         title: "Data folder";
-        Muted {
+        Soft {
             text: "The folder that holds channels/ and config/ (with your client_secret.json). Paste its full path.";
-            font-size: 13px;
             wrap: word-wrap;
             overflow: clip;
         }
@@ -796,13 +1175,14 @@ export component AppWindow inherits Window {
         HorizontalLayout {
             alignment: end;
             spacing: 8px;
-            Button {
+            Btn {
                 text: "Cancel";
+                kind: 2;
                 clicked => { root.show-folder = false; }
             }
-            Button {
+            Btn {
                 text: "Use this folder";
-                primary: true;
+                kind: 1;
                 enabled: root.folder-input != "";
                 clicked => {
                     root.show-folder = false;
@@ -815,29 +1195,34 @@ export component AppWindow inherits Window {
     if root.show-doctor: Modal {
         width: root.width;
         height: root.height;
-        card-width: 640px;
+        card-width: 680px;
         title: "Diagnostics";
         ScrollView {
             min-height: 120px;
-            preferred-height: min(420px, root.height - 220px);
+            preferred-height: min(440px, root.height - 240px);
             VerticalLayout {
-                spacing: 8px;
+                spacing: 10px;
                 for c in root.checks: HorizontalLayout {
-                    spacing: 10px;
-                    Text {
-                        text: c.level == 0 ? "✓" : c.level == 1 ? "!" : "✗";
-                        width: 14px;
-                        font-weight: 700;
-                        color: c.level == 0 ? Theme.ok : c.level == 1 ? Theme.warn : Theme.error;
+                    spacing: 12px;
+                    VerticalLayout {
+                        alignment: start;
+                        padding-top: 6px;
+                        Rectangle {
+                            width: 9px;
+                            height: 9px;
+                            border-radius: 4.5px;
+                            background: c.level == 0 ? Theme.ok : c.level == 1 ? Theme.warn : Theme.error;
+                        }
                     }
                     VerticalLayout {
                         spacing: 2px;
                         Text {
                             text: c.message;
-                            color: Palette.foreground;
+                            font-size: 15px;
+                            color: Theme.ink;
                             wrap: word-wrap;
                         }
-                        if c.fix != "": Muted {
+                        if c.fix != "": Soft {
                             text: "→ " + c.fix;
                             wrap: word-wrap;
                             overflow: clip;
@@ -848,9 +1233,9 @@ export component AppWindow inherits Window {
         }
         HorizontalLayout {
             alignment: end;
-            Button {
+            Btn {
                 text: "Close";
-                primary: true;
+                kind: 1;
                 clicked => { root.show-doctor = false; }
             }
         }
@@ -859,42 +1244,48 @@ export component AppWindow inherits Window {
     if root.show-about: Modal {
         width: root.width;
         height: root.height;
-        card-width: 520px;
+        card-width: 540px;
         title: "AutoUpload " + root.version;
         Text {
             text: "Uploads videos from a folder on your computer to your YouTube channel as private videos with a scheduled publish time, through the official YouTube Data API v3 and your own OAuth client. No AutoUpload server: your data goes only to Google.";
-            color: Palette.foreground;
+            font-size: 15.5px;
+            color: Theme.ink;
             wrap: word-wrap;
         }
-        Muted {
+        Soft {
             text: "Free and open source under the MIT License. By Ellipsio Studio. Not affiliated with Google or YouTube.";
-            font-size: 12px;
+            font-size: 13.5px;
             wrap: word-wrap;
             overflow: clip;
         }
         HorizontalLayout {
             spacing: 8px;
-            Button {
+            Btn {
                 text: "Website";
+                compact: true;
                 clicked => { root.open-url("https://daosource111.github.io/autoupload/"); }
             }
-            Button {
+            Btn {
                 text: "Source code";
+                kind: 2;
+                compact: true;
                 clicked => { root.open-url("https://github.com/DaoSource111/autoupload"); }
             }
-            Button {
+            Btn {
                 text: "Privacy";
+                kind: 2;
+                compact: true;
                 clicked => { root.open-url("https://daosource111.github.io/autoupload/privacy.html"); }
             }
         }
         AboutSlint {
-            height: 120px;
+            height: 110px;
         }
         HorizontalLayout {
             alignment: end;
-            Button {
+            Btn {
                 text: "Close";
-                primary: true;
+                kind: 1;
                 clicked => { root.show-about = false; }
             }
         }

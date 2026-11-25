@@ -16,3 +16,6 @@ PRODUCT.md
 
 # Rust build output
 /target/
+
+# Local copies of the built programs
+/*.exe

@@ -323,9 +323,8 @@ fn run(cli: Cli) -> i32 {
                 } else {
                     std::env::current_dir().map(|d| d.join(&p)).unwrap_or(p)
                 };
-                let s = Settings {
-                    data_folder: Some(abs.clone()),
-                };
+                let mut s = Settings::load();
+                s.data_folder = Some(abs.clone());
                 match s.save() {
                     Ok(()) => {
                         println!("Data folder set to {}", abs.display());

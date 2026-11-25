@@ -263,10 +263,14 @@ impl Channel {
 
     /// e.g. "08:00, 19:00 every 1 day(s) (Europe/Madrid)"
     pub fn schedule_text(&self) -> String {
+        let every = match self.cfg.days_between {
+            1 => "every day".to_string(),
+            7 => "every week".to_string(),
+            n => format!("every {n} days"),
+        };
         format!(
-            "{} every {} day(s) ({})",
+            "{} {every} · {}",
             self.cfg.hours.join(", "),
-            self.cfg.days_between,
             self.cfg.timezone
         )
     }

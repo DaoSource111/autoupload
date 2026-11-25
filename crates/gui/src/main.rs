@@ -338,8 +338,15 @@ fn run_queue(weak: &Weak<AppWindow>, ch: Channel, execute: bool, allow_public: b
 fn main() -> Result<(), slint::PlatformError> {
     let ui = AppWindow::new()?;
     ui.set_version(autoupload_core::VERSION.into());
+    ui.set_saved_theme(Settings::load().theme.unwrap_or_default().into());
     reload(&ui);
     let weak = ui.as_weak();
+
+    ui.on_theme_changed(|dark| {
+        let mut s = Settings::load();
+        s.theme = Some(if dark { "dark" } else { "light" }.to_string());
+        let _ = s.save();
+    });
 
     ui.on_select_channel({
         let weak = weak.clone();

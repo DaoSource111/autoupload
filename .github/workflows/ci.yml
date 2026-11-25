@@ -9,65 +9,6 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - run: python -m pip install ruff
-      # Errors only (syntax, undefined names, invalid comparisons); style is not enforced yet.
-      - run: ruff check --select E9,F63,F7,F82 src tests tools
-
-  tests:
-    name: tests (${{ matrix.os }}, Python ${{ matrix.python }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-        python: ["3.10", "3.13", "3.14"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-      - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e ".[test]" pytest-cov
-      - run: python -m pytest -q -rs --cov=autoupload --cov-report=term-missing
-
-  installed-wheel:
-    # Guards against the 1.1.0 bug: a pip-installed copy must keep its data outside the venv.
-    name: installed wheel keeps data outside the venv
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - run: python -m pip install build
-      - run: python -m build --wheel
-      - name: install the wheel in a clean venv and create a channel
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $fakeHome = Join-Path $env:RUNNER_TEMP 'home'
-          New-Item -ItemType Directory -Force $fakeHome | Out-Null
-          $env:USERPROFILE = $fakeHome
-          python -m venv "$env:RUNNER_TEMP\clean"
-          & "$env:RUNNER_TEMP\clean\Scripts\pip.exe" install (Get-ChildItem dist\*.whl).FullName
-          Set-Location $env:RUNNER_TEMP
-          & "$env:RUNNER_TEMP\clean\Scripts\autoupload.exe" channel new ci
-          $expected = Join-Path $fakeHome 'Documents\AutoUpload\channels\ci\channel.yaml'
-          if (-not (Test-Path $expected)) { throw "channel not created in $expected" }
-          if (Test-Path "$env:RUNNER_TEMP\clean\Lib\channels") { throw "data was written inside the venv" }
-          $out = & "$env:RUNNER_TEMP\clean\Scripts\autoupload.exe" doctor
-          $out
-          if (-not ($out -match [regex]::Escape((Join-Path $fakeHome 'Documents\AutoUpload')))) { throw "doctor shows another data folder" }
-          Write-Host "OK: data in $expected"
-          $global:LASTEXITCODE = 0   # doctor exits 2 here on purpose (no OAuth client in CI)
-
   rust:
     name: rust (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -90,3 +31,25 @@ jobs:
         if: runner.os == 'Linux'
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
+      - name: the CLI and the MCP server work in demo mode (no network)
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build -q -p autoupload
+          bin=target/debug/autoupload
+          $bin --demo channels --json | grep -q '"lumen-lab"'
+          $bin --demo queue lumen-lab --json | grep -q '"ready"'
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","clientInfo":{"name":"ci","version":"1"},"capabilities":{}}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"plan","arguments":{"channel":"lumen-lab"}}}' \
+            '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"upload","arguments":{"channel":"lumen-lab"}}}' \
+            | $bin --demo mcp > mcp.out
+          cat mcp.out
+          grep -q '"protocolVersion":"2025-06-18"' mcp.out
+          grep '"id":2' mcp.out | grep -q '"isError":false'
+          grep '"id":3' mcp.out | grep -q 'may not upload'
+      - name: the website is up to date with its sources
+        if: runner.os == 'Linux'
+        run: |
+          cargo run -q -p autoupload-site
+          git diff --exit-code -- docs

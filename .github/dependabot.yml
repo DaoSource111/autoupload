@@ -7,10 +7,6 @@ updates:
     groups:
       rust-minor:
         update-types: [minor, patch]
-  - package-ecosystem: pip
-    directory: "/"
-    schedule:
-      interval: monthly
   - package-ecosystem: github-actions
     directory: "/"
     schedule:

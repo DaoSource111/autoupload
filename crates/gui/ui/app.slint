@@ -27,6 +27,16 @@ export struct CalendarRow {
     title: string,
 }
 
+// One line of the shared activity log (app, command line, daily task, AI agents).
+export struct ActivityRow {
+    time: string,
+    who: string,
+    channel: string,
+    summary: string,
+    ok: bool,
+    agent: bool,
+}
+
 // level: 0 ok, 1 warning, 2 error
 export struct CheckRow {
     level: int,
@@ -212,6 +222,62 @@ component Pill inherits Rectangle {
         font-weight: 600;
         horizontal-alignment: center;
         vertical-alignment: center;
+    }
+}
+
+// An on/off switch in the site's colours.
+component Switch inherits Rectangle {
+    in-out property <bool> on;
+    in property <bool> enabled: true;
+    callback toggled(bool);
+    width: 40px;
+    height: 22px;
+    border-radius: 11px;
+    background: root.on ? Theme.mint : Theme.sheet-line;
+    border-width: 1px;
+    border-color: root.on ? Theme.mint : Theme.ink-soft.transparentize(0.5);
+    opacity: root.enabled ? 1 : 0.5;
+    animate background { duration: 180ms; }
+    Rectangle {
+        width: 16px;
+        height: 16px;
+        y: 3px;
+        x: root.on ? parent.width - self.width - 3px : 3px;
+        border-radius: 8px;
+        background: root.on ? Theme.frame : Theme.ink;
+        animate x { duration: 220ms; easing: cubic-bezier(0.16, 1, 0.3, 1); }
+    }
+    TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => {
+            root.on = !root.on;
+            root.toggled(root.on);
+        }
+    }
+}
+
+// Read-only, selectable text in the site's code style, for commands to copy.
+component CodeLine inherits Rectangle {
+    in property <string> text;
+    height: input.preferred-height + 16px;
+    border-radius: 6px;
+    background: Theme.frame;
+    border-width: 1px;
+    border-color: Theme.frame-line;
+    input := TextInput {
+        x: 12px;
+        width: parent.width - 24px;
+        y: 8px;
+        text: root.text;
+        read-only: true;
+        single-line: false;
+        wrap: word-wrap;
+        font-family: Theme.mono;
+        font-size: 13px;
+        color: Theme.on-frame;
+        selection-background-color: Theme.hl;
+        selection-foreground-color: Theme.frame;
     }
 }
 
@@ -421,7 +487,12 @@ export component AppWindow inherits Window {
     in property <int> ready-count;
     in property <[CalendarRow]> calendar;
     in property <string> calendar-note;
-    in property <[string]> log;
+    in property <[ActivityRow]> activity;
+    in property <bool> demo;
+    in-out property <bool> agents-may-upload;
+    in property <string> agent-claude;
+    in property <string> agent-codex;
+    in property <string> agent-other;
     in property <[CheckRow]> checks;
     in property <string> data-folder;
     in property <string> data-source;
@@ -440,6 +511,7 @@ export component AppWindow inherits Window {
     in-out property <bool> show-folder: false;
     in-out property <bool> show-doctor: false;
     in-out property <bool> show-about: false;
+    in-out property <bool> show-agents: false;
     in-out property <bool> allow-public: false;
     in-out property <string> new-name;
     in-out property <string> folder-input;
@@ -460,6 +532,7 @@ export component AppWindow inherits Window {
     callback open-url(string);
     callback dismiss-banner();
     callback theme-changed(bool);
+    callback set-agents-may-upload(bool);
 
     changed saved-theme => {
         if root.saved-theme == "dark" {
@@ -518,6 +591,23 @@ export component AppWindow inherits Window {
                                 font-size: 13px;
                                 font-weight: 600;
                                 color: Theme.mint;
+                            }
+                        }
+                    }
+                    if root.demo: VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            height: 24px;
+                            width: demo-label.preferred-width + 20px;
+                            border-radius: 12px;
+                            background: Theme.hl;
+                            demo-label := Text {
+                                text: "DEMO · sample data, offline";
+                                font-size: 12.5px;
+                                font-weight: 700;
+                                color: Theme.frame;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
                             }
                         }
                     }
@@ -643,6 +733,41 @@ export component AppWindow inherits Window {
                             root.new-name = "";
                             root.show-new = true;
                         }
+                    }
+                    Rule { }
+                    Label {
+                        text: "AI agents";
+                    }
+                    HorizontalLayout {
+                        spacing: 10px;
+                        VerticalLayout {
+                            alignment: center;
+                            Switch {
+                                on: root.agents-may-upload;
+                                enabled: !root.busy;
+                                toggled(v) => { root.set-agents-may-upload(v); }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 1;
+                            Text {
+                                text: "Agents may upload";
+                                font-size: 14.5px;
+                                font-weight: 600;
+                                color: Theme.ink;
+                            }
+                            Soft {
+                                text: root.agents-may-upload ? "Private, scheduled videos only" : "They prepare; you press Upload";
+                                font-size: 12.5px;
+                            }
+                        }
+                    }
+                    Btn {
+                        text: "Connect an agent…";
+                        kind: 2;
+                        compact: true;
+                        clicked => { root.show-agents = true; }
                     }
                     Rule { }
                     Label {
@@ -1022,29 +1147,96 @@ export component AppWindow inherits Window {
                                     }
                                 }
 
-                                // activity: the site's dark code block
-                                if root.tab == 2 && root.log.length == 0: EmptyState {
+                                // activity: who did what, newest first (you, the command line, the daily task, AI agents)
+                                if root.tab == 2 && root.activity.length == 0: EmptyState {
                                     vertical-stretch: 1;
                                     title: "No activity yet";
-                                    body: "Previews, uploads and sign-ins are logged here.";
-                                }
-                                if root.tab == 2 && root.log.length > 0: Rectangle {
-                                    vertical-stretch: 1;
-                                    border-radius: 6px;
-                                    border-width: 1px;
-                                    border-color: Theme.frame-line;
-                                    background: Theme.frame;
-                                    clip: true;
-                                    ListView {
-                                        for line in root.log: Text {
-                                            text: line;
-                                            x: 16px;
-                                            width: parent.width - 32px;
-                                            font-family: Theme.mono;
-                                            font-size: 13px;
-                                            color: Theme.on-frame;
-                                            wrap: word-wrap;
+                                    body: "Everything you, the daily task and AI agents do is written here: queued videos, previews, uploads, sign-ins.";
+                                    HorizontalLayout {
+                                        alignment: center;
+                                        padding-top: 12px;
+                                        Btn {
+                                            text: "Connect an AI agent";
+                                            clicked => { root.show-agents = true; }
                                         }
+                                    }
+                                }
+                                if root.tab == 2 && root.activity.length > 0: Table {
+                                    vertical-stretch: 1;
+                                    c1: "What happened";
+                                    c2: "Who";
+                                    c3: "When";
+                                    w2: 190px;
+                                    w3: 120px;
+                                    ListView {
+                                        vertical-stretch: 1;
+                                        for row in root.activity: Rectangle {
+                                            height: 58px;
+                                            background: row.channel == root.ch-name ? transparent : Theme.sheet-line.transparentize(0.75);
+                                            HorizontalLayout {
+                                                spacing: 14px;
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    width: 10px;
+                                                    Rectangle {
+                                                        width: 8px;
+                                                        height: 8px;
+                                                        border-radius: 4px;
+                                                        background: row.ok ? Theme.ok : Theme.error;
+                                                    }
+                                                }
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    horizontal-stretch: 1;
+                                                    spacing: 1px;
+                                                    Text {
+                                                        text: row.summary;
+                                                        font-size: 15px;
+                                                        color: Theme.ink;
+                                                        overflow: elide;
+                                                    }
+                                                    Soft {
+                                                        text: row.channel == "" ? "all channels" : row.channel;
+                                                        font-size: 12.5px;
+                                                    }
+                                                }
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    width: 190px;
+                                                    Pill {
+                                                        text: row.who;
+                                                        tone: row.agent ? Theme.busy : Theme.ink-soft;
+                                                    }
+                                                }
+                                                VerticalLayout {
+                                                    alignment: center;
+                                                    width: 120px;
+                                                    Text {
+                                                        text: row.time;
+                                                        font-size: 13.5px;
+                                                        color: Theme.ink-soft;
+                                                    }
+                                                }
+                                            }
+                                            Rectangle {
+                                                y: parent.height - 1px;
+                                                height: 1px;
+                                                background: Theme.sheet-line;
+                                            }
+                                        }
+                                    }
+                                }
+                                if root.tab == 2: HorizontalLayout {
+                                    spacing: 12px;
+                                    Soft {
+                                        text: "Shared by the app, the command line, the daily task and AI agents · activity.jsonl in the data folder";
+                                        horizontal-stretch: 1;
+                                        vertical-alignment: center;
+                                    }
+                                    Btn {
+                                        text: "Connect an agent…";
+                                        kind: 2;
+                                        clicked => { root.show-agents = true; }
                                     }
                                 }
                             }
@@ -1237,6 +1429,59 @@ export component AppWindow inherits Window {
                 text: "Close";
                 kind: 1;
                 clicked => { root.show-doctor = false; }
+            }
+        }
+    }
+
+    if root.show-agents: Modal {
+        width: root.width;
+        height: root.height;
+        card-width: 720px;
+        title: "Connect an AI agent";
+        Text {
+            text: "AutoUpload is an MCP server: an AI agent in your terminal (Claude Code, Codex, Cursor…) can queue videos with their titles, descriptions and tags, preview the dates and, if you allow it, upload. Register it once, then ask the agent in plain words.";
+            font-size: 15px;
+            color: Theme.ink;
+            wrap: word-wrap;
+        }
+        Label {
+            text: "Claude Code";
+        }
+        CodeLine {
+            text: root.agent-claude;
+        }
+        Label {
+            text: "Codex CLI · ~/.codex/config.toml";
+        }
+        CodeLine {
+            text: root.agent-codex;
+        }
+        Label {
+            text: "Other MCP clients (stdio)";
+        }
+        CodeLine {
+            text: root.agent-other;
+        }
+        Soft {
+            text: "Select a line and press Ctrl+C (⌘C) to copy it. Every action an agent takes shows up in the Activity tab. Agents can never publish a video as public at once, and they upload only while \"Agents may upload\" is on.";
+            font-size: 13.5px;
+            wrap: word-wrap;
+            overflow: clip;
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            Btn {
+                text: "Guide for AI agents";
+                kind: 2;
+                clicked => { root.open-url("https://daosource111.github.io/autoupload/agents.html"); }
+            }
+            Rectangle {
+                horizontal-stretch: 1;
+            }
+            Btn {
+                text: "Close";
+                kind: 1;
+                clicked => { root.show-agents = false; }
             }
         }
     }

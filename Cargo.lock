@@ -534,6 +534,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "autoupload-site"
+version = "2.0.0"
+dependencies = [
+ "regex",
+ "sha2",
+]
+
+[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

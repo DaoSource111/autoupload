@@ -4,16 +4,21 @@
 //! channel's next free publishing slot through the YouTube Data API v3, with the user's own OAuth client.
 //! The files on disk (channel.yaml, sheets, state.sqlite, tokens) are compatible with AutoUpload 1.x.
 
+pub mod activity;
 pub mod auth;
 pub mod channel;
+pub mod client;
+pub mod demo;
 pub mod doctor;
 pub mod fsutil;
 pub mod manifest;
+pub mod ops;
 pub mod paths;
 pub mod publisher;
 pub mod queue;
 pub mod runner;
 pub mod state;
+pub mod task;
 pub mod validate;
 pub mod youtube;
 

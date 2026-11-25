@@ -65,7 +65,7 @@ jobs:
           $dir = "AutoUpload-$env:VERSION-${{ matrix.name }}"
           New-Item -ItemType Directory $dir | Out-Null
           Copy-Item "target/${{ matrix.target }}/release/autoupload.exe", "target/${{ matrix.target }}/release/autoupload-gui.exe" $dir
-          Copy-Item README.md, LICENSE, CHANGELOG.md, install-task.ps1, upload-all.ps1 $dir
+          Copy-Item README.md, LICENSE, CHANGELOG.md $dir
           New-Item -ItemType Directory dist | Out-Null
           Compress-Archive -Path $dir -DestinationPath "dist/$dir.zip"
 

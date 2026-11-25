@@ -1,0 +1,15 @@
+[package]
+name = "autoupload-site"
+description = "AutoUpload website generator: builds docs/ (GitHub Pages) from docs/_src/"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "autoupload-site"
+path = "src/main.rs"
+
+[dependencies]
+regex.workspace = true
+sha2.workspace = true

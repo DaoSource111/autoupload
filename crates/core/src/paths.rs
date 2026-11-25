@@ -46,6 +46,9 @@ pub struct Settings {
     /// Desktop app colours: "light" or "dark"; unset follows the system.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub theme: Option<String>,
+    /// Whether AI agents may upload (not only prepare and preview). Off unless a person turns it on.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub agents_may_upload: bool,
 }
 
 impl Settings {
